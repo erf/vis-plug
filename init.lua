@@ -1,4 +1,4 @@
-local module = {}
+local M = {}
 
 -- plugins directory
 local plugins_dir = 'plugins/'
@@ -21,7 +21,7 @@ if plugins then
 	end
 end
 
-return module
+return M
 
 -- TODO 
 -- only use repo name ( when plugins have init.lua file we could use git clone to plugins folder )
