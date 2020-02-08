@@ -6,12 +6,22 @@ local plug_dir = 'plugins/'
 -- plugins path
 local plug_path = os.getenv('HOME') .. '/.config/vis/plugins/'
 
--- clone and require plugins ( set in visrc.lua )
+function file_exists(path)
+	local f = io.open(path)
+	if f == nil then return false
+	else f:close() return true 
+	end
+end	
+
+-- clone + require plugins ( set in visrc.lua )
 if plugins then 
 	for i, url in ipairs(plugins) do
 		local name_ext = url:match('([^/]+)$')
 		local name = name_ext:match('(.+)%..+')
-		os.execute('git -C ' .. plug_path .. ' clone ' .. url .. ' --quiet')
+		if not file_exists(plug_path .. name) then
+			print('\27[H\27[2J'..'cloning ' .. name .. '..')
+			os.execute('git -C ' .. plug_path .. ' clone --depth=1 ' .. url .. ' --quiet 2> /dev/null')
+		end
 		require(plug_dir .. name)
 	end
 end
