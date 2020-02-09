@@ -18,8 +18,12 @@ if plugins then
 	for i, url in ipairs(plugins) do
 		local name_ext = url:match('([^/]+)$')
 		local name = name_ext:match('(.+)%..+')
-		if not file_exists(plug_path .. name) then
-			print('\27[H\27[2J'..'cloning ' .. name .. '..')
+		local path = plug_path .. name
+		if file_exists(path) then
+			print('\27[H\27[2J'..'updating plugin ' .. name .. '..')
+			os.execute('git -C ' .. path .. ' pull --depth=1 --quiet 2> /dev/null')
+		else 
+			print('\27[H\27[2J'..'loading plugin ' .. name .. '..')
 			os.execute('git -C ' .. plug_path .. ' clone --depth=1 ' .. url .. ' --quiet 2> /dev/null')
 		end
 		require(plug_dir .. name)
