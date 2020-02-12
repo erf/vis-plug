@@ -23,14 +23,14 @@ end
 
 function plugins_install(url, name, path, args)
 	if not exists(path) then
-		vis:info('plug -> install ' .. name)
+		vis:message(name)
 		os.execute('git -C ' .. plugins_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 	end
 end
 
 function plugins_update(url, name, path, args)
 	if exists(path) then
-		vis:info('plug -> updating ' .. name)
+		vis:message(name)
 		os.execute('git -C ' .. path .. ' pull --depth=1 --quiet 2> /dev/null')
 	end
 end
@@ -42,18 +42,20 @@ function plugins_require(url, name, path, args)
 end
 
 function plugins_name(url, name, path, args)
-	args[#args+1] = name .. '\t\t-> ' .. url
+	args[#args+1] = name .. ' ( ' .. url .. ' ) '
 end
 
 vis:command_register("plug-install", function(argv, force, win, selection, range)
+	vis:message('installing plugins')
 	iterate(plugins_install)
-	vis:info('plugins installed')
+	vis:message('done')
 	return true
 end)
 
 vis:command_register("plug-update", function(argv, force, win, selection, range)
+	vis:message('updating plugins')
 	iterate(plugins_update)
-	vis:info('plugins updated')
+	vis:message('done')
 	return true
 end)
 
