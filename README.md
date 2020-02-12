@@ -2,7 +2,7 @@
 
 A minimal plugin manager for the [vis](https://github.com/martanne/vis) text editor, which is itself a plugin.
 
-This is an *EXPERIMENTAL PROTOTYPE* built for fun.
+*EXPERIMENTAL PROTOTYPE*
 
 # Install
 
@@ -29,10 +29,10 @@ That is the `[URL]` first, followed by the startup file without the `.lua` ext.
 
 We support the following commands:
 
-`plug-list` - list the names of all plugins
+`plug-list` - **list** all plugins
 
-`plug-install` - does **git clone** on all plugins
+`plug-install` - **git clone** all plugins
 
-`plug-update` - does **git pull** on all plugins
+`plug-update` - **git pull** all plugins
 
 
