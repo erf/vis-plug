@@ -12,18 +12,18 @@ Clone `vis-plug` to your `.config/vis/plugins` folder.
 
 # Configure
 
-Setup your  `visrc.lua` as follows:
+Setup your  `visrc.lua` as follows.
 
 ```
 plugins = {
-	'https://github.com/erf/vis-cursors.git',
-	'https://github.com/erf/vis-title.git',
+	['https://github.com/erf/vis-cursors.git']         = 'init',
+	['https://github.com/lutobler/vis-commentary.git'] = 'vis-commentary',
 }
 
 require('plugins/vis-plug')
 ```
 
-Make sure plugins uses the `my_plugin/init.lua` convention.
+That is the `[URL]` first, followed by the startup file without the `.lua` ext.
 
 # Commands
 
