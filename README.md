@@ -27,7 +27,9 @@ Make sure plugins uses the `my_plugin/init.lua` convention.
 
 # Commands
 
-We support two commands:
+We support the following commands:
+
+`plug-list` - list the names of all plugins
 
 `plug-install` - does **git clone** on all plugins
 
