@@ -1,18 +1,14 @@
 # vis-plug
 
-A minimal plugin manager for the [vis](https://github.com/martanne/vis) text editor, which is itself a plugin.
+A minimal plugin manager for [vis](https://github.com/martanne/vis) text editor.
 
 *EXPERIMENTAL PROTOTYPE*
 
 # Install
+ 
+`mkdir -p $HOME/.config/vis/plugins|git -C $HOME/.config/vis/plugins clone https://github.com/erf/vis-plug.git`
 
-Make sure you have [git](https://git-scm.com/) installed.
-
-Clone `vis-plug` to your `.config/vis/plugins` folder.
-
-# Configure
-
-Setup your  `visrc.lua` as follows.
+Add to your `visrc.lua` as follows:
 
 ```
 plugins = {
@@ -23,7 +19,7 @@ plugins = {
 require('plugins/vis-plug')
 ```
 
-That is the `[URL]` first, followed by the startup file without the `.lua` ext.
+Add the plugin `[URL]` first, followed by the startup file ( without the `.lua` ext ).
 
 # Commands
 
