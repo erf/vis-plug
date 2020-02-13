@@ -6,7 +6,7 @@ A minimal plugin manager for [vis](https://github.com/martanne/vis) text editor.
 
 # Install
  
-`mkdir -p $HOME/.config/vis/plugins|git -C $HOME/.config/vis/plugins clone https://github.com/erf/vis-plug.git`
+`P=$HOME/.config/vis/plugins;mkdir -p $P|git -C $P clone https://github.com/erf/vis-plug.git`
 
 Add to your `visrc.lua` as follows:
 
