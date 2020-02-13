@@ -5,6 +5,8 @@ A minimal plugin manager for [vis](https://github.com/martanne/vis) text editor.
 *EXPERIMENTAL PROTOTYPE*
 
 # Install
+
+Make sure you have [git](https://git-scm.com/) installed.
  
 `P=$HOME/.config/vis/plugins;mkdir -p $P|git -C $P clone https://github.com/erf/vis-plug.git`
 
