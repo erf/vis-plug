@@ -32,7 +32,7 @@ end
 function plugins_update(url, file, name, path, args)
 	if exists(path) then
 		vis:message(name)
-		os.execute('git -C ' .. path .. ' pull --depth=1 --quiet 2> /dev/null')
+		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 	end
 end
 
