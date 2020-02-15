@@ -2,6 +2,8 @@
 
 A minimal plugin manager for [vis](https://github.com/martanne/vis) text editor.
 
+*Experimental Prototype*
+
 # Install
 
 Install [git](https://git-scm.com/)
