@@ -1,6 +1,6 @@
 # vis-plug
 
-a minimal plugin manager for [vis](https://github.com/martanne/vis) text editor.
+A minimal plugin manager for [vis](https://github.com/martanne/vis) text editor.
 
 # Install
 
@@ -21,11 +21,11 @@ plugins = {
 require('plugins/vis-plug')
 ```
 
-Set the git `[URL]`, followed by a lua file ( don't include the `.lua` ext ).
+Set the git `[URL]` followed by startup script ( don't include `.lua` ext ).
 
 # Commands
 
-we support the following commands:
+We support the following commands:
 
 `plug-list` - **list** all plugins
 
