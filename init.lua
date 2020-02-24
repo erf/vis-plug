@@ -9,7 +9,7 @@ function exists(path)
 	end
 end	
 
-function iterate(operation, args)
+function iterate(op, args)
 	if not plugins then return end
 	for k, v in pairs(plugins) do
 		local url      = k
@@ -17,13 +17,13 @@ function iterate(operation, args)
 		local name_ext = url:match('([^/]+)$')
 		local name     = name_ext:match('(.+)%..+')
 		local path     = plugins_path .. name
-		operation(url, file, name, path, args)
+		op(url, file, name, path, args)
 	end
 end
 
-function plugins_install(url, file, name, path, args)
+function plug_install(url, file, name, path, args)
 	if exists(path) then
-		vis:message(name .. " already installed")
+		vis:message(name .. " is already installed")
 		vis:redraw()
 	else 
 		vis:message(name)
@@ -32,7 +32,7 @@ function plugins_install(url, file, name, path, args)
 	end
 end
 
-function plugins_update(url, file, name, path, args)
+function plug_update(url, file, name, path, args)
 	if exists(path) then
 		vis:message(name)
 		vis:redraw()
@@ -43,17 +43,17 @@ function plugins_update(url, file, name, path, args)
 	end 
 end
 
-function plugins_require(url, file, name, path, args)
+function plug_require(url, file, name, path, args)
 	if exists(path) then
 		require('plugins/' .. name .. '/' .. file)
 	end
 end
 
-function plugins_name(url, file, name, path, list)
+function plug_name(url, file, name, path, list)
 	vis:message(name .. ' ( ' .. url .. ' ) ')
 end
 
-function plugins_count()
+function plug_count()
 	if not plugins then return 0 end
 	local count = 0
 	for _ in pairs(plugins) do count = count + 1 end
@@ -61,35 +61,36 @@ function plugins_count()
 end
 
 vis:command_register("plug-install", function(argv, force, win, selection, range)
-	local count = plugins_count()
+	local count = plug_count()
 	vis:message('plug install (' .. count .. ')')
-	iterate(plugins_install, nil)
+	iterate(plug_install, nil)
 	vis:message('done')
 	return true
 end)
 
 vis:command_register("plug-update", function(argv, force, win, selection, range)
-	local count = plugins_count()
+	local count = plug_count()
 	vis:message('plug update (' .. count .. ')')
-	iterate(plugins_update, nil)
+	iterate(plug_update, nil)
 	vis:message('done')
 	return true
 end)
 
 vis:command_register("plug-list", function(argv, force, win, selection, range)
-	local count = plugins_count()
+	local count = plug_count()
 	vis:message('plug list (' .. count .. ')')
-	iterate(plugins_name, list)
+	iterate(plug_name, list)
 	vis:message('done')
 	return true
 end)
 
-iterate(plugins_require)
+iterate(plug_require)
 
 return M
 
--- TODO's
--- configure plugin folder
+-- TODO
+-- configurable plugin folder
 -- improve match statement
 -- show loading bar and plugin info in vis
 -- spesify which plugin to update?
+
