@@ -24,7 +24,6 @@ end
 function plug_install(url, file, name, path, args)
 	if exists(path) then
 		vis:message(name .. " is already installed")
-		vis:redraw()
 	else 
 		vis:message(name)
 		vis:redraw()
@@ -39,7 +38,6 @@ function plug_update(url, file, name, path, args)
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 	else
 		vis:message(name .. " does not exists ( call plug-install )")
-		vis:redraw()
 	end 
 end
 
