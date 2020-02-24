@@ -16,10 +16,11 @@ or copy using curl:
 
 configure your `visrc.lua` as follows:
 ```
-require('plugins/vis-plug').init({
+local plugins = {
 	['https://github.com/erf/vis-cursors.git']         = 'init',
 	['https://github.com/lutobler/vis-commentary.git'] = 'vis-commentary',
-})
+}
+require('plugins/vis-plug').init(plugins)
 ```
 
 set the git URL followed by a startup script ( don't include `.lua` ext ).
