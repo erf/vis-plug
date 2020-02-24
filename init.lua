@@ -50,7 +50,7 @@ function plugins_require(url, file, name, path, args)
 end
 
 function plugins_name(url, file, name, path, list)
-	list[#list+1] = name .. ' ( ' .. url .. ' ) '
+	vis:message(name .. ' ( ' .. url .. ' ) ')
 end
 
 function plugins_count()
@@ -62,7 +62,7 @@ end
 
 vis:command_register("plug-install", function(argv, force, win, selection, range)
 	local count = plugins_count()
-	vis:message('installing (' .. count .. ')')
+	vis:message('plug install (' .. count .. ')')
 	iterate(plugins_install, nil)
 	vis:message('done')
 	return true
@@ -70,20 +70,17 @@ end)
 
 vis:command_register("plug-update", function(argv, force, win, selection, range)
 	local count = plugins_count()
-	vis:message('updating (' .. count .. ')')
+	vis:message('plug update (' .. count .. ')')
 	iterate(plugins_update, nil)
 	vis:message('done')
 	return true
 end)
 
 vis:command_register("plug-list", function(argv, force, win, selection, range)
-	local list = {}
+	local count = plugins_count()
+	vis:message('plug list (' .. count .. ')')
 	iterate(plugins_name, list)
-	local str = ''
-	for i,v in ipairs(list) do
-		str = str .. v .. '\n'
-	end
-	vis:message('plugins (' .. #list .. ')\n' .. str)
+	vis:message('done')
 	return true
 end)
 
@@ -92,7 +89,6 @@ iterate(plugins_require)
 return M
 
 -- TODO's
--- info not showing up before after git command
 -- configure plugin folder
 -- improve match statement
 -- show loading bar and plugin info in vis
