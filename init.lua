@@ -4,6 +4,8 @@ local VIS_PATH = os.getenv('VIS_PATH') or os.getenv('HOME') .. '/.config/vis'
 
 local PLUG_PATH = os.getenv('PLUG_PATH') or VIS_PATH .. '/plugins'
 
+local plugins = {}
+
 function exists(path)
 	local f = io.open(path)
 	if f == nil then return false
@@ -84,7 +86,10 @@ vis:command_register("plug-list", function(argv, force, win, selection, range)
 	return true
 end)
 
-iterate(plug_require)
+M.init = function(plugins_p)
+	plugins = plugins_p or {}
+	iterate(plug_require)
+end
 
 return M
 
