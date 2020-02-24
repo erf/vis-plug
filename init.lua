@@ -42,9 +42,8 @@ function plug_update(url, file, name, path, args)
 end
 
 function plug_require(url, file, name, path, args)
-	if exists(path) then
-		require('plugins/' .. name .. '/' .. file)
-	end
+	if not exists(path) then return end
+	require('plugins/' .. name .. '/' .. file)
 end
 
 function plug_name(url, file, name, path, list)
