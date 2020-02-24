@@ -4,12 +4,6 @@ an minimal plugin manager for the [vis](https://github.com/martanne/vis) text ed
 
 # Install
 
-git clone `vis-plug` to your `plugins` folder:
-
-`P=$HOME/.config/vis/plugins;mkdir -p $P|git -C $P clone https://github.com/erf/vis-plug.git`
-
-or copy using curl:
-
 `curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs`
  
 # Configure
@@ -23,9 +17,9 @@ local plugins = {
 require('plugins/vis-plug').init(plugins)
 ```
 
-set the git URL followed by a startup script ( don't include `.lua` ext ).
+set git URL followed by startup script ( don't include `.lua` ext ).
 
-you can set an optional `PLUG_PATH` environment variable for the plugins folder.
+set an optional `PLUG_PATH` environment variable.
 
 # Commands
 
