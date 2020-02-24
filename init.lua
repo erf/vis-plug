@@ -25,6 +25,7 @@ end
 function plugins_install(url, file, name, path, args)
 	if not exists(path) then
 		vis:message(name)
+		vis:redraw()
 		os.execute('git -C ' .. plugins_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 	end
 end
@@ -32,6 +33,7 @@ end
 function plugins_update(url, file, name, path, args)
 	if exists(path) then
 		vis:message(name)
+		vis:redraw()
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 	end
 end
