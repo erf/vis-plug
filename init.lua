@@ -2,15 +2,14 @@ local M = {}
 
 local VIS_PATH = os.getenv('VIS_PATH') or os.getenv('HOME') .. '/.config/vis'
 
-local PLUG_PATH = os.getenv('PLUG_PATH') or VIS_PATH .. '/plugins'
+M.PLUG_PATH = os.getenv('PLUG_PATH') or VIS_PATH .. '/plugins'
 
 local plugins = {}
 
 function exists(path)
 	local f = io.open(path)
 	if f == nil then return false
-	else f:close() return true 
-	end
+	else f:close() return true end
 end	
 
 function iterate(op, args)
@@ -20,7 +19,7 @@ function iterate(op, args)
 		local file     = v
 		local name_ext = url:match('([^/]+)$')
 		local name     = name_ext:match('(.+)%..+')
-		local path     = PLUG_PATH .. '/' .. name
+		local path     = M.PLUG_PATH .. '/' .. name
 		op(url, file, name, path, args)
 	end
 end
@@ -31,7 +30,7 @@ function plug_install(url, file, name, path, args)
 	else 
 		vis:message(name)
 		vis:redraw()
-		os.execute('git -C ' .. PLUG_PATH .. ' clone ' .. url .. ' --quiet 2> /dev/null')
+		os.execute('git -C ' .. M.PLUG_PATH .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 	end
 end
 
@@ -62,7 +61,7 @@ function plug_count()
 end
 
 vis:command_register("plug-install", function(argv, force, win, selection, range)
-	if not exists(PLUG_PATH) then os.execute('mkdir -p ' .. PLUG_PATH) end
+	if not exists(M.PLUG_PATH) then os.execute('mkdir -p ' .. M.PLUG_PATH) end
 	local count = plug_count()
 	vis:message('plug install (' .. count .. ')')
 	iterate(plug_install, nil)
