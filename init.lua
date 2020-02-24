@@ -62,7 +62,7 @@ end
 
 vis:command_register("plug-install", function(argv, force, win, selection, range)
 	local count = plugins_count()
-	vis:message('installing plugins (' .. count .. ')')
+	vis:message('installing (' .. count .. ')')
 	iterate(plugins_install, nil)
 	vis:message('done')
 	return true
@@ -70,7 +70,7 @@ end)
 
 vis:command_register("plug-update", function(argv, force, win, selection, range)
 	local count = plugins_count()
-	vis:message('updating plugins (' .. count .. ')')
+	vis:message('updating (' .. count .. ')')
 	iterate(plugins_update, nil)
 	vis:message('done')
 	return true
