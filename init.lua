@@ -1,6 +1,8 @@
 local M = {}
 
-local plugins_path = os.getenv('HOME') .. '/.config/vis/plugins/'
+local VIS_PATH = os.getenv('VIS_PATH') or os.getenv('HOME') .. '/.config/vis'
+
+local PLUG_PATH = os.getenv('PLUG_PATH') or VIS_PATH .. '/plugins'
 
 function exists(path)
 	local f = io.open(path)
@@ -16,7 +18,7 @@ function iterate(op, args)
 		local file     = v
 		local name_ext = url:match('([^/]+)$')
 		local name     = name_ext:match('(.+)%..+')
-		local path     = plugins_path .. name
+		local path     = PLUG_PATH .. '/' .. name
 		op(url, file, name, path, args)
 	end
 end
@@ -27,7 +29,7 @@ function plug_install(url, file, name, path, args)
 	else 
 		vis:message(name)
 		vis:redraw()
-		os.execute('git -C ' .. plugins_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
+		os.execute('git -C ' .. PLUG_PATH .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 	end
 end
 
@@ -58,6 +60,7 @@ function plug_count()
 end
 
 vis:command_register("plug-install", function(argv, force, win, selection, range)
+	if not exists(PLUG_PATH) then os.execute('mkdir -p ' .. PLUG_PATH) end
 	local count = plug_count()
 	vis:message('plug install (' .. count .. ')')
 	iterate(plug_install, nil)
@@ -86,8 +89,7 @@ iterate(plug_require)
 return M
 
 -- TODO
--- configurable plugin folder
 -- improve match statement
--- show loading bar and plugin info in vis
+-- progress bar for install / update
 -- spesify which plugin to update?
 
