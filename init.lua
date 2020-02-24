@@ -38,7 +38,7 @@ function plugins_update(url, file, name, path, args)
 		vis:redraw()
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 	else
-		vis:message(name .. " does not exists ( call plug-install first )")
+		vis:message(name .. " does not exists ( call plug-install )")
 		vis:redraw()
 	end 
 end
