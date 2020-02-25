@@ -30,7 +30,8 @@ function plug_install(url, file, name, path, args)
 	else 
 		vis:message(name)
 		vis:redraw()
-		os.execute('git -C ' .. M.PLUG_PATH .. ' clone ' .. url .. ' --quiet 2> /dev/null')
+		-- git submodule add https://github.com/erf/vis-plug.git plugins/vis-plug
+		os.execute('git -C ' .. VIS_PATH .. ' submodule add -f ' .. url .. ' ' .. path .. '  --quiet 2> /dev/null')
 	end
 end
 
