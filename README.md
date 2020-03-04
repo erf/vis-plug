@@ -8,8 +8,8 @@ List plugins in your `visrc.lua` file; then `show`, `install` or `update` them -
 
 Download and require `vis-plug` in your `visrc.lua` file; then add plugin urls and startup scripts. 
 
-#### Example
-```
+#### Example visrc.lua
+```lua
 local plugins = {
 	['https://github.com/erf/vis-cursors.git']         = 'init',
 	['https://github.com/lutobler/vis-commentary.git'] = 'vis-commentary',
@@ -17,8 +17,8 @@ local plugins = {
 require('plugins/vis-plug').init(plugins)
 ```
 
-#### Install script
-```
+#### Download using curl
+```bash
 curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs
 ```
 
