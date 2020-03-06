@@ -17,7 +17,7 @@ local plugins = {
 require('plugins/vis-plug').init(plugins)
 ```
 
-#### Download using curl
+#### Download vis-plug using curl
 ```bash
 curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs
 ```
