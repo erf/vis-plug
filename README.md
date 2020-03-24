@@ -2,11 +2,13 @@
 
 An experimental minimal plugin manager for the [vis](https://github.com/martanne/vis) text editor.
 
-List plugins in your `visrc.lua` file; then `show`, `install` or `update` them - with the help of [git](https://github.com/).
+Configure plugins in your `visrc.lua` file; then `show`, `install` or `update` them - with the help of [git](https://github.com/).
+
+Plugins are required on start once you have installed them using the `install` command.
 
 # Install
 
-Download and require `vis-plug` in your `visrc.lua` file; then add plugin urls and startup scripts. 
+Download `vis-plug` and require it in your `visrc.lua` file, then configure plugins ( git url and init file ). 
 
 #### Example visrc.lua
 ```lua
@@ -17,7 +19,7 @@ local plugins = {
 require('plugins/vis-plug').init(plugins)
 ```
 
-#### Download vis-plug using curl
+#### curl install script
 ```bash
 curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs
 ```
