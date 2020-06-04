@@ -26,7 +26,7 @@ end
 
 function plug_install(url, file, name, path, args)
 	if exists(path) then
-		vis:message(name .. ' is already installed')
+		vis:message(name .. ' already installed')
 	else 
 		os.execute('git -C ' .. plug_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		vis:message(name .. ' installed')
@@ -50,7 +50,11 @@ function plug_require(url, file, name, path, args)
 end
 
 function plug_name(url, file, name, path, list)
-	vis:message(name .. ' (' .. url .. ')')
+	if exists(path) then 
+		vis:message(name .. ' - ' .. url)
+	else 
+		vis:message(name .. ' (not installed) - ' .. url)
+	end
 end
 
 function plug_count()
