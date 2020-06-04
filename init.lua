@@ -27,7 +27,7 @@ end
 function plug_install(url, file, name, path, args)
 	if exists(path) then
 		vis:message(name .. ' already installed')
-	else 
+	else
 		os.execute('git -C ' .. plug_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		vis:message(name .. ' installed')
 		vis:redraw()
@@ -40,21 +40,13 @@ function plug_update(url, file, name, path, args)
 		vis:message(name .. ' updated')
 		vis:redraw()
 	else
-		vis:message(name .. ' is not installed (call plug-install)')
+		vis:message(name .. ' is not installed (do :plug-install)')
 	end 
 end
 
 function plug_require(url, file, name, path, args)
 	if not exists(path) then return end
 	require('plugins/' .. name .. '/' .. file)
-end
-
-function plug_name(url, file, name, path, list)
-	if exists(path) then 
-		vis:message(name .. ' - ' .. url)
-	else 
-		vis:message(name .. ' (not installed) - ' .. url)
-	end
 end
 
 function plug_count()
@@ -64,25 +56,33 @@ function plug_count()
 	return count
 end
 
+function plug_name(url, file, name, path, list)
+	if exists(path) then 
+		vis:message(name .. ' ' .. url)
+	else 
+		vis:message(name .. ' ' .. url .. ' (not installed)')
+	end
+end
+
 vis:command_register('plug-install', function(argv, force, win, selection, range)
+	vis:message('plug-install')
+	vis:redraw()
 	if not exists(plug_path) then os.execute('mkdir -p ' .. plug_path) end
-	vis:message('plug install (' .. plug_count() .. ')')
 	iterate(plug_install, nil)
-	vis:message('done')
 	return true
 end)
 
 vis:command_register('plug-update', function(argv, force, win, selection, range)
-	vis:message('plug update (' .. plug_count() .. ')')
+	vis:message('plug-update')
+	vis:redraw()
 	iterate(plug_update, nil)
-	vis:message('done')
 	return true
 end)
 
 vis:command_register('plug-list', function(argv, force, win, selection, range)
-	vis:message('plug list (' .. plug_count() .. ')')
+	vis:message('plug-list')
+	vis:redraw()
 	iterate(plug_name, list)
-	vis:message('done')
 	return true
 end)
 
