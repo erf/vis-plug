@@ -89,8 +89,3 @@ end
 
 return M
 
--- TODO
--- improve progress indicator for install / update ?
--- spesify which plugin to install / update ( e.g. :plug-install vis-cursors )
--- create install script which copies vis-plug to the default plugin folder 
-
