@@ -30,18 +30,18 @@ function plug_install(url, file, name, path, args)
 	else
 		os.execute('git -C ' .. plug_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		vis:message(name .. ' installed')
-		vis:redraw()
 	end
+	vis:redraw()
 end
 
 function plug_update(url, file, name, path, args)
 	if exists(path) then
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 		vis:message(name .. ' updated')
-		vis:redraw()
 	else
 		vis:message(name .. ' is not installed (do :plug-install)')
 	end 
+	vis:redraw()
 end
 
 function plug_require(url, file, name, path, args)
@@ -62,6 +62,7 @@ function plug_name(url, file, name, path, list)
 	else 
 		vis:message(name .. ' ' .. url .. ' (not installed)')
 	end
+	vis:redraw()
 end
 
 vis:command_register('plug-install', function(argv, force, win, selection, range)
