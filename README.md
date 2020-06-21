@@ -3,10 +3,8 @@
 A minimal plugin manager for the [vis](https://github.com/martanne/vis) text editor.
 
 Configure plugins as **git** urls to your `visrc.lua`. See [Config](#config). 
-
-List, install and update plugins using the [Commands](#commands). 
-
-Plugins are required at startup after calling `plug-install`.
+List, install and update plugins using the [Commands](#commands). Plugins are 
+required at startup after calling `plug-install`.
 
 # Install
 
