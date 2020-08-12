@@ -1,4 +1,5 @@
 local M = {}
+M.plugins = {}
 
 local visrc, err = package.searchpath('visrc', package.path)
 assert(not err)
@@ -9,6 +10,7 @@ local plugins_path = visrc_path ..'plugins'
 local themes_path = visrc_path ..'themes'
 
 local plugins = {}
+local themes = {}
 
 function exists(path)
 	local f = io.open(path)
@@ -16,16 +18,18 @@ function exists(path)
 	else f:close() return true end
 end	
 
-function iterate_plugins(op, args)
+function iterate_plugins(op)
 	if not plugins then return end
-	for url, file in pairs(plugins) do
+	for url, v in pairs(plugins) do
+		local file = v[1]
+		local custom_name = v[2]
 		local name = url:match('.*%/(.*)%..*')
 		local path = plugins_path .. '/' .. name
-		op(url, file, name, path, args)
+		op(url, file, name, path, custom_name)
 	end
 end
 
-function plug_install(url, file, name, path, args)
+function plug_install(url, file, name, path)
 	if exists(path) then
 		vis:message(name .. ' already installed')
 	else
@@ -35,17 +39,17 @@ function plug_install(url, file, name, path, args)
 	vis:redraw()
 end
 
-function iterate_themes(op, args)
+function iterate_themes(op)
 	if not themes then return end
 	for i, url in ipairs(themes) do
 		local name = url:match('.*%/(.*)%..*')
 		local file = name .. '.lua'
 		local path = themes_path .. '/' .. file
-		op(url, file, name, path, args)
+		op(url, file, name, path)
 	end
 end
 
-function theme_install(url, file, name, path, args)
+function theme_install(url, file, name, path)
 	if exists(path) then
 		vis:message(name .. ' already installed')
 	else
@@ -55,7 +59,7 @@ function theme_install(url, file, name, path, args)
 	vis:redraw()
 end
 
-function plug_update(url, file, name, path, args)
+function plug_update(url, file, name, path)
 	if exists(path) then
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 		vis:message(name .. ' updated')
@@ -65,9 +69,13 @@ function plug_update(url, file, name, path, args)
 	vis:redraw()
 end
 
-function plug_require(url, file, name, path, args)
+function plug_require(url, file, name, path, custom_name)
 	if not exists(path) then return end
-	require('plugins/' .. name .. '/' .. file)
+	local plugin = require('plugins/' .. name .. '/' .. file)
+	if custom_name then
+		M.plugins[custom_name] = plugin
+	end
+
 end
 
 function plug_count()
@@ -77,7 +85,7 @@ function plug_count()
 	return count
 end
 
-function plugin_name(url, file, name, path, list)
+function plugin_name(url, file, name, path)
 	if exists(path) then 
 		vis:message(name .. ' ' .. url)
 	else 
@@ -86,7 +94,7 @@ function plugin_name(url, file, name, path, list)
 	vis:redraw()
 end
 
-function theme_name(url, file, name, path, list)
+function theme_name(url, file, name, path)
 	if exists(path) then 
 		vis:message(name)
 	else 
@@ -118,12 +126,11 @@ end)
 vis:command_register('plug-list', function(argv, force, win, selection, range)
 	vis:message('plugins')
 	vis:redraw()
-	iterate_plugins(plugin_name, list)
+	iterate_plugins(plugin_name)
 
 	vis:message('themes')
 	vis:redraw()
-	iterate_themes(theme_name, list)
-
+	iterate_themes(theme_name)
 	return true
 end)
 

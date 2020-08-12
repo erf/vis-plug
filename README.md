@@ -20,19 +20,23 @@ Require `vis-plug` in your `visrc.lua` file. See [Plugins](https://github.com/ma
 
 # Config
 
-Configure plugins in your `visrc.lua`, using a Lua table with git url, file pairs, and pass it to `vis-plug`. 
+Configure plugins in your `visrc.lua`, using a Lua table with git url, initial 
+file name and an optional plugin name for accessing it's variables. Then pass it 
+to the `init` method of `vis-plug`. 
 
 Example `visrc.lua`.
 
 ```lua
 local plugins = {
-	['https://github.com/erf/vis-cursors.git']         = 'init',
-	['https://github.com/lutobler/vis-commentary.git'] = 'vis-commentary',
+	['https://github.com/erf/vis-cursors.git']         = { 'init', 'cursors' },
+	['https://github.com/lutobler/vis-commentary.git'] = { 'vis-commentary' },
 }
-require('plugins/vis-plug').init(plugins)
+local plug = require('plugins/vis-plug')
+plug.init(plugins)
+plug.plugins.cursors.path = '/Users/name/.test'
 ```
 
-Optionally add themes as a second parameter to `init`.
+Optionally add a list of themes as a second parameter to `init`.
 
 ```lua
 local themes = {
