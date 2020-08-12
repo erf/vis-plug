@@ -2,7 +2,7 @@
 
 A minimal plugin and themes manager for the [vis](https://github.com/martanne/vis) text editor.
 
-Configure plugin and theme urls in your `visrc.lua`. See [Config](#config). 
+[Configure](#config) plugins and themes in your `visrc.lua`.
 
 List, install and update plugins and themes using the [Commands](#commands). 
 
@@ -45,6 +45,8 @@ local themes = {
 }
 require('plugins/vis-plug').init(plugins, themes)
 ```
+
+Themes are installed using `curl`.
 
 # Commands
 
