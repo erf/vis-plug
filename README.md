@@ -1,10 +1,12 @@
 # vis-plug
 
-A minimal plugin manager for the [vis](https://github.com/martanne/vis) text editor.
+A minimal plugin and themes manager for the [vis](https://github.com/martanne/vis) text editor.
 
-Configure plugins as **git** urls to your `visrc.lua`. See [Config](#config). 
-List, install and update plugins using the [Commands](#commands). Plugins are 
-required at startup after calling `plug-install`.
+Configure plugin and theme urls in your `visrc.lua`. See [Config](#config). 
+
+List, install and update plugins and themes using the [Commands](#commands). 
+
+Plugins are required at startup after calling `plug-install`.
 
 # Install
 
@@ -30,14 +32,23 @@ local plugins = {
 require('plugins/vis-plug').init(plugins)
 ```
 
+Optionally add themes as a second parameter to `init`.
+
+```lua
+local themes = {
+	'https://raw.githubusercontent.com/pshevtsov/base16-vis/master/themes/base16-summerfruit-light.lua',
+	'https://raw.githubusercontent.com/pshevtsov/base16-vis/master/themes/base16-unikitty-light.lua',
+}
+require('plugins/vis-plug').init(plugins, themes)
+```
 
 # Commands
 
 We support the following `vis` commands:
 
-`:plug-list` - list plugins
+`:plug-list` - list plugins and themes
 
-`:plug-install` - git clone plugins
+`:plug-install` - git clone plugins and curl install themes
 
 `:plug-update` - git pull plugins
 
