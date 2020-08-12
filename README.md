@@ -20,6 +20,8 @@ Require `vis-plug` in your `visrc.lua` file. See [Plugins](https://github.com/ma
 
 # Config
 
+### Plugins
+
 Configure plugins in your `visrc.lua`, using a Lua table with git url, initial 
 file name and an optional plugin name for accessing it's variables. Then pass it 
 to the `init` method of `vis-plug`. 
@@ -35,6 +37,8 @@ local plug = require('plugins/vis-plug')
 plug.init(plugins)
 plug.plugins.cursors.path = '/Users/name/.test'
 ```
+
+### Themes
 
 Optionally add a list of themes as a second parameter to `init`.
 
