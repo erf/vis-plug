@@ -162,11 +162,13 @@ vis:command_register('plug-list', function(argv, force, win, selection, range)
 	return true
 end)
 
-M.init = function(plugins_p, themes_p)
+M.init = function(plugins_p, themes_p, install_on_startup)
 	plugins = plugins_p or {}
 	themes = themes_p or {}
-	init_plugins()
-	init_themes()
+	if install_on_startup then
+		init_plugins()
+		init_themes()
+	end
 	iterate_plugins(plug_require)
 end
 
