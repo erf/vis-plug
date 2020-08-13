@@ -13,48 +13,60 @@ local plugins = {}
 local themes = {}
 
 function exists(path)
-	local f = io.open(path)
-	if f == nil then return false
-	else f:close() return true end
+	local file = io.open(path)
+	if not file then 
+		return false
+	else 
+		file:close() 
+		return true 
+	end
 end	
 
-function iterate_plugins(op)
+function iterate_plugins(op, args)
 	if not plugins then return end
 	for url, v in pairs(plugins) do
 		local file = v[1]
 		local custom_name = v[2]
 		local name = url:match('.*%/(.*)%..*')
 		local path = plugins_path .. '/' .. name
-		op(url, file, name, path, custom_name)
+		op(url, file, name, path, custom_name, args)
 	end
 end
 
-function iterate_themes(op)
+function iterate_themes(op, args)
 	if not themes then return end
 	for i, url in ipairs(themes) do
 		local name = url:match('.*%/(.*)%..*')
 		local file = name .. '.lua'
 		local path = themes_path .. '/' .. file
-		op(url, file, name, path)
+		op(url, file, name, path, args)
 	end
 end
 
-function plug_install(url, file, name, path)
+function plug_install(url, file, name, path, custom_name, silent)
 	if exists(path) then
-		vis:message(name .. ' (already installed)')
+		if not silent then
+			vis:message(name .. ' (already installed)')
+		end
 	else
 		os.execute('git -C ' .. plugins_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
-		vis:message(name)
+		if not silent then
+			vis:message(name)
+		end 
 	end
 	vis:redraw()
 end
 
-function theme_install(url, file, name, path)
+function theme_install(url, file, name, path, silent)
 	if exists(path) then
-		vis:message(name .. ' (already installed)')
+		if not silent then 
+			vis:message(name .. ' (already installed)')
+		end
 	else
-		os.execute('curl ' .. url .. ' -o ' .. path)
-		vis:message(name)
+		os.execute('curl -s ' .. url .. ' -o ' .. path)
+		if not silent then 
+			vis:message(name)
+		end
 	end
 	vis:redraw()
 end
@@ -103,16 +115,26 @@ function theme_name(url, file, name, path)
 	vis:redraw()
 end
 
+function init_plugins()
+	if not exists(plugins_path) then os.execute('mkdir -p ' .. plugins_path) end
+	iterate_plugins(plug_install, true)
+end
+
+function init_themes()
+	if not exists(themes_path) then os.execute('mkdir -p ' .. themes_path) end
+	iterate_themes(theme_install, true)
+end
+
 vis:command_register('plug-install', function(argv, force, win, selection, range)
 	vis:message('installing plugins')
 	vis:redraw()
 	if not exists(plugins_path) then os.execute('mkdir -p ' .. plugins_path) end
-	iterate_plugins(plug_install)
+	iterate_plugins(plug_install, false)
 	vis:message('')
 	vis:message('installing themes')
 	vis:redraw()
 	if not exists(themes_path) then os.execute('mkdir -p ' .. themes_path) end
-	iterate_themes(theme_install)
+	iterate_themes(theme_install, false)
 	vis:message('')
 	vis:redraw()
 	return true
@@ -143,6 +165,8 @@ end)
 M.init = function(plugins_p, themes_p)
 	plugins = plugins_p or {}
 	themes = themes_p or {}
+	init_plugins()
+	init_themes()
 	iterate_plugins(plug_require)
 end
 

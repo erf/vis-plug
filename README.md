@@ -6,7 +6,7 @@ An experimental plugin and theme manager for the [vis](https://github.com/martan
 
 List, install and update plugins and themes using the [Commands](#commands). 
 
-Plugins are required at startup after calling `plug-install`.
+Plugins and themes are installed / required at startup.
 
 # Install
 
