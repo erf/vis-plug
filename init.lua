@@ -25,8 +25,15 @@ end
 function iterate_plugins(op, args)
 	if not plugins then return end
 	for url, v in pairs(plugins) do
-		local file = v[1]
-		local custom_name = v[2]
+		local file = nil
+		local custom_nam = nil
+		if type(v) == "table" then
+			file = v[1]
+			custom_name = v[2]
+		else 
+			file = v
+			custom_name = nil
+		end
 		local name = url:match('.*%/(.*)%..*')
 		local path = plugins_path .. '/' .. name
 		op(url, file, name, path, custom_name, args)

@@ -23,7 +23,7 @@ Require `vis-plug` in your `visrc.lua` file. See [Plugins](https://github.com/ma
 
 ### Plugins
 
-Describe plugins in your `visrc.lua` using a Lua table. Key is the URL for the plugin git repo and the value a table with the lua file name and an optional name for accessing the plugin after initialization (and setting variables).
+Describe plugins in your `visrc.lua` using a Lua table. Key is the URL for the plugin git repo and the value is either a string with the lua file name or a table with the file name and an optional name for accessing the plugin after initialization (and setting variables).
 
 Pass the plugins table to the `init` method and access the plugins via `plug.plugins`.
 
@@ -31,8 +31,8 @@ Example:
 
 ```lua
 local plugins = {
-	['https://github.com/erf/vis-cursors.git']         = { 'init', 'cursors' },
-	['https://github.com/lutobler/vis-commentary.git'] = { 'vis-commentary' },
+	['https://github.com/erf/vis-cursors.git'] = { 'init', 'cursors' },
+	['https://github.com/lutobler/vis-commentary.git'] = 'vis-commentary',
 }
 local plug = require('plugins/vis-plug')
 plug.init(plugins)
