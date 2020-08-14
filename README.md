@@ -41,7 +41,7 @@ plug.plugins.cursors.path = '/Users/name/.test'
 
 ### Themes
 
-Optionally add a list of theme urls as a second parameter to `init`. Themes are
+Optionally add a list of themes as a second parameter to `init`. Themes are
 fetched using `curl` on `plug-install` and listed using `plug-list`.
 
 Example:
@@ -51,16 +51,15 @@ local themes = {
 	'https://raw.githubusercontent.com/pshevtsov/base16-vis/master/themes/base16-summerfruit-light.lua',
 	'https://raw.githubusercontent.com/pshevtsov/base16-vis/master/themes/base16-unikitty-light.lua',
 }
-local plug = require('plugins/vis-plug')
-plug.init(plugins, themes)
+local plug = require('plugins/vis-plug').init(plugins, themes)
 ```
 
 
 ### Install on init
 
 Pass a bool `install_on_init` as the third parameter to `plug.init` to indicate 
-that you'd like to install the plugins and themes at startup if they don't 
-already exists.
+you'd like to install the plugins and themes at startup if they don't already 
+exists.
 
 Example:
 
