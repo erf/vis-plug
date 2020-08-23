@@ -9,6 +9,8 @@ List, install and update plugins and themes using the [Commands](#commands).
 Plugins are required at startup. Plugins and themes are optionally 
 installed on startup.
 
+Plugins and themes are installed to the default `visrc` folder.
+
 # Install
 
 Download `vis-plug` manually or using this install script:
