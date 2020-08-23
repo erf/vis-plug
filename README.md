@@ -1,13 +1,13 @@
 # vis-plug
 
-An experimental plugin and theme manager for the [vis](https://github.com/martanne/vis) editor.
+Experimental plugin and theme manager for the [vis](https://github.com/martanne/vis) editor.
 
 [Configure](#configure) plugins and themes in `visrc.lua`.
 
 List, install and update plugins and themes using the [Commands](#commands). 
 
-Plugins are required at init. Plugins and themes are optionally installed on
-init.
+Plugins are required at startup. Plugins and themes are optionally 
+installed on startup.
 
 # Install
 
@@ -23,11 +23,7 @@ Require `vis-plug` in your `visrc.lua` file. See [Plugins](https://github.com/ma
 
 ### Plugins
 
-Describe plugins in your `visrc.lua` using a Lua table. Key is the URL for the plugin git repo and the value is either a string with the lua file name or a table with the file name and an optional name for accessing the plugin after initialization (and setting variables).
-
-Pass the plugins table to the `init` method and access the plugins via `plug.plugins`.
-
-Example:
+Describe plugins in your `visrc.lua` using a Lua table as below:
 
 ```lua
 local plugins = {
@@ -39,10 +35,15 @@ plug.init(plugins)
 plug.plugins.cursors.path = '/Users/name/.test'
 ```
 
+The key is the URL of the plugin git repo. 
+
+The value is either a string with the lua start file or a table with an initial file name and an optional name for accessing the plugin after initialization (and setting variables).
+
+Pass the config table to the `init` method and access plugins via `plug.plugins`
+
 ### Themes
 
-Optionally add a list of themes as a second parameter to `init`. Themes are
-fetched using `curl` on `plug-install` and listed using `plug-list`.
+We also support adding a list of themes as a second parameter to `init`. Themes are fetched using `curl` on `plug-install` and listed using `plug-list`.
 
 Example:
 
@@ -55,7 +56,7 @@ local plug = require('plugins/vis-plug').init(plugins, themes)
 ```
 
 
-### Install on init
+### Install on initialization
 
 Pass a bool `install_on_init` as the third parameter to `plug.init` to indicate 
 you'd like to install the plugins and themes at startup if they don't already 
