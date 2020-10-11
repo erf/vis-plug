@@ -177,6 +177,7 @@ M.init = function(plugins_p, themes_p, install_on_startup)
 		init_themes()
 	end
 	iterate_plugins(plug_require)
+	return M
 end
 
 return M
