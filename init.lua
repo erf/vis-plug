@@ -3,7 +3,7 @@ M.plugins = {}
 
 local visrc, err = package.searchpath('visrc', package.path)
 assert(not err)
-local visrc_path = visrc:match('(.*/)') 
+local visrc_path = visrc:match('(.*/)')
 assert(visrc_path)
 
 local plugins_path = visrc_path ..'plugins'
@@ -14,11 +14,11 @@ local themes = {}
 
 function exists(path)
 	local file = io.open(path)
-	if not file then 
+	if not file then
 		return false
-	else 
-		file:close() 
-		return true 
+	else
+		file:close()
+		return true
 	end
 end	
 
@@ -30,7 +30,7 @@ function iterate_plugins(op, args)
 		if type(v) == "table" then
 			file = v[1]
 			custom_name = v[2]
-		else 
+		else
 			file = v
 			custom_name = nil
 		end
@@ -59,19 +59,19 @@ function plug_install(url, file, name, path, custom_name, silent)
 		os.execute('git -C ' .. plugins_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		if not silent then
 			vis:message(name)
-		end 
+		end
 	end
 	vis:redraw()
 end
 
 function theme_install(url, file, name, path, silent)
 	if exists(path) then
-		if not silent then 
+		if not silent then
 			vis:message(name .. ' (already installed)')
 		end
 	else
 		os.execute('curl -s ' .. url .. ' -o ' .. path)
-		if not silent then 
+		if not silent then
 			vis:message(name)
 		end
 	end
@@ -84,7 +84,7 @@ function plug_update(url, file, name, path)
 		vis:message(name .. ' updated')
 	else
 		vis:message(name .. ' (not installed, do :plug-install)')
-	end 
+	end
 	vis:redraw()
 end
 
@@ -105,18 +105,18 @@ function plug_count()
 end
 
 function plug_name(url, file, name, path)
-	if exists(path) then 
+	if exists(path) then
 		vis:message(name .. ' (' .. url .. ')')
-	else 
+	else
 		vis:message(name .. ' (' .. url .. ') (not installed)')
 	end
 	vis:redraw()
 end
 
 function theme_name(url, file, name, path)
-	if exists(path) then 
+	if exists(path) then
 		vis:message(name)
-	else 
+	else
 		vis:message(name .. ' (not installed)')
 	end
 	vis:redraw()
