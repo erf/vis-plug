@@ -2,6 +2,8 @@
 
 Experimental plugin manager for [vis](https://github.com/martanne/vis).
 
+> If you want something simpler consider [vis-outdated](https://github.com/erf/vis-outdated)
+
 [Configure](#configure) plugins and themes in `visrc.lua`.
 
 List, install and update using [Commands](#commands).
@@ -9,8 +11,6 @@ List, install and update using [Commands](#commands).
 Plugins are required and optionally installed on startup.
 
 Plugins are installed to the default `visrc` folder.
-
-> If you want something simpler consider [vis-outdated](https://github.com/erf/vis-outdated)
 
 # Install
 
