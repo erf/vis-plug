@@ -1,15 +1,16 @@
 # vis-plug
 
-Experimental plugin and theme manager for the [vis](https://github.com/martanne/vis) editor.
+Experimental plugin manager for [vis](https://github.com/martanne/vis).
 
 [Configure](#configure) plugins and themes in `visrc.lua`.
 
-List, install and update plugins and themes using the [Commands](#commands). 
+List, install and update using [Commands](#commands).
 
-Plugins are required at startup. Plugins and themes are optionally 
-installed on startup.
+Plugins are required and optionally installed on startup.
 
-Plugins and themes are installed to the default `visrc` folder.
+Plugins are installed to the default `visrc` folder.
+
+> If you want something simpler consider [vis-outdated](https://github.com/erf/vis-outdated)
 
 # Install
 
