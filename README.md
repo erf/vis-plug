@@ -39,18 +39,15 @@ Optionally set a table as the **value** where the second item is the name of the
 ```lua
 local plugins = {
 	['https://github.com/erf/vis-cursors.git'] = { 'init', 'cursors' },
-	['https://github.com/erf/vis-highlight.git'] = 'init',
 }
 local plug = require('plugins/vis-plug').init(plugins)
-
 plug.plugins.cursors.path = '/Users/erlend/.cursors'
 ```
 
 ### Install on init
 
 Pass a an optional second boolean argument to `init` to indicate if
-you'd like to install the plugins at startup (if they don't already 
-exists).
+you'd like to install the plugins at startup (if not already existing).
 
 Example:
 
