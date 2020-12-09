@@ -45,8 +45,8 @@ require('plugins/vis-plug').init(plugins).plugins.C.path = '/Users/erlend/.curso
 
 ### Install on init
 
-Pass a an optional second boolean argument to `init` to indicate if
-you'd like to install the plugins at startup (if not already existing).
+Pass a second argument to `init` to indicate if you'd like to install the 
+plugins at startup (if not already there).
 
 Example:
 
