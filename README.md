@@ -34,14 +34,13 @@ The **value** is the init lua file.
 
 ### Access plugin variables
 
-Optionally set a table as the **value** where the second item is the name of the plugin you want to access.
+Optionally set a table as the **value** where the second item is an alias of the plugin you want to access.
 
 ```lua
 local plugins = {
-	['https://github.com/erf/vis-cursors.git'] = { 'init', 'cursors' },
+	['https://github.com/erf/vis-cursors.git'] = { 'init', 'C' },
 }
-local plug = require('plugins/vis-plug').init(plugins)
-plug.plugins.cursors.path = '/Users/erlend/.cursors'
+require('plugins/vis-plug').init(plugins).plugins.C.path = '/Users/erlend/.cursors'
 ```
 
 ### Install on init
