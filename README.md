@@ -1,16 +1,8 @@
 # vis-plug
 
-Experimental plugin manager for [vis](https://github.com/martanne/vis).
+Experimental plugin manager for the [vis](https://github.com/martanne/vis) editor.
 
-> If you want something simpler consider [vis-outdated](https://github.com/erf/vis-outdated)
-
-[Configure](#configure) plugins and themes in `visrc.lua`.
-
-List, install and update using [Commands](#commands).
-
-Plugins are required and optionally installed on startup.
-
-Plugins are installed to the default `visrc` folder.
+> Also consider [vis-outdated](https://github.com/erf/vis-outdated) 
 
 # Install
 
@@ -24,61 +16,57 @@ Require `vis-plug` in your `visrc.lua` file. See [Plugins](https://github.com/ma
 
 # Configure
 
-### Plugins
+### Configure plugins in visrc.lua
 
-Describe plugins in your `visrc.lua` using a Lua table as below:
+Describe plugins in your `visrc.lua` as below
+
+```lua
+local plugins = {
+	['https://github.com/erf/vis-cursors.git'] = 'init',
+	['https://github.com/erf/vis-highlight.git'] = 'init',
+}
+require('plugins/vis-plug').init(plugins)
+```
+
+The **key** is the URL of the git repo with the plugin.
+
+The **value** is the init lua file.
+
+### Access plugin variables
+
+Optionally set a table as the **value** where the second item is the name of the plugin you want to access.
 
 ```lua
 local plugins = {
 	['https://github.com/erf/vis-cursors.git'] = { 'init', 'cursors' },
-	['https://github.com/lutobler/vis-commentary.git'] = 'vis-commentary',
+	['https://github.com/erf/vis-highlight.git'] = 'init',
 }
-local plug = require('plugins/vis-plug')
-plug.init(plugins)
-plug.plugins.cursors.path = '/Users/name/.test'
+local plug = require('plugins/vis-plug').init(plugins)
+
+plug.plugins.cursors.path = '/Users/erlend/.cursors'
 ```
 
-The key is the URL of the plugin git repo. 
+### Install on init
 
-The value is either a string with the lua start file or a table with an initial file name and an optional name for accessing the plugin after initialization (and setting variables).
-
-Pass the config table to the `init` method and access plugins via `plug.plugins`
-
-### Themes
-
-We also support adding a list of themes as a second parameter to `init`. Themes are fetched using `curl` on `plug-install` and listed using `plug-list`.
+Pass a an optional second boolean argument to `init` to indicate if
+you'd like to install the plugins at startup (if they don't already 
+exists).
 
 Example:
 
 ```lua
-local themes = {
-	'https://raw.githubusercontent.com/pshevtsov/base16-vis/master/themes/base16-summerfruit-light.lua',
-	'https://raw.githubusercontent.com/pshevtsov/base16-vis/master/themes/base16-unikitty-light.lua',
-}
-local plug = require('plugins/vis-plug').init(plugins, themes)
+require('plugins/vis-plug').init(plugins, true)
 ```
 
-
-### Install on initialization
-
-Pass a bool `install_on_init` as the third parameter to `plug.init` to indicate 
-you'd like to install the plugins and themes at startup if they don't already 
-exists.
-
-Example:
-
-```lua
-local plug = require('plugins/vis-plug')
-plug.init(plugins, themes, true)
-```
+Plugins are installed to the default `visrc` folder.
 
 # Commands
 
 We support the following `vis` commands:
 
-`:plug-list` - list plugins and themes
+`:plug-list` - list plugins 
 
-`:plug-install` - git clone plugins and curl install themes
+`:plug-install` - git clone plugins
 
 `:plug-update` - git pull plugins
 
