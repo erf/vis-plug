@@ -34,7 +34,9 @@ The **value** is the init lua file.
 
 ### Access plugin variables
 
-Optionally set a table as the **value** where the second item is an alias of the plugin you want to access.
+If you need to access plugin variables, set an array as the **value** and its second item will become an alias for the plugin. 
+
+Example
 
 ```lua
 local plugins = {
