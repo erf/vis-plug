@@ -28,29 +28,26 @@ local plugins = {
 require('plugins/vis-plug').init(plugins)
 ```
 
-The **key** is the URL of the git repo with the plugin.
+The **key** is the URL to the git repository.
 
 The **value** is the init lua file.
 
-### Access plugin variables
+### Plugin aliases
 
-If you need to access plugin variables, set an array as the **value** and its second item will become an alias for the plugin. 
-
-Example
+If you need to access plugin variables, use an array as the **value** and its second item will become an *alias* for the plugin. 
 
 ```lua
 local plugins = {
 	['https://github.com/erf/vis-cursors.git'] = { 'init', 'C' },
 }
-require('plugins/vis-plug').init(plugins).plugins.C.path = '/Users/erlend/.cursors'
+local plug = require('plugins/vis-plug').init(plugins)
+plug.plugins.C.path = '/Users/erlend/.vis_plug'
 ```
 
 ### Install on init
 
-Pass a second argument to `init` to indicate if you'd like to install the 
-plugins at startup (if not already there).
-
-Example:
+Pass a second boolean argument to `init` to indicate if you'd like to install 
+plugins at startup (if not already installed).
 
 ```lua
 require('plugins/vis-plug').init(plugins, true)
@@ -67,5 +64,3 @@ We support the following `vis` commands:
 `:plug-install` - git clone plugins
 
 `:plug-update` - git pull plugins
-
-
