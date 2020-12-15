@@ -24,21 +24,20 @@ function iterate_plugins(op, args)
 	if not plugins then return end
 	for url, v in pairs(plugins) do
 		local file = nil
-		local custom_nam = nil
+		local var = nil
 		if type(v) == "table" then
 			file = v[1]
-			custom_name = v[2]
+			var = v[2]
 		else
 			file = v
-			custom_name = nil
 		end
 		local name = url:match('.*%/(.*)%..*')
 		local path = plugins_path .. '/' .. name
-		op(url, file, name, path, custom_name, args)
+		op(url, file, name, path, var, args)
 	end
 end
 
-function plug_install(url, file, name, path, custom_name, silent)
+function plug_install(url, file, name, path, var, silent)
 	if exists(path) then
 		if not silent then
 			vis:message(name .. ' (already installed)')
@@ -62,13 +61,12 @@ function plug_update(url, file, name, path)
 	vis:redraw()
 end
 
-function plug_require(url, file, name, path, custom_name)
+function plug_require(url, file, name, path, var)
 	if not exists(path) then return end
 	local plugin = require('plugins/' .. name .. '/' .. file)
-	if custom_name then
-		M.plugins[custom_name] = plugin
+	if var then
+		M.plugins[var] = plugin
 	end
-
 end
 
 function plug_count()
