@@ -25,9 +25,9 @@ function iterate_plugins(op, args)
 	for url, v in pairs(plugins) do
 		local file = nil
 		local var = nil
-		if type(v) == "table" then
-			file = v[1]
-			var = v[2]
+		if type(v) == 'table' then
+			file = v['file'] or v[1]
+			var = v['var'] or v[2]
 		else
 			file = v
 		end

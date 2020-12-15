@@ -38,7 +38,7 @@ If you need to access plugin variables, use an array as the **value** and its se
 
 ```lua
 local plugins = {
-	['https://github.com/erf/vis-cursors.git'] = { 'init', 'C' },
+	['https://github.com/erf/vis-cursors.git'] = { file = 'init', var = 'C' },
 }
 local plug = require('plugins/vis-plug').init(plugins)
 plug.plugins.C.path = '/Users/erlend/.vis_plug'
