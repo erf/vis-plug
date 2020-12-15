@@ -36,9 +36,9 @@ plug.plugins.C.path = '/Users/user/.cursors1'
 
 The **KEY** is the URL to the git repository of the plugin.
 
-The **VALUE** is the lua `file` or a record for `file`, `var` and `branch`.
+The **VALUE** is the `file` or a Lua record for `file`, `var` and `branch`.
 
-The `file` defaults to `"init"`.
+The `file` defaults to `"init"` if not set.
 
 Set `var` to access plugin variables. E.g. `C` is an alias to the `vis-cursors` plugin.
 
@@ -46,7 +46,7 @@ Set `branch` to use a spesific git branch. It is set on `vis-install` and `vis-u
 
 ### Install on init
 
-Pass `true` as the second arg to `init` to install plugins at init.
+Pass `true` as the second arg to `init` to install plugins on `init`.
 
 ```lua
 require('plugins/vis-plug').init(plugins, true)
