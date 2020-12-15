@@ -58,7 +58,7 @@ local plugins = {
 local plug = require('plugins/vis-plug').init(plugins)
 ```
 
-Branches are set on `vis-install` and `vis-update`.
+`branch` is set on `vis-install` and `vis-update`.
 
 ### Install on init
 
