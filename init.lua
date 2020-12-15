@@ -6,7 +6,7 @@ assert(not err)
 local visrc_path = visrc:match('(.*/)')
 assert(visrc_path)
 local plugins_path = visrc_path ..'plugins'
-local plugins = {}
+local plugins_conf = {}
 
 function exists(path)
 	local file = io.open(path)
@@ -16,8 +16,8 @@ function exists(path)
 end	
 
 function iterate_plugins(op, args)
-	if not plugins then return end
-	for url, v in pairs(plugins) do
+	if not plugins_conf then return end
+	for url, v in pairs(plugins_conf) do
 		local file = nil
 		local alias = nil
 		local branch = nil
@@ -69,9 +69,9 @@ function plug_require(url, file, name, path, alias, branch, args)
 end
 
 function plug_count()
-	if not plugins then return 0 end
+	if not plugins_conf then return 0 end
 	local count = 0
-	for _ in pairs(plugins) do count = count + 1 end
+	for _ in pairs(plugins_conf) do count = count + 1 end
 	return count
 end
 
@@ -117,8 +117,8 @@ vis:command_register('plug-list', function(argv, force, win, selection, range)
 	return true
 end)
 
-M.init = function(plugins_p, install_on_init)
-	plugins = plugins_p or {}
+M.init = function(plugins, install_on_init)
+	plugins_conf = plugins or {}
 	if install_on_init then
 		init_plugins()
 	end
