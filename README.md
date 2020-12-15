@@ -19,9 +19,7 @@ Plugins are installed to the default `visrc` + `/plugins` path.
 
 ## Configure
 
-### Configure plugins in visrc.lua
-
-Describe plugins in a table, in your `visrc.lua` as below:
+Configure plugins in your `visrc.lua` as below:
 
 ```lua
 local plugins = {
@@ -43,7 +41,7 @@ Set `var` to access plugin variables. E.g. `C` is an alias to the `vis-cursors` 
 
 Set `branch` to use a spesific git branch. It is set on `vis-install` and `vis-update`.
 
-### Install on init
+#### Install on init
 
 Pass `true` as the second arg to `init` to install plugins on `init`.
 
