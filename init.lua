@@ -8,14 +8,14 @@ assert(visrc_path)
 local plugins_path = visrc_path ..'plugins'
 local plugins_conf = {}
 
-function exists(path)
+local exists = function (path)
 	local file = io.open(path)
 	if not file then return false end
 	file:close()
 	return true
-end	
+end
 
-function iterate_plugins(op, args)
+local iterate_plugins = function (op, args)
 	if not plugins_conf then return end
 	for url, v in pairs(plugins_conf) do
 		local file = nil
@@ -34,7 +34,7 @@ function iterate_plugins(op, args)
 	end
 end
 
-function plug_install(url, file, name, path, alias, branch, silent)
+local plug_install = function(url, file, name, path, alias, branch, silent)
 	if exists(path) then
 		if not silent then
 			vis:message(name .. ' (already installed)')
@@ -49,7 +49,7 @@ function plug_install(url, file, name, path, alias, branch, silent)
 	vis:redraw()
 end
 
-function plug_update(url, file, name, path, alias, branch, args)
+local plug_update = function(url, file, name, path, alias, branch, args)
 	if exists(path) then
 		os.execute('git -C ' .. path .. ' checkout --quiet ' .. (branch or 'master'))	
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
@@ -60,7 +60,7 @@ function plug_update(url, file, name, path, alias, branch, args)
 	vis:redraw()
 end
 
-function plug_require(url, file, name, path, alias, branch, args)
+local plug_require = function(url, file, name, path, alias, branch, args)
 	if not exists(path) then return end
 	local plugin = require('plugins/' .. name .. '/' .. file)
 	if alias then
@@ -68,14 +68,14 @@ function plug_require(url, file, name, path, alias, branch, args)
 	end
 end
 
-function plug_count()
+local plug_count = function()
 	if not plugins_conf then return 0 end
 	local count = 0
 	for _ in pairs(plugins_conf) do count = count + 1 end
 	return count
 end
 
-function plug_name(url, file, name, path, alias, branch, args)
+local plug_name = function(url, file, name, path, alias, branch, args)
 	if exists(path) then
 		vis:message(name .. ' (' .. url .. ')')
 	else
@@ -84,7 +84,7 @@ function plug_name(url, file, name, path, alias, branch, args)
 	vis:redraw()
 end
 
-function init_plugins()
+local init_plugins = function()
 	if not exists(plugins_path) then os.execute('mkdir -p ' .. plugins_path) end
 	iterate_plugins(plug_install, true)
 end
