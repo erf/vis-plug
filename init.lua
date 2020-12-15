@@ -19,22 +19,22 @@ function iterate_plugins(op, args)
 	if not plugins then return end
 	for url, v in pairs(plugins) do
 		local file = nil
-		local var = nil
+		local alias = nil
 		local branch = nil
 		if type(v) == 'table' then
-			file   = v['file']   or v[1] or 'init'
-			var    = v['var']    or v[2]
+			file   = v['file']   or v[1]
+			alias  = v['alias']  or v[2]
 			branch = v['branch'] or v[3]
 		else
-			file   = v or 'init'
+			file   = v
 		end
 		local name = url:match('.*%/(.*)%..*')
 		local path = plugins_path .. '/' .. name
-		op(url, file, name, path, var, branch, args)
+		op(url, file, name, path, alias, branch, args)
 	end
 end
 
-function plug_install(url, file, name, path, var, branch, silent)
+function plug_install(url, file, name, path, alias, branch, silent)
 	if exists(path) then
 		if not silent then
 			vis:message(name .. ' (already installed)')
@@ -49,7 +49,7 @@ function plug_install(url, file, name, path, var, branch, silent)
 	vis:redraw()
 end
 
-function plug_update(url, file, name, path, var, branch, args)
+function plug_update(url, file, name, path, alias, branch, args)
 	if exists(path) then
 		os.execute('git -C ' .. path .. ' checkout --quiet ' .. (branch or 'master'))	
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
@@ -60,11 +60,11 @@ function plug_update(url, file, name, path, var, branch, args)
 	vis:redraw()
 end
 
-function plug_require(url, file, name, path, var, branch, args)
+function plug_require(url, file, name, path, alias, branch, args)
 	if not exists(path) then return end
 	local plugin = require('plugins/' .. name .. '/' .. file)
-	if var then
-		M.plugins[var] = plugin
+	if alias then
+		M.plugins[alias] = plugin
 	end
 end
 
@@ -75,7 +75,7 @@ function plug_count()
 	return count
 end
 
-function plug_name(url, file, name, path, var, branch, args)
+function plug_name(url, file, name, path, alias, branch, args)
 	if exists(path) then
 		vis:message(name .. ' (' .. url .. ')')
 	else
