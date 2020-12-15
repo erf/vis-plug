@@ -30,12 +30,14 @@ require('plugins/vis-plug').init(plugins)
 
 The **key** is the URL to the git repository.
 
-The **value** is the init lua file.
+The **value** is the init lua file. If 'nil' it defaults to 'init'.
 
 ### Plugin aliases
 
 If you need to access plugin variables, use a record as the **value** and set 
-`file` to the init file and `var` as the *alias* for the plugin. 
+`var` as the *alias* for the plugin. 
+
+The `init` file can be set using `file`, or it will default to `init`.
 
 ```lua
 local plugins = {
@@ -51,10 +53,12 @@ You can set a `branch` to poing to a spesific branch of the git repo.
 
 ```lua
 local plugins = {
-	['https://github.com/erf/vis-test.git'] = { file = 'init', branch = 'other' },
+	['https://github.com/erf/vis-test.git'] = { branch = 'other' },
 }
 local plug = require('plugins/vis-plug').init(plugins)
 ```
+
+Branches are set on `vis-install` and `vis-update`.
 
 ### Install on init
 

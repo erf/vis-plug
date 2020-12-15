@@ -25,11 +25,11 @@ function iterate_plugins(op, args)
 		local var = nil
 		local branch = nil
 		if type(v) == 'table' then
-			file = v['file'] or v[1]
+			file = v['file'] or v[1] or 'init'
 			var = v['var'] or v[2]
 			branch = v['branch'] or v[3]
 		else
-			file = v
+			file = v or 'init'
 		end
 		local name = url:match('.*%/(.*)%..*')
 		local path = plugins_path .. '/' .. name
