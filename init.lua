@@ -109,7 +109,7 @@ vis:command_register('plug-update', function(argv, force, win, selection, range)
 end)
 
 vis:command_register('plug-list', function(argv, force, win, selection, range)
-	vis:message('plug-list')
+	vis:message('plug-list (' .. plug_count() .. ')')
 	vis:redraw()
 	iterate_plugins(plug_name)
 	vis:message('')
