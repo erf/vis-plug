@@ -1,6 +1,6 @@
 # vis-plug
 
-Minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
+A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
 
 > Also consider [vis-outdated](https://github.com/erf/vis-outdated) 
 
