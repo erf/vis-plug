@@ -1,24 +1,23 @@
 # vis-plug
 
-Experimental plugin manager for the [vis](https://github.com/martanne/vis) editor.
+Minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
 
 > Also consider [vis-outdated](https://github.com/erf/vis-outdated) 
 
-# Install
+## Install
 
-Download `vis-plug` manually or using this install script:
+Download `vis-plug` manually or use this script
 
 ```bash
 curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs
 ```
 
-Require `vis-plug` in your `visrc.lua`.
+Require `vis-plug`. See [plugins](https://github.com/martanne/vis/wiki/Plugins).
 
-Plugins are installed to the default `visrc` + `plugins` path.
+Plugins are installed to the default `visrc` + `/plugins` path.
+> E.g.`$HOME/.config/vis/plugins`
 
-E.g.`$HOME/.config/vis/plugins`
-
-# Configure
+## Configure
 
 ### Configure plugins in visrc.lua
 
@@ -52,7 +51,7 @@ Pass `true` as the second arg to `init` to install plugins on `init`.
 require('plugins/vis-plug').init(plugins, true)
 ```
 
-# Commands
+## Commands
 
 We support the following `vis` commands:
 

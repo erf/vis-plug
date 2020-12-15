@@ -10,12 +10,9 @@ local plugins = {}
 
 function exists(path)
 	local file = io.open(path)
-	if not file then
-		return false
-	else
-		file:close()
-		return true
-	end
+	if not file then return false end
+	file:close()
+	return true
 end	
 
 function iterate_plugins(op, args)
@@ -25,11 +22,11 @@ function iterate_plugins(op, args)
 		local var = nil
 		local branch = nil
 		if type(v) == 'table' then
-			file = v['file'] or v[1] or 'init'
-			var = v['var'] or v[2]
+			file   = v['file']   or v[1] or 'init'
+			var    = v['var']    or v[2]
 			branch = v['branch'] or v[3]
 		else
-			file = v or 'init'
+			file   = v or 'init'
 		end
 		local name = url:match('.*%/(.*)%..*')
 		local path = plugins_path .. '/' .. name
@@ -120,9 +117,9 @@ vis:command_register('plug-list', function(argv, force, win, selection, range)
 	return true
 end)
 
-M.init = function(plugins_p, install_on_startup)
+M.init = function(plugins_p, install_on_init)
 	plugins = plugins_p or {}
-	if install_on_startup then
+	if install_on_init then
 		init_plugins()
 	end
 	iterate_plugins(plug_require)
@@ -130,4 +127,3 @@ M.init = function(plugins_p, install_on_startup)
 end
 
 return M
-
