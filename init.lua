@@ -5,9 +5,7 @@ local visrc, err = package.searchpath('visrc', package.path)
 assert(not err)
 local visrc_path = visrc:match('(.*/)')
 assert(visrc_path)
-
 local plugins_path = visrc_path ..'plugins'
-
 local plugins = {}
 
 function exists(path)
@@ -25,25 +23,28 @@ function iterate_plugins(op, args)
 	for url, v in pairs(plugins) do
 		local file = nil
 		local var = nil
+		local branch = nil
 		if type(v) == 'table' then
 			file = v['file'] or v[1]
 			var = v['var'] or v[2]
+			branch = v['branch'] or v[3]
 		else
 			file = v
 		end
 		local name = url:match('.*%/(.*)%..*')
 		local path = plugins_path .. '/' .. name
-		op(url, file, name, path, var, args)
+		op(url, file, name, path, var, branch, args)
 	end
 end
 
-function plug_install(url, file, name, path, var, silent)
+function plug_install(url, file, name, path, var, branch, silent)
 	if exists(path) then
 		if not silent then
 			vis:message(name .. ' (already installed)')
 		end
 	else
 		os.execute('git -C ' .. plugins_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
+		os.execute('git -C ' .. path .. ' checkout --quiet ' .. (branch or 'master'))
 		if not silent then
 			vis:message(name)
 		end
@@ -51,8 +52,9 @@ function plug_install(url, file, name, path, var, silent)
 	vis:redraw()
 end
 
-function plug_update(url, file, name, path)
+function plug_update(url, file, name, path, var, branch, args)
 	if exists(path) then
+		os.execute('git -C ' .. path .. ' checkout --quiet ' .. (branch or 'master'))	
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 		vis:message(name .. ' updated')
 	else
@@ -61,7 +63,7 @@ function plug_update(url, file, name, path)
 	vis:redraw()
 end
 
-function plug_require(url, file, name, path, var)
+function plug_require(url, file, name, path, var, branch, args)
 	if not exists(path) then return end
 	local plugin = require('plugins/' .. name .. '/' .. file)
 	if var then
@@ -76,7 +78,7 @@ function plug_count()
 	return count
 end
 
-function plug_name(url, file, name, path)
+function plug_name(url, file, name, path, var, branch, args)
 	if exists(path) then
 		vis:message(name .. ' (' .. url .. ')')
 	else

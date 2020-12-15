@@ -34,7 +34,8 @@ The **value** is the init lua file.
 
 ### Plugin aliases
 
-If you need to access plugin variables, use an array as the **value** and its second item will become an *alias* for the plugin. 
+If you need to access plugin variables, use a record as the **value** and set 
+`file` to the init file and `var` as the *alias* for the plugin. 
 
 ```lua
 local plugins = {
@@ -42,6 +43,17 @@ local plugins = {
 }
 local plug = require('plugins/vis-plug').init(plugins)
 plug.plugins.C.path = '/Users/erlend/.vis_plug'
+```
+
+### Plugin branches
+
+You can set a `branch` to poing to a spesific branch of the git repo.
+
+```lua
+local plugins = {
+	['https://github.com/erf/vis-test.git'] = { file = 'init', branch = 'other' },
+}
+local plug = require('plugins/vis-plug').init(plugins)
 ```
 
 ### Install on init
