@@ -16,19 +16,21 @@ local exists = function (path)
 end
 
 local iterate_plugins = function (op, args)
-	if not plugins_conf then return end
-	for url, v in pairs(plugins_conf) do
+	if not plugins_conf then
+		return
+	end
+	for url, val in pairs(plugins_conf) do
 		local file = nil
 		local alias = nil
 		local branch = nil
-		if type(v) == 'table' then
-			file   = v['file']   or v[1]
-			alias  = v['alias']  or v[2]
-			branch = v['branch'] or v[3]
+		if type(val) == 'table' then
+			file   = val['file']   or val[1]
+			alias  = val['alias']  or val[2]
+			branch = val['branch'] or val[3]
 		else
-			file   = v
+			file   = val
 		end
-		local name = url:match('.*%/(.*)%..*')
+		local name = url:match('.*%/(.*)%.git')
 		local path = plugins_path .. '/' .. name
 		op(url, file, name, path, alias, branch, args)
 	end
@@ -51,7 +53,7 @@ end
 
 local plug_update = function(url, file, name, path, alias, branch, args)
 	if exists(path) then
-		os.execute('git -C ' .. path .. ' checkout --quiet ' .. (branch or 'master'))	
+		os.execute('git -C ' .. path .. ' checkout --quiet ' .. (branch or 'master'))
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 		vis:message(name .. ' updated')
 	else
@@ -61,7 +63,9 @@ local plug_update = function(url, file, name, path, alias, branch, args)
 end
 
 local plug_require = function(url, file, name, path, alias, branch, args)
-	if not exists(path) then return end
+	if not exists(path) then
+		return
+	end
 	local plugin = require('plugins/' .. name .. '/' .. file)
 	if alias then
 		M.plugins[alias] = plugin
@@ -69,7 +73,9 @@ local plug_require = function(url, file, name, path, alias, branch, args)
 end
 
 local plug_count = function()
-	if not plugins_conf then return 0 end
+	if not plugins_conf then
+		return 0
+	end
 	local count = 0
 	for _ in pairs(plugins_conf) do count = count + 1 end
 	return count
@@ -85,7 +91,9 @@ local plug_name = function(url, file, name, path, alias, branch, args)
 end
 
 local init_plugins = function()
-	if not exists(plugins_path) then os.execute('mkdir -p ' .. plugins_path) end
+	if not exists(plugins_path) then
+		os.execute('mkdir -p ' .. plugins_path)
+	end
 	iterate_plugins(plug_install, true)
 end
 
