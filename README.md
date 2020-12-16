@@ -26,7 +26,7 @@ Configure plugins in your `visrc.lua` as below:
 local plugins = {
 	['https://github.com/erf/vis-highlight.git'] = 'init',
 	['https://github.com/erf/vis-cursors.git'] = { file = 'init', alias = 'C' },
-	['https://github.com/erf/vis-test.git'] = { file = 'init', branch = 'other' },
+	['https://github.com/erf/vis-test.git'] = { file = 'init', branch = 'other', commit = 'f4849d4' },
 }
 local plug = require('plugins/vis-plug').init(plugins)
 plug.plugins.C.path = '/Users/user/.cursors1'
@@ -41,6 +41,8 @@ Set `alias` to access plugin variables via `plug.plugins.{alias}`.
 Set `branch` to use a specific `git` branch.
 
 > `branch` is set on `plug_install`, `install_on_init` or `plug_update`
+
+Set `commit` to use a spesific `commit` hash.
 
 #### Install on init
 

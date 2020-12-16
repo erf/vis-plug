@@ -19,30 +19,41 @@ end
 
 local iterate_plugins = function (op, args)
 	for url, val in pairs(plugins_conf) do
-		local file = nil
-		local alias = nil
-		local branch = nil
+		local file, alias, branch, commit
 		if type(val) == 'table' then
 			file   = val['file']   or val[1]
 			alias  = val['alias']  or val[2]
 			branch = val['branch'] or val[3]
+			commit = val['commit'] or val[4]
 		else
 			file   = val
 		end
 		local name = url:match('.*%/(.*)%.git')
 		local path = plugins_path .. '/' .. name
-		op(url, file, name, path, alias, branch, args)
+		op(url, file, name, path, alias, branch, commit, args)
 	end
 end
 
-local plug_install = function(url, file, name, path, alias, branch, silent)
+local checkout = function(path, branch, commit)
+	if commit then
+		os.execute('git -C ' .. path .. ' checkout --quiet ' .. commit)
+	elseif branch then
+		os.execute('git -C ' .. path .. ' checkout --quiet ' .. branch)
+	else
+		os.execute('git -C ' .. path .. ' checkout --quiet master')
+	end
+end
+
+local plug_install = function(url, file, name, path, alias, branch, commit, args)
+	local silent = args
 	if exists(path) then
 		if not silent then
-			vis:message(name .. ' (already installed)')
+			checkout(path, branch, commit)
+			vis:message(name .. ' (already installed - checkout)')
 		end
 	else
 		os.execute('git -C ' .. plugins_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
-		os.execute('git -C ' .. path .. ' checkout --quiet ' .. (branch or 'master'))
+		checkout(path, branch, commit)
 		if not silent then
 			vis:message(name .. ' (installed)')
 		end
@@ -50,9 +61,9 @@ local plug_install = function(url, file, name, path, alias, branch, silent)
 	vis:redraw()
 end
 
-local plug_update = function(url, file, name, path, alias, branch, args)
+local plug_update = function(url, file, name, path, alias, branch, commit, args)
 	if exists(path) then
-		os.execute('git -C ' .. path .. ' checkout --quiet ' .. (branch or 'master'))
+		checkout(path, branch, commit)
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 		vis:message(name .. ' updated')
 	else
@@ -61,7 +72,7 @@ local plug_update = function(url, file, name, path, alias, branch, args)
 	vis:redraw()
 end
 
-local plug_require = function(url, file, name, path, alias, branch, args)
+local plug_require = function(url, file, name, path, alias, branch, commit, args)
 	if not exists(path) then
 		return
 	end
@@ -79,7 +90,7 @@ local plug_count = function()
 	return count
 end
 
-local plug_name = function(url, file, name, path, alias, branch, args)
+local plug_name = function(url, file, name, path, alias, branch, commit, args)
 	if exists(path) then
 		vis:message(name .. ' (' .. url .. ')')
 	else
