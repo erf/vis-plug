@@ -47,8 +47,8 @@ end
 local plug_install = function(url, file, name, path, alias, branch, commit, args)
 	local silent = args
 	if exists(path) then
+		checkout(path, branch, commit)
 		if not silent then
-			checkout(path, branch, commit)
 			vis:message(name .. ' (already installed - checkout)')
 		end
 	else
