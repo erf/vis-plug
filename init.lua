@@ -10,15 +10,14 @@ local plugins_conf = {}
 
 local exists = function (path)
 	local file = io.open(path)
-	if not file then return false end
+	if not file then
+		return false
+	end
 	file:close()
 	return true
 end
 
 local iterate_plugins = function (op, args)
-	if not plugins_conf then
-		return
-	end
 	for url, val in pairs(plugins_conf) do
 		local file = nil
 		local alias = nil
@@ -73,9 +72,6 @@ local plug_require = function(url, file, name, path, alias, branch, args)
 end
 
 local plug_count = function()
-	if not plugins_conf then
-		return 0
-	end
 	local count = 0
 	for _ in pairs(plugins_conf) do count = count + 1 end
 	return count
