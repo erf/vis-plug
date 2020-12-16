@@ -56,6 +56,6 @@ We support the following `vis` commands:
 
 `:plug-list` - list plugins 
 
-`:plug-install` - git clone plugins
+`:plug-install` - install plugins using git clone
 
-`:plug-update` - git pull plugins
+`:plug-update` - update plugins using git pull
