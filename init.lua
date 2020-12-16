@@ -43,7 +43,7 @@ local plug_install = function(url, file, name, path, alias, branch, silent)
 		os.execute('git -C ' .. plugins_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		os.execute('git -C ' .. path .. ' checkout --quiet ' .. (branch or 'master'))
 		if not silent then
-			vis:message(name)
+			vis:message(name .. ' (installed)')
 		end
 	end
 	vis:redraw()
@@ -90,7 +90,7 @@ local init_plugins = function()
 end
 
 vis:command_register('plug-install', function(argv, force, win, selection, range)
-	vis:message('plug-install')
+	vis:message('installing...')
 	vis:redraw()
 	if not exists(plugins_path) then os.execute('mkdir -p ' .. plugins_path) end
 	iterate_plugins(plug_install, false)
@@ -100,7 +100,7 @@ vis:command_register('plug-install', function(argv, force, win, selection, range
 end)
 
 vis:command_register('plug-update', function(argv, force, win, selection, range)
-	vis:message('plug-update')
+	vis:message('updating...')
 	vis:redraw()
 	iterate_plugins(plug_update, nil)
 	vis:message('')
@@ -109,7 +109,7 @@ vis:command_register('plug-update', function(argv, force, win, selection, range)
 end)
 
 vis:command_register('plug-list', function(argv, force, win, selection, range)
-	vis:message('plug-list (' .. plug_count() .. ')')
+	vis:message('plugins (' .. plug_count() .. ')')
 	vis:redraw()
 	iterate_plugins(plug_name)
 	vis:message('')
