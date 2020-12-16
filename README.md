@@ -32,19 +32,17 @@ local plug = require('plugins/vis-plug').init(plugins)
 plug.plugins.C.path = '/Users/user/.cursors1'
 ```
 
-The KEY is the URL to the git repository.
+Each plugin configuration has a **key**, which is the URL to the git repository; and a **value**, which is either the Lua `file` or a record for `file`, `alias` and `branch`.
 
-The VALUE is the Lua `file` or a Lua record for `file`, `alias` and `branch`.
+Set `alias` to access plugin variables via `plug.plugins.{alias}`.
 
-Set `alias` to access plugin variables. E.g. `C` is an alias to `vis-cursors`.
+> E.g. `plug.plugins.C` is an alias to `vis-cursors`
 
-Set `branch` to use a spesific `git` branch.
-
-> `branch` is set on `vis-install` and `vis-update`
+Set `branch` to use a specific `git` branch.
 
 #### Install on init
 
-Install plugins on `init`, by passing true as the second argument to `init`.
+Install plugins on `init`, by passing **true** as the second argument to `init`.
 
 ```lua
 require('plugins/vis-plug').init(plugins, true)
