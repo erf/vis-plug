@@ -73,7 +73,9 @@ end
 
 local plug_count = function()
 	local count = 0
-	for _ in pairs(plugins_conf) do count = count + 1 end
+	for _ in pairs(plugins_conf) do
+		count = count + 1
+	end
 	return count
 end
 
