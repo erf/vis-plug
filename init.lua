@@ -90,33 +90,32 @@ local plug_name = function(url, file, name, path, alias, branch, args)
 	vis:redraw()
 end
 
-local init_plugins = function()
+local install_plugins = function(silent)
 	if not exists(plugins_path) then
 		os.execute('mkdir -p ' .. plugins_path)
 	end
-	iterate_plugins(plug_install, true)
+	iterate_plugins(plug_install, silent)
 end
 
-vis:command_register('plug-install', function(argv, force, win, selection, range)
+vis:command_register('plug-install', function()
 	vis:message('installing...')
 	vis:redraw()
-	if not exists(plugins_path) then os.execute('mkdir -p ' .. plugins_path) end
-	iterate_plugins(plug_install, false)
+	install_plugins(false)
 	vis:message('')
 	vis:redraw()
 	return true
 end)
 
-vis:command_register('plug-update', function(argv, force, win, selection, range)
+vis:command_register('plug-update', function()
 	vis:message('updating...')
 	vis:redraw()
-	iterate_plugins(plug_update, nil)
+	iterate_plugins(plug_update)
 	vis:message('')
 	vis:redraw()
 	return true
 end)
 
-vis:command_register('plug-list', function(argv, force, win, selection, range)
+vis:command_register('plug-list', function()
 	vis:message('plugins (' .. plug_count() .. ')')
 	vis:redraw()
 	iterate_plugins(plug_name)
@@ -128,7 +127,7 @@ end)
 M.init = function(plugins, install_on_init)
 	plugins_conf = plugins or {}
 	if install_on_init then
-		init_plugins()
+		install_plugins(true)
 	end
 	iterate_plugins(plug_require)
 	return M
