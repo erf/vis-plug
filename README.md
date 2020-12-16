@@ -40,6 +40,8 @@ Set `alias` to access plugin variables via `plug.plugins.{alias}`.
 
 Set `branch` to use a specific `git` branch.
 
+> `branch` is set on `plug_install`, `install_on_init` or `plug_update`
+
 #### Install on init
 
 Install plugins on `init`, by passing **true** as the second argument to `init`.
