@@ -4,7 +4,7 @@ A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
 
 Keep up-to-date with third-party `vis` plugins by [Configuring](#Configure) your `visrc` and typing a few [Commands](#Commands).
 
-## Download
+## Install
 
 Download `vis-plug` and `require` in your `visrc` file. See [plugins](https://github.com/martanne/vis/wiki/Plugins).
 
