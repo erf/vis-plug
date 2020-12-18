@@ -12,7 +12,7 @@ We support the following `vis` commands:
 
 `:plug-update` - update plugins in conf (using git pull)
 
-`:plug-delete {name}` - delete a plugin by name (see plug-list)
+`:plug-delete {name}` - delete a plugin by name (see `plug-list` for name)
 
 `:plug-clean` - delete all plugins in conf
 
