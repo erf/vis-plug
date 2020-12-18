@@ -47,7 +47,7 @@ local iterate_plugins = function (op, args)
  		local name = get_name_from_url(url)
 		if name then
 			local path = get_plugin_path(name)
-			op(url, file, name, path, alias, branch, commit, args)
+			op(url, name, path, file, alias, branch, commit, args)
 		end
 	end
 end
@@ -62,7 +62,7 @@ local checkout = function(path, branch, commit)
 	end
 end
 
-local plug_install = function(url, file, name, path, alias, branch, commit, args)
+local plug_install = function(url, name, path, file, alias, branch, commit, args)
 	local silent = args
 	if file_exists(path) then
 		checkout(path, branch, commit)
@@ -79,7 +79,7 @@ local plug_install = function(url, file, name, path, alias, branch, commit, args
 	vis:redraw()
 end
 
-local plug_update = function(url, file, name, path, alias, branch, commit, args)
+local plug_update = function(url, name, path, file, alias, branch, commit, args)
 	if file_exists(path) then
 		checkout(path, branch, commit)
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
@@ -90,7 +90,7 @@ local plug_update = function(url, file, name, path, alias, branch, commit, args)
 	vis:redraw()
 end
 
-local plug_require = function(url, file, name, path, alias, branch, commit, args)
+local plug_require = function(url, name, path, file, alias, branch, commit, args)
 	if not file_exists(path) then
 		return
 	end
@@ -108,7 +108,7 @@ local plug_count = function()
 	return count
 end
 
-local plug_name = function(url, file, name, path, alias, branch, commit, args)
+local plug_name = function(url, name, path, file, alias, branch, commit, args)
 	if file_exists(path) then
 		vis:message(name .. ' (' .. url .. ')')
 	else
