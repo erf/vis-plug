@@ -108,7 +108,17 @@ local install_plugins = function(silent)
 	iterate_plugins(plug_install, silent)
 end
 
-vis:command_register('plug-install', function()
+local delete_plugin = function(name)
+	local path = plugins_path .. '/' .. name
+	if exists(path) then
+		os.execute('rm -rf ' .. path)
+		vis:message(path .. ' deleted')
+	else
+		vis:message(path .. ' does not exist')
+	end
+end
+
+vis:command_register('plug-install', function(argv, force, win, selection, range)
 	vis:message('installing...')
 	vis:redraw()
 	install_plugins(false)
@@ -117,7 +127,17 @@ vis:command_register('plug-install', function()
 	return true
 end)
 
-vis:command_register('plug-update', function()
+vis:command_register('plug-delete', function(argv, force, win, selection, range)
+	vis:message('deleting...')
+	vis:redraw()
+	local name = argv[1]
+	delete_plugin(name)
+	vis:message('')
+	vis:redraw()
+	return true
+end)
+
+vis:command_register('plug-update', function(argv, force, win, selection, range)
 	vis:message('updating...')
 	vis:redraw()
 	iterate_plugins(plug_update)
@@ -126,7 +146,7 @@ vis:command_register('plug-update', function()
 	return true
 end)
 
-vis:command_register('plug-list', function()
+vis:command_register('plug-list', function(argv, force, win, selection, range)
 	vis:message('plugins (' .. plug_count() .. ')')
 	vis:redraw()
 	iterate_plugins(plug_name)

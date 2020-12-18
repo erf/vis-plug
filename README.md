@@ -2,7 +2,17 @@
 
 A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
 
-> Also consider [vis-outdated](https://github.com/erf/vis-outdated) 
+## Commands
+
+We support the following `vis` commands:
+
+`:plug-list` - list plugins
+
+`:plug-install` - install plugins in config using git clone
+
+`:plug-update` - update plugins in config using git pull
+
+`:plug-delete {name}` - delete a plugin folder by name
 
 ## Install
 
@@ -51,13 +61,3 @@ Install plugins on `init`, by passing **true** as the second argument to `init`.
 ```lua
 require('plugins/vis-plug').init(plugins, true)
 ```
-
-## Commands
-
-We support the following `vis` commands:
-
-`:plug-list` - list plugins 
-
-`:plug-install` - install plugins using git clone
-
-`:plug-update` - update plugins using git pull
