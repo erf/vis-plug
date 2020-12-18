@@ -2,7 +2,7 @@
 
 A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
 
-Keep up-to-date with `vis` plugins by [Configuring](#Configure) your `visrc.lua` file and a few [Commands](#Commands).
+Keep up-to-date with `vis` plugins by [Configuring](#Configure) your `visrc` + a few [Commands](#Commands).
 
 ## Download
 
