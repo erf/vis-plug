@@ -28,7 +28,8 @@ local iterate_plugins = function (op, args)
 		else
 			file   = val
 		end
- 		local name = url:match('.*/([%w-_]+)%.?')
+ 		local name = url:match('.*/([^$.]+)')
+		vis:info(name)
 		if name then
 			local path = plugins_path .. '/' .. name
 			op(url, file, name, path, alias, branch, commit, args)
