@@ -1,14 +1,22 @@
 local M = {}
+
+-- the required plugins are stored here
 M.plugins = {}
 
-local visrc, err = package.searchpath('visrc', package.path)
-assert(not err)
-local visrc_path = visrc:match('(.*/)')
-assert(visrc_path)
-local plugins_path = visrc_path ..'plugins'
+local get_default_plugins_path = function()
+	local visrc, err = package.searchpath('visrc', package.path)
+	if err then return nil end
+	local visrc_path = visrc:match('(.*/)')
+	return visrc_path ..'plugins'
+end
+
+-- the path where we store plugins on disk
+M.path = get_default_plugins_path()
+
+-- the plugins configurations set in visrc.lua
 local plugins_conf = {}
 
-local exists = function (path)
+local file_exists = function (path)
 	local file = io.open(path)
 	if not file then
 		return false
@@ -17,13 +25,12 @@ local exists = function (path)
 	return true
 end
 
-
 local get_name_from_url = function(url)
 	return string.match(url, '^.*/([^$.]+)')
 end
 
 local get_plugin_path = function(name)
-	return plugins_path .. '/' .. name
+	return M.path .. '/' .. name
 end
 
 local iterate_plugins = function (op, args)
@@ -57,13 +64,13 @@ end
 
 local plug_install = function(url, file, name, path, alias, branch, commit, args)
 	local silent = args
-	if exists(path) then
+	if file_exists(path) then
 		checkout(path, branch, commit)
 		if not silent then
 			vis:message(name .. ' (already installed - checkout)')
 		end
 	else
-		os.execute('git -C ' .. plugins_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
+		os.execute('git -C ' .. M.path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		checkout(path, branch, commit)
 		if not silent then
 			vis:message(name .. ' (installed)')
@@ -73,7 +80,7 @@ local plug_install = function(url, file, name, path, alias, branch, commit, args
 end
 
 local plug_update = function(url, file, name, path, alias, branch, commit, args)
-	if exists(path) then
+	if file_exists(path) then
 		checkout(path, branch, commit)
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 		vis:message(name .. ' updated')
@@ -84,7 +91,7 @@ local plug_update = function(url, file, name, path, alias, branch, commit, args)
 end
 
 local plug_require = function(url, file, name, path, alias, branch, commit, args)
-	if not exists(path) then
+	if not file_exists(path) then
 		return
 	end
 	local plugin = require('plugins/' .. name .. '/' .. file)
@@ -102,7 +109,7 @@ local plug_count = function()
 end
 
 local plug_name = function(url, file, name, path, alias, branch, commit, args)
-	if exists(path) then
+	if file_exists(path) then
 		vis:message(name .. ' (' .. url .. ')')
 	else
 		vis:message(name .. ' (' .. url .. ') (not installed)')
@@ -111,15 +118,15 @@ local plug_name = function(url, file, name, path, alias, branch, commit, args)
 end
 
 local install_plugins = function(silent)
-	if not exists(plugins_path) then
-		os.execute('mkdir -p ' .. plugins_path)
+	if not file_exists(M.path) then
+		os.execute('mkdir -p ' .. M.path)
 	end
 	iterate_plugins(plug_install, silent)
 end
 
 local delete_plugin = function(name)
 	local path = get_plugin_path(name)
-	if exists(path) then
+	if file_exists(path) then
 		os.execute('rm -rf ' .. path)
 		vis:message(path .. ' deleted')
 	else
