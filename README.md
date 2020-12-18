@@ -8,7 +8,7 @@ Keep up-to-date with `vis` plugins by [Configuring](#Configure) your `visrc.lua`
 
 Download `vis-plug` and `require` in your `visrc` file. See [plugins](https://github.com/martanne/vis/wiki/Plugins).
 
-Here is a simple install `curl` install script, that might work for you.
+Simple `curl` install script, that might work for you.
 
 ```bash
 curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs
