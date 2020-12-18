@@ -17,6 +17,15 @@ local exists = function (path)
 	return true
 end
 
+
+local get_name_from_url = function(url)
+	return string.match(url, '^.*/([^$.]+)')
+end
+
+local get_plugin_path = function(name)
+	return plugins_path .. '/' .. name
+end
+
 local iterate_plugins = function (op, args)
 	for url, val in pairs(plugins_conf) do
 		local file, alias, branch, commit
@@ -28,9 +37,9 @@ local iterate_plugins = function (op, args)
 		else
 			file   = val
 		end
- 		local name = url:match('^.*/([^$.]+)')
+ 		local name = get_name_from_url(url)
 		if name then
-			local path = plugins_path .. '/' .. name
+			local path = get_plugin_path(name)
 			op(url, file, name, path, alias, branch, commit, args)
 		end
 	end
@@ -109,7 +118,7 @@ local install_plugins = function(silent)
 end
 
 local delete_plugin = function(name)
-	local path = plugins_path .. '/' .. name
+	local path = get_plugin_path(name)
 	if exists(path) then
 		os.execute('rm -rf ' .. path)
 		vis:message(path .. ' deleted')
@@ -132,6 +141,18 @@ vis:command_register('plug-delete', function(argv, force, win, selection, range)
 	vis:redraw()
 	local name = argv[1]
 	delete_plugin(name)
+	vis:message('')
+	vis:redraw()
+	return true
+end)
+
+vis:command_register('plug-clean', function(argv, force, win, selection, range)
+	vis:message('deleting all plugins...')
+	vis:redraw()
+	for url, _ in pairs(plugins_conf) do
+		local name = get_name_from_url(url)
+		delete_plugin(name)
+	end
 	vis:message('')
 	vis:redraw()
 	return true

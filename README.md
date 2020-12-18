@@ -8,11 +8,13 @@ We support the following `vis` commands:
 
 `:plug-list` - list plugins
 
-`:plug-install` - install plugins in config using git clone
+`:plug-install` - install plugins in conf (using git clone)
 
-`:plug-update` - update plugins in config using git pull
+`:plug-update` - update plugins in conf (using git pull)
 
-`:plug-delete {name}` - delete a plugin folder by name
+`:plug-delete {name}` - delete a plugin by name (see plug-list)
+
+`:plug-clean` - delete all plugins in conf
 
 ## Install
 
