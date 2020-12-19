@@ -65,13 +65,13 @@ local plug_install = function(url, name, path, file, alias, branch, commit, args
 	if file_exists(path) then
 		checkout(path, branch, commit)
 		if not silent then
-			vis:message(name .. ' (already installed - checkout)')
+			vis:message(name .. ' -  already installed')
 		end
 	else
 		os.execute('git -C ' .. M.path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		checkout(path, branch, commit)
 		if not silent then
-			vis:message(name .. ' (installed)')
+			vis:message(name .. ' - installed')
 		end
 	end
 	vis:redraw()
@@ -81,9 +81,9 @@ local plug_update = function(url, name, path, file, alias, branch, commit, args)
 	if file_exists(path) then
 		checkout(path, branch, commit)
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
-		vis:message(name .. ' updated')
+		vis:message(name .. ' - updated')
 	else
-		vis:message(name .. ' (not installed, do :plug-install)')
+		vis:message(name .. ' - not there, call :plug-in')
 	end
 	vis:redraw()
 end
@@ -108,9 +108,9 @@ end
 
 local plug_name = function(url, name, path, file, alias, branch, commit, args)
 	if file_exists(path) then
-		vis:message(name .. ' (' .. url .. ')')
+		vis:message(name .. ' - ' .. url)
 	else
-		vis:message(name .. ' (' .. url .. ') (not installed)')
+		vis:message(name .. ' - ' .. url .. ' - not installed')
 	end
 	vis:redraw()
 end
@@ -122,18 +122,17 @@ local install_plugins = function(silent)
 	for_each_plugin(plug_install, silent)
 end
 
-local plug_delete = function(url, name)
-	local path = get_plugin_path(name)
+local plug_delete = function(url, name, path, file)
 	if file_exists(path) then
 		os.execute('rm -rf ' .. path)
-		vis:message(path .. ' deleted')
+		vis:message(name .. ' - ' .. path .. ' - deleted')
 	else
-		vis:message(path .. ' does not exist')
+		vis:message(name .. ' - ' .. path .. ' - does not exist')
 	end
 end
 
 vis:command_register('plug-in', function(argv, force, win, selection, range)
-	vis:message('installing...')
+	vis:message('installing..')
 	vis:redraw()
 	install_plugins(false)
 	vis:message('')
@@ -142,17 +141,18 @@ vis:command_register('plug-in', function(argv, force, win, selection, range)
 end)
 
 vis:command_register('plug-rm', function(argv, force, win, selection, range)
-	vis:message('deleting...')
+	vis:message('deleting..')
 	vis:redraw()
 	local name = argv[1]
-	plug_delete(nil, name)
+	local path = get_plugin_path(name)
+	plug_delete(nil, name, path)
 	vis:message('')
 	vis:redraw()
 	return true
 end)
 
 vis:command_register('plug-cl', function(argv, force, win, selection, range)
-	vis:message('deleting all plugins...')
+	vis:message('cleaning..')
 	vis:redraw()
 	for_each_plugin(plug_delete)
 	vis:message('')
@@ -161,7 +161,7 @@ vis:command_register('plug-cl', function(argv, force, win, selection, range)
 end)
 
 vis:command_register('plug-up', function(argv, force, win, selection, range)
-	vis:message('updating...')
+	vis:message('updating..')
 	vis:redraw()
 	for_each_plugin(plug_update)
 	vis:message('')
