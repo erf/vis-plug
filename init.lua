@@ -83,7 +83,7 @@ local plug_update = function(url, name, path, file, alias, branch, commit, args)
 		os.execute('git -C ' .. path .. ' pull --quiet 2> /dev/null')
 		vis:message(name .. ' updated')
 	else
-		vis:message(name .. ' NOT installed')
+		vis:message(name .. ' is NOT installed')
 	end
 	vis:redraw()
 end
@@ -110,7 +110,7 @@ local plug_name = function(url, name, path, file, alias, branch, commit, args)
 	if file_exists(path) then
 		vis:message(name .. ' (' .. url .. ')')
 	else
-		vis:message(name .. ' (' .. url .. ') NOT installed')
+		vis:message(name .. ' (' .. url .. ') is NOT installed')
 	end
 	vis:redraw()
 end
@@ -127,7 +127,7 @@ local plug_delete = function(url, name, path, file)
 		os.execute('rm -rf ' .. path)
 		vis:message(name .. ' (' .. path .. ') deleted')
 	else
-		--vis:message(name .. ' (' .. path .. ') not there')
+		vis:message(name .. ' (' .. path .. ') is not there')
 	end
 end
 
@@ -144,8 +144,12 @@ vis:command_register('plug-rm', function(argv, force, win, selection, range)
 	vis:message('deleting..')
 	vis:redraw()
 	local name = argv[1]
-	local path = get_plugin_path(name)
-	plug_delete(nil, name, path)
+	if not name then
+		vis:message('Error: missing name')
+	else
+		local path = get_plugin_path(name)
+		plug_delete(nil, name, path)
+	end
 	vis:message('done')
 	vis:redraw()
 	return true
