@@ -18,9 +18,7 @@ local plugins_conf = {}
 
 local file_exists = function (path)
 	local file = io.open(path)
-	if not file then
-		return false
-	end
+	if not file then return false end
 	file:close()
 	return true
 end

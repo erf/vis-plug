@@ -36,7 +36,7 @@ plug.init(conf)
 Each configuration has a:
 
 - **key** - the `git` repository
-- **value** - the `file` or a `record` with the following
+- **value** - the `file` or a `table|array` with the following
 	- `file`
 	- `alias` (optional)
 	- `branch` (optional)
