@@ -4,6 +4,20 @@ A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
 
 Keep up-to-date with third-party `vis` plugins by [Configuring](#Configure) your `visrc` and typing a few [Commands](#Commands).
 
+## Commands
+
+We support the following `vis` commands:
+
+`:plug-ls` - list plugins
+
+`:plug-in` - install plugins in conf (using git clone)
+
+`:plug-up` - update plugins in conf (using git pull)
+
+`:plug-rm {name}` - delete plugin by name (see `plug-list` for name)
+
+`:plug-cl` - delete all plugins in conf
+
 ## Install
 
 Download `vis-plug` and `require` in your `visrc` file. See [plugins](https://github.com/martanne/vis/wiki/Plugins).
@@ -61,17 +75,3 @@ Set `plug.path` to override this.
 ```Lua
 plug.path = '/Users/erlend/my-plugins'
 ```
-
-## Commands
-
-We support the following `vis` commands:
-
-`:plug-ls` - list plugins
-
-`:plug-in` - install plugins in conf (using git clone)
-
-`:plug-up` - update plugins in conf (using git pull)
-
-`:plug-rm {name}` - delete plugin by name (see `plug-list` for name)
-
-`:plug-cl` - delete all plugins in conf
