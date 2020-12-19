@@ -37,36 +37,26 @@ Each configuration has a:
 
 - **key** - the `git` repository
 - **value** - the `file` or a `table|array` with the following
-	- `file`
-	- `alias` (optional)
-	- `branch` (optional)
-	- `commit` (optional)
-
-The `file` is the lua file that is required on `init`.
-
-Set `alias` to access plugin variables via `plug.plugins.{alias}`
-> E.g. `plug.plugins.C.path = '/Users/user/.cursors1'`
-
-Set `branch` to use a specific `git` branch.
-
-Set `commit` to use a spesific `commit` hash.
+	- `file` - lua file required on `init`
+	- `alias` - access plugin variables via `plug.plugins.{alias}` (optional)
+	- `branch` - use a specific branch (optional)
+	- `commit` - use a specific commit (optional)
 
 ### Install on init
 
-Install on `init`, by passing **true** as the second argument to `init`.
+Pass **true** as the second argument to `init` to `install_on_init`
 
 ```Lua
 require('plugins/vis-plug').init(conf, true)
 ```
 
-### Plugins path
+### Plugins install path
 
-Plugins are by default installed to your default configuration path on your 
-system. 
+Plugins are by default installed to your `visrc` configuration path. 
 
->E.g.`$HOME/.config/vis/plugins`.
+>E.g.`$HOME/.config/vis/plugins`
 
-You can override this by setting `plug.path`.
+Set `plug.path` to override this.
 
 ```Lua
 plug.path = '/Users/erlend/my-plugins'
