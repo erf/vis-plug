@@ -31,7 +31,7 @@ local get_plugin_path = function(name)
 	return M.path .. '/' .. name
 end
 
-local iterate_plugins = function (op, args)
+local for_each_plugin = function (op, args)
 	for url, val in pairs(plugins_conf) do
 		local file, alias, branch, commit
 		if type(val) == 'table' then
@@ -119,10 +119,10 @@ local install_plugins = function(silent)
 	if not file_exists(M.path) then
 		os.execute('mkdir -p ' .. M.path)
 	end
-	iterate_plugins(plug_install, silent)
+	for_each_plugin(plug_install, silent)
 end
 
-local delete_plugin = function(name)
+local plug_delete = function(url, name)
 	local path = get_plugin_path(name)
 	if file_exists(path) then
 		os.execute('rm -rf ' .. path)
@@ -145,7 +145,7 @@ vis:command_register('plug-delete', function(argv, force, win, selection, range)
 	vis:message('deleting...')
 	vis:redraw()
 	local name = argv[1]
-	delete_plugin(name)
+	plug_delete(nil, name)
 	vis:message('')
 	vis:redraw()
 	return true
@@ -154,10 +154,7 @@ end)
 vis:command_register('plug-clean', function(argv, force, win, selection, range)
 	vis:message('deleting all plugins...')
 	vis:redraw()
-	for url, _ in pairs(plugins_conf) do
-		local name = get_name_from_url(url)
-		delete_plugin(name)
-	end
+	for_each_plugin(plug_delete)
 	vis:message('')
 	vis:redraw()
 	return true
@@ -166,7 +163,7 @@ end)
 vis:command_register('plug-update', function(argv, force, win, selection, range)
 	vis:message('updating...')
 	vis:redraw()
-	iterate_plugins(plug_update)
+	for_each_plugin(plug_update)
 	vis:message('')
 	vis:redraw()
 	return true
@@ -175,7 +172,7 @@ end)
 vis:command_register('plug-list', function(argv, force, win, selection, range)
 	vis:message('plugins (' .. plug_count() .. ')')
 	vis:redraw()
-	iterate_plugins(plug_name)
+	for_each_plugin(plug_name)
 	vis:message('')
 	vis:redraw()
 	return true
@@ -186,7 +183,7 @@ M.init = function(plugins, install_on_init)
 	if install_on_init then
 		install_plugins(true)
 	end
-	iterate_plugins(plug_require)
+	for_each_plugin(plug_require)
 	return M
 end
 
