@@ -10,13 +10,13 @@ We support the following `vis` commands:
 
 `:plug-ls` - list plugins
 
-`:plug-in` - install plugins in conf (using git clone)
+`:plug-install` - install plugins in conf (using git clone)
 
-`:plug-up` - update plugins in conf (using git pull)
+`:plug-update` - update plugins in conf (using git pull)
 
-`:plug-rm {name}` - delete plugin by name (see `plug-list` for name)
+`:plug-rm {name}` - remove plugin by name (see `plug-list` for name)
 
-`:plug-cl` - delete all plugins in conf
+`:plug-clean` - delete all plugins in conf
 
 ## Install
 
