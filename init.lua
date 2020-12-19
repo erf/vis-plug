@@ -132,7 +132,7 @@ local plug_delete = function(url, name)
 	end
 end
 
-vis:command_register('plug-install', function(argv, force, win, selection, range)
+vis:command_register('plug-in', function(argv, force, win, selection, range)
 	vis:message('installing...')
 	vis:redraw()
 	install_plugins(false)
@@ -141,7 +141,7 @@ vis:command_register('plug-install', function(argv, force, win, selection, range
 	return true
 end)
 
-vis:command_register('plug-delete', function(argv, force, win, selection, range)
+vis:command_register('plug-rm', function(argv, force, win, selection, range)
 	vis:message('deleting...')
 	vis:redraw()
 	local name = argv[1]
@@ -151,7 +151,7 @@ vis:command_register('plug-delete', function(argv, force, win, selection, range)
 	return true
 end)
 
-vis:command_register('plug-clean', function(argv, force, win, selection, range)
+vis:command_register('plug-cl', function(argv, force, win, selection, range)
 	vis:message('deleting all plugins...')
 	vis:redraw()
 	for_each_plugin(plug_delete)
@@ -160,7 +160,7 @@ vis:command_register('plug-clean', function(argv, force, win, selection, range)
 	return true
 end)
 
-vis:command_register('plug-update', function(argv, force, win, selection, range)
+vis:command_register('plug-up', function(argv, force, win, selection, range)
 	vis:message('updating...')
 	vis:redraw()
 	for_each_plugin(plug_update)
@@ -169,7 +169,7 @@ vis:command_register('plug-update', function(argv, force, win, selection, range)
 	return true
 end)
 
-vis:command_register('plug-list', function(argv, force, win, selection, range)
+vis:command_register('plug-ls', function(argv, force, win, selection, range)
 	vis:message('plugins (' .. plug_count() .. ')')
 	vis:redraw()
 	for_each_plugin(plug_name)

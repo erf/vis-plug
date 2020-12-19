@@ -76,12 +76,12 @@ plug.path = '/Users/erlend/my-plugins'
 
 We support the following `vis` commands:
 
-`:plug-list` - list plugins
+`:plug-ls` - list plugins
 
-`:plug-install` - install plugins in conf (using git clone)
+`:plug-in` - install plugins in conf (using git clone)
 
-`:plug-update` - update plugins in conf (using git pull)
+`:plug-up` - update plugins in conf (using git pull)
 
-`:plug-delete {name}` - delete a plugin by name (see `plug-list` for name)
+`:plug-rm {name}` - delete plugin by name (see `plug-list` for name)
 
-`:plug-clean` - delete all plugins in conf
+`:plug-cl` - delete all plugins in conf
