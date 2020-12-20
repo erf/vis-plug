@@ -14,6 +14,17 @@ end
 -- the path where we store plugins on disk
 M.path = get_default_plugins_path()
 
+-- table used by the :plug-commands command
+local commands = {
+	[':plug-ls'] = 'list plugins',
+	[':plug-install'] = 'install plugins in conf (using git clone)',
+	[':plug-update'] = 'update plugins in conf (using git pull)',
+	[':plug-rm {name}'] = 'remove plugin by name (see plug-list for name)',
+	[':plug-clean'] = 'delete all plugins in conf',
+	[':plug-outdated'] = 'check if repos are up-to-date',
+	[':plug-commands'] = 'list commands (this!)',
+}
+
 -- the plugins configurations set in visrc.lua
 local plugins_conf = {}
 
@@ -234,15 +245,6 @@ vis:command_register('plug-outdated', function(argv, force, win, selection, rang
 end)
 
 vis:command_register('plug-commands', function(argv, force, win, selection, range)
-	local commands = {
-		[':plug-ls'] = 'list plugins',
-		[':plug-install'] = 'install plugins in conf (using git clone)',
-		[':plug-update'] = 'update plugins in conf (using git pull)',
-		[':plug-rm {name}'] = 'remove plugin by name (see plug-list for name)',
-		[':plug-clean'] = 'delete all plugins in conf',
-		[':plug-outdated'] = 'check if repos are up-to-date',
-		[':plug-commands'] = 'list commands (this!)',
-	}
 	vis:message('vis-plug commands')
 	vis:redraw()
 	local str = concat(commands, function(command, desc)
