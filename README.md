@@ -8,7 +8,7 @@ Keep up-to-date with third-party `vis` plugins by [Configuring](#Configure) your
 
 We support the following `vis` commands:
 
-`:plug-ls` - list plugins
+`:plug-ls` - list plugins in conf
 
 `:plug-install` - install plugins in conf (using git clone)
 
