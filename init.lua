@@ -52,6 +52,10 @@ local get_plugin_path = function(name)
 	return M.path .. '/' .. name
 end
 
+local get_short_url = function(url)
+	return url:match('^.*//(.*)')
+end
+
 -- iterate the plugins conf and call an operation per plugin
 local for_each_plugin = function (op, args)
 	for url, val in pairs(plugins_conf) do
@@ -83,17 +87,18 @@ local checkout = function(path, branch, commit)
 end
 
 local plug_install = function(url, name, path, file, alias, branch, commit, args)
+	local short_url = get_short_url(url)
 	local silent = args
 	if file_exists(path) then
 		checkout(path, branch, commit)
 		if not silent then
-			vis:message(name .. ' already installed')
+			vis:message(name .. ' (' .. short_url .. ') already installed')
 		end
 	else
 		os.execute('git -C ' .. M.path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		checkout(path, branch, commit)
 		if not silent then
-			vis:message(name .. ' installed')
+			vis:message(name .. ' (' .. short_url .. ') installed')
 		end
 	end
 	vis:redraw()
@@ -135,25 +140,27 @@ local plug_count = function()
 end
 
 local plug_diff = function(url, name, path, file, alias, branch, commit, args)
+	local short_url = get_short_url(url)
 	if not file_exists(path) then
-		vis:message(name .. ' (' .. url .. ') is NOT installed')
+		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
 		return
 	end
 	local local_hash = execute('git -C ' .. path .. ' rev-parse HEAD')
 	local remote_hash = execute('git ls-remote ' .. url .. ' HEAD | cut -f1')
 	if local_hash == remote_hash then
-		vis:message(name .. ' (' .. url .. ') is up-to-date')
+		vis:message(name .. ' (' .. short_url .. ') is up-to-date')
 	else
-		vis:message(name .. ' (' .. url .. ') needs UPDATE')
+		vis:message(name .. ' (' .. short_url .. ') needs UPDATE')
 	end
 	vis:redraw()
 end
 
 local plug_list = function(url, name, path, file, alias, branch, commit, args)
+	local short_url = get_short_url(url)
 	if file_exists(path) then
-		vis:message(name .. ' (' .. url .. ')')
+		vis:message(name .. ' (' .. short_url .. ')')
 	else
-		vis:message(name .. ' (' .. url .. ') is NOT installed')
+		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
 	end
 	vis:redraw()
 end
