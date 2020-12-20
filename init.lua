@@ -157,7 +157,6 @@ vis:command_register('plug-install', function(argv, force, win, selection, range
 	vis:message('installing..')
 	vis:redraw()
 	install_plugins(false)
-	vis:message('done')
 	vis:redraw()
 	return true
 end)
@@ -170,25 +169,22 @@ vis:command_register('plug-rm', function(argv, force, win, selection, range)
 	else
 		vis:message('Error: missing name')
 	end
-	vis:message('done')
 	vis:redraw()
 	return true
 end)
 
 vis:command_register('plug-clean', function(argv, force, win, selection, range)
-	vis:message('deleting all plugins..')
+	vis:message('cleaning..')
 	vis:redraw()
 	for_each_plugin(plug_delete)
-	vis:message('done')
 	vis:redraw()
 	return true
 end)
 
 vis:command_register('plug-update', function(argv, force, win, selection, range)
-	vis:message('updating plugins..')
+	vis:message('updating..')
 	vis:redraw()
 	for_each_plugin(plug_update)
-	vis:message('done')
 	vis:redraw()
 	return true
 end)
@@ -197,16 +193,14 @@ vis:command_register('plug-ls', function(argv, force, win, selection, range)
 	vis:message('plugins (' .. plug_count() .. ')')
 	vis:redraw()
 	for_each_plugin(plug_list)
-	vis:message('done')
 	vis:redraw()
 	return true
 end)
 
 vis:command_register('plug-outdated', function(argv, force, win, selection, range)
-	vis:message('checking if plugins up-to-date..')
+	vis:message('checking if up-to-date..')
 	vis:redraw()
 	for_each_plugin(plug_diff)
-	vis:message('done')
 	vis:redraw()
 	return true
 end)
