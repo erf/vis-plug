@@ -3,6 +3,7 @@ local M = {}
 -- the required plugins are stored here
 M.plugins = {}
 
+-- E.g. '~/.config/vis/plugins'
 local get_default_plugins_path = function()
 	local visrc, err = package.searchpath('visrc', package.path)
 	if err then return nil end
@@ -16,6 +17,7 @@ M.path = get_default_plugins_path()
 -- the plugins configurations set in visrc.lua
 local plugins_conf = {}
 
+-- concat a table to a string, effectivly
 local concat = function(iterable, func)
 	local arr = {}
 	for key, val in pairs(iterable) do
@@ -24,6 +26,7 @@ local concat = function(iterable, func)
 	return table.concat(arr, '\n')
 end
 
+-- execute a command and return result string
 local execute = function(command)
 	local handle = io.popen(command)
 	local result = handle:read("*a")
@@ -31,6 +34,7 @@ local execute = function(command)
 	return result
 end
 
+-- check if file exists
 local file_exists = function (path)
 	local file = io.open(path)
 	if not file then return false end
@@ -38,14 +42,17 @@ local file_exists = function (path)
 	return true
 end
 
+-- E.g. https://github.com/erf/{vis-highlight}.git -> vis-highlight
 local get_name_from_url = function(url)
 	return string.match(url, '^.*/([^$.]+)')
 end
 
+-- E.g. '~/.config/vis/plugins/vis-highlight'
 local get_plugin_path = function(name)
 	return M.path .. '/' .. name
 end
 
+-- iterate the plugins conf and call an operation per plugin
 local for_each_plugin = function (op, args)
 	for url, val in pairs(plugins_conf) do
 		local file, alias, branch, commit
