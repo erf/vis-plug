@@ -16,6 +16,13 @@ M.path = get_default_plugins_path()
 -- the plugins configurations set in visrc.lua
 local plugins_conf = {}
 
+local execute = function(command)
+	local handle = io.popen(command)
+	local result = handle:read("*a")
+	handle:close()
+	return result
+end
+
 local file_exists = function (path)
 	local file = io.open(path)
 	if not file then return false end
@@ -110,13 +117,6 @@ local plug_count = function()
 		count = count + 1
 	end
 	return count
-end
-
-local execute = function(command)
-	local handle = io.popen(command)
-	local result = handle:read("*a")
-	handle:close()
-	return result
 end
 
 local plug_diff = function(url, name, path, file, alias, branch, commit, args)
