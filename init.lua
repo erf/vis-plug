@@ -63,6 +63,7 @@ local get_plugin_path = function(name)
 	return M.path .. '/' .. name
 end
 
+-- remove protocol from url to make it shorter for output
 local get_short_url = function(url)
 	return url:match('^.*//(.*)')
 end
