@@ -18,7 +18,7 @@ We support the following `vis` commands:
 
 `:plug-clean` - delete all plugins in conf
 
-`:plug-diff` - check if repos are up-to-date
+`:plug-outdated` - check if repos are up-to-date
 
 ## Install
 
