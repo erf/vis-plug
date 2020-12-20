@@ -16,6 +16,14 @@ M.path = get_default_plugins_path()
 -- the plugins configurations set in visrc.lua
 local plugins_conf = {}
 
+local concat = function(iterable, func)
+	local arr = {}
+	for key, val in pairs(iterable) do
+		table.insert(arr, func(key, val))
+	end
+	return table.concat(arr, '\n')
+end
+
 local execute = function(command)
 	local handle = io.popen(command)
 	local result = handle:read("*a")
@@ -207,6 +215,26 @@ vis:command_register('plug-outdated', function(argv, force, win, selection, rang
 	vis:message('checking if up-to-date..')
 	vis:redraw()
 	for_each_plugin(plug_diff)
+	vis:redraw()
+	return true
+end)
+
+vis:command_register('plug-commands', function(argv, force, win, selection, range)
+	local commands = {
+		[':plug-ls'] = 'list plugins',
+		[':plug-install'] = 'install plugins in conf (using git clone)',
+		[':plug-update'] = 'update plugins in conf (using git pull)',
+		[':plug-rm {name}'] = 'remove plugin by name (see plug-list for name)',
+		[':plug-clean'] = 'delete all plugins in conf',
+		[':plug-outdated'] = 'check if repos are up-to-date',
+		[':plug-commands'] = 'list commands (this!)',
+	}
+	vis:message('vis-plug commands')
+	vis:redraw()
+	local str = concat(commands, function(command, desc)
+		return command .. ' - ' .. desc
+	end)
+	vis:message(str)
 	vis:redraw()
 	return true
 end)

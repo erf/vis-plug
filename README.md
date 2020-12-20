@@ -20,6 +20,8 @@ We support the following `vis` commands:
 
 `:plug-outdated` - check if repos are up-to-date
 
+`:plug-commands` - list available commands (these!)
+
 ## Install
 
 Download `vis-plug` and `require` in your `visrc` file. See [plugins](https://github.com/martanne/vis/wiki/Plugins).
