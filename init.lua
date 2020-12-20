@@ -143,7 +143,7 @@ local plug_diff = function(url, name, path, file, alias, branch, commit, args)
 	local remote_hash = execute('git ls-remote ' .. url .. ' HEAD | cut -f1')
 	if local_hash == remote_hash then
 		vis:message(name .. ' (' .. url .. ') is up-to-date')
-    else
+	else
 		vis:message(name .. ' (' .. url .. ') needs UPDATE')
 	end
 	vis:redraw()
