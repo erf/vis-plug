@@ -106,7 +106,29 @@ local plug_count = function()
 	return count
 end
 
-local plug_name = function(url, name, path, file, alias, branch, commit, args)
+local execute = function(command)
+	local handle = io.popen(command)
+	local result = handle:read("*a")
+	handle:close()
+	return result
+end
+
+local plug_diff = function(url, name, path, file, alias, branch, commit, args)
+	if not file_exists(path) then
+		vis:message(name .. ' (' .. url .. ') is NOT installed')
+		return
+	end
+	local local_hash = execute('git -C ' .. path .. ' rev-parse HEAD')
+	local remote_hash = execute('git ls-remote ' .. url .. ' HEAD | cut -f1')
+	if local_hash == remote_hash then
+		vis:message(name .. ' (' .. url .. ') is up-to-date')
+    else
+		vis:message(name .. ' (' .. url .. ') needs UPDATE')
+	end
+	vis:redraw()
+end
+
+local plug_list = function(url, name, path, file, alias, branch, commit, args)
 	if file_exists(path) then
 		vis:message(name .. ' (' .. url .. ')')
 	else
@@ -144,11 +166,10 @@ vis:command_register('plug-rm', function(argv, force, win, selection, range)
 	vis:message('deleting..')
 	vis:redraw()
 	local name = argv[1]
-	if not name then
-		vis:message('Error: missing name')
+	if name then
+		plug_delete(nil, name, get_plugin_path(name))
 	else
-		local path = get_plugin_path(name)
-		plug_delete(nil, name, path)
+		vis:message('Error: missing name')
 	end
 	vis:message('done')
 	vis:redraw()
@@ -176,7 +197,16 @@ end)
 vis:command_register('plug-ls', function(argv, force, win, selection, range)
 	vis:message('plugins (' .. plug_count() .. ')')
 	vis:redraw()
-	for_each_plugin(plug_name)
+	for_each_plugin(plug_list)
+	vis:message('done')
+	vis:redraw()
+	return true
+end)
+
+vis:command_register('plug-diff', function(argv, force, win, selection, range)
+	vis:message('checking if up-to-date..')
+	vis:redraw()
+	for_each_plugin(plug_diff)
 	vis:message('done')
 	vis:redraw()
 	return true

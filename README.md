@@ -18,6 +18,8 @@ We support the following `vis` commands:
 
 `:plug-clean` - delete all plugins in conf
 
+`:plug-diff` - check if repos are up-to-date
+
 ## Install
 
 Download `vis-plug` and `require` in your `visrc` file. See [plugins](https://github.com/martanne/vis/wiki/Plugins).
