@@ -1,5 +1,8 @@
 local M = {}
 
+-- the plugins configurations set in visrc.lua
+local conf = {}
+
 -- the required plugins are stored here
 M.plugins = {}
 
@@ -34,9 +37,6 @@ local commands = {
 	[':plug-outdated'] = 'check if repos are up-to-date',
 	[':plug-commands'] = 'list commands (this!)',
 }
-
--- the plugins configurations set in visrc.lua
-local plugins_conf = {}
 
 -- concat a table to a string, effectivly
 local concat = function(iterable, func)
@@ -80,7 +80,7 @@ end
 
 -- iterate the plugins conf and call an operation per plugin
 local for_each_plugin = function (op, args)
-	for url, val in pairs(plugins_conf) do
+	for url, val in pairs(conf) do
 		local file, alias, branch, commit
 		if type(val) == 'table' then
 			file   = val['file']   or val[1]
@@ -156,7 +156,7 @@ end
 
 local plug_count = function()
 	local count = 0
-	for _ in pairs(plugins_conf) do
+	for _ in pairs(conf) do
 		count = count + 1
 	end
 	return count
@@ -269,7 +269,7 @@ vis:command_register('plug-commands', function(argv, force, win, selection, rang
 end)
 
 M.init = function(plugins, install_on_init)
-	plugins_conf = plugins or {}
+	conf = plugins or {}
 	if install_on_init then
 		install_plugins(true)
 	end
