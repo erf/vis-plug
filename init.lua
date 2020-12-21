@@ -166,6 +166,7 @@ local plug_diff = function(url, name, path, file, alias, branch, commit, args)
 	local short_url = get_short_url(url)
 	if not file_exists(path) then
 		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
+		vis:redraw()
 		return
 	end
 	local local_hash = execute('git -C ' .. path .. ' rev-parse HEAD')
