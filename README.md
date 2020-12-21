@@ -74,8 +74,8 @@ Plugins are by default installed to your `visrc` configuration path.
 
 >E.g.`$HOME/.config/vis/plugins`
 
-Set `plug.path` to override this.
+Use `plug.set_path(path)` to override this.
 
 ```Lua
-plug.path = '/Users/some-user/my-plugins'
+plug.set_path('/Users/some-user/my-plugins')
 ```
