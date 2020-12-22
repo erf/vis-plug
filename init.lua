@@ -259,23 +259,31 @@ vis:command_register('plug-update', function(argv, force, win, selection, range)
 	return true
 end)
 
+local try_to_get_required_plug_path = function()
+	local plug_path = package.searchpath('plugins/vis-plug', package.path)
+	if plug_path == nil then
+		return plug_path
+	end
+	return package.searchpath('vis-plug', package.path)
+end
+
+local fetch_latest_vis_plug = function(plug_path)
+	--  NOTE: can't read stderr ..
+	local url = 'https://raw.githubusercontent.com/erf/vis-plug/master/init.lua'
+	local command = 'curl -s -S -f -H ' .. url .. ' -o ' .. plug_path
+	return execute(command)
+end
+
 vis:command_register('plug-upgrade', function(argv, force, win, selection, range)
 	vis:message('upgrading..')
 	vis:redraw()
-	local plug_path
-	plug_path = package.searchpath('plugins/vis-plug', package.path)
-	if plug_path == nil then
-		plug_path = package.searchpath('vis-plug', package.path)
-	end
+	local plug_path = try_to_get_required_plug_path()
 	if plug_path == nil then
 		vis:message('error: could not find vis-plug path')
 		vis:redraw()
 		return
 	end
-	local url = 'https://raw.githubusercontent.com/erf/vis-plug/master/init.lua'
-	local command = 'curl -s -S -f -H ' .. url .. ' -o ' .. plug_path
-	local result = execute(command)
-	--  NOTE: can't read stderr ..
+	local result = fetch_latest_vis_plug(plug_path)
 	if result ~= nil and result ~= '' then
 		vis:message('upgrade error: ' .. result)
 	else
