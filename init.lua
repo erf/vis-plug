@@ -63,6 +63,7 @@ local file_exists = function (path)
 	return true
 end
 
+-- get folder name, used as name for plugin
 -- E.g. https://github.com/erf/{vis-highlight}.git -> vis-highlight
 local get_name_from_url = function(url)
 	return string.match(url, '^.*/([^$.]+)')
@@ -75,7 +76,22 @@ end
 
 -- remove protocol from url to make it shorter for output
 local get_short_url = function(url)
-	return url:match('^.*//(.*)')
+	return url:match('^.+://(.*)')
+end
+
+-- return true if has the protocol part of the url
+-- '{https://}github.com/erf/vis-cursors.git'
+local is_full_url = function(url)
+	return url:find('^.+://') ~= nil
+end
+
+-- given a github short hand url, return the full url
+-- E.g. 'erf/vis-cursors' -> 'https://github.com/erf/vis-cursors.git'
+local get_full_url = function(url)
+	if is_full_url(url) then
+		return url
+	end
+	return string.gsub(url, '.+', 'https://github.com/%1')
 end
 
 -- iterate the plugins conf and call an operation per plugin
@@ -90,10 +106,11 @@ local for_each_plugin = function (op, args)
 		else
 			file   = val
 		end
+		local full_url = get_full_url(url)
  		local name = get_name_from_url(url)
 		if name then
 			local path = get_plugin_path(name)
-			op(url, name, path, file, alias, branch, commit, args)
+			op(full_url, name, path, file, alias, branch, commit, args)
 		end
 	end
 end
@@ -268,6 +285,7 @@ vis:command_register('plug-commands', function(argv, force, win, selection, rang
 	return true
 end)
 
+-- install, checkout and require plugins
 M.init = function(plugins, install_on_init)
 	conf = plugins or {}
 	if install_on_init then

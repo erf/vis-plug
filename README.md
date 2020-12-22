@@ -42,9 +42,9 @@ Configure plugins in your `visrc.lua` using a set of URLs like below:
 local plug = require('plugins/vis-plug')
 
 local conf = {
-	['https://github.com/erf/vis-highlight.git'] = 'init',
-	['https://github.com/erf/vis-cursors.git'] = { file = 'init', alias = 'C' },
-	['https://github.com/erf/vis-test.git'] = { file = 'init', branch = 'other', commit = 'f4849d4' },
+	['erf/vis-cursors'] = 'init',
+	['erf/vis-highlight'] = { file = 'init', alias = 'hi' },
+	['https://github.com/erf/vis-test.git'] = { file = 'init', commit = 'f4849d4' },
 }
 
 plug.init(conf)
@@ -53,12 +53,13 @@ plug.init(conf)
 
 Each configuration has a:
 
-- **key** - the `git` repository
+- **key** - the `git` repository 
+	- defaults to `https://github.com/` if no **host** is defined
 - **value** - the `file` or a `table|array` with the following
 	- `file` - lua file required on `init`
-	- `alias` - access plugin variables via `plug.plugins.{alias}` (optional)
-	- `branch` - use a specific branch (optional)
-	- `commit` - use a specific commit (optional)
+	- `alias` - access plugins via `plug.plugins.{alias}` (opt)
+	- `branch` - use a specific branch (opt)
+	- `commit` - use a specific commit (opt)
 
 ### Install on init
 
