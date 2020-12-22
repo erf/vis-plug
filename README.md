@@ -23,7 +23,7 @@ Configure plugins in your `visrc.lua` as below:
 ```Lua
 local plug = require('plugins/vis-plug')
 
--- configure plugins
+-- configure plugins with URL / file|options
 local conf = {
 	['erf/vis-cursors'] = 'init',
 	['erf/vis-highlight'] = { file = 'init', alias = 'hi' },
