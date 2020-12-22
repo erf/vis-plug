@@ -31,6 +31,7 @@ local commands = {
 	[':plug-ls'] = 'list plugins',
 	[':plug-install'] = 'install plugins in conf (using git clone)',
 	[':plug-update'] = 'update plugins in conf (using git pull)',
+	[':plug-upgrade'] = 'download and overwrite latest vis-plug',
 	[':plug-rm {name}'] = 'remove plugin by name (see plug-list for name)',
 	[':plug-clean'] = 'delete all plugins in conf',
 	[':plug-outdated'] = 'check if repos are up-to-date',
@@ -254,6 +255,32 @@ vis:command_register('plug-update', function(argv, force, win, selection, range)
 	vis:message('updating..')
 	vis:redraw()
 	for_each_plugin(plug_update)
+	vis:redraw()
+	return true
+end)
+
+vis:command_register('plug-upgrade', function(argv, force, win, selection, range)
+	vis:message('upgrading..')
+	vis:redraw()
+	local plug_path
+	plug_path = package.searchpath('plugins/vis-plug', package.path)
+	if plug_path == nil then
+		plug_path = package.searchpath('vis-plug', package.path)
+	end
+	if plug_path == nil then
+		vis:message('error: could not find vis-plug path')
+		vis:redraw()
+		return
+	end
+	local url = 'https://raw.githubusercontent.com/erf/vis-plug/master/init.lua'
+	local command = 'curl -s -S -f ' .. url .. ' -o ' .. plug_path
+	local result = execute(command)
+	--  NOTE: can't read stderr ..
+	if result ~= nil and result ~= '' then
+		vis:message('upgrade error: ' .. result)
+	else
+		vis:message('upgraded - restart for latest vis-plug')
+	end
 	vis:redraw()
 	return true
 end)

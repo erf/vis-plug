@@ -74,6 +74,8 @@ We support the following `vis` commands:
 
 `:plug-update` - update plugins in conf (using git pull)
 
+`:plug-upgrade` - download and overwrite current version of vis-plug
+
 `:plug-rm {name}` - remove plugin by name (see `plug-list` for name)
 
 `:plug-clean` - delete all plugins in conf
