@@ -30,11 +30,11 @@ M.path(get_default_cache_path())
 local commands = {
 	[':plug-ls'] = 'list plugins',
 	[':plug-install'] = 'install plugins in conf (using git clone)',
+	[':plug-outdated'] = 'check if repos are up-to-date',
 	[':plug-update'] = 'update plugins in conf (using git pull)',
 	[':plug-upgrade'] = 'download and overwrite latest vis-plug',
 	[':plug-rm {name}'] = 'remove plugin by name (see plug-list for name)',
 	[':plug-clean'] = 'delete all plugins in conf',
-	[':plug-outdated'] = 'check if repos are up-to-date',
 	[':plug-commands'] = 'list commands (this!)',
 }
 
