@@ -270,7 +270,7 @@ end
 local fetch_latest_vis_plug = function(plug_path)
 	--  NOTE: can't read stderr ..
 	local url = 'https://raw.githubusercontent.com/erf/vis-plug/master/init.lua'
-	local command = 'curl -s -S -f -H ' .. url .. ' > ' .. plug_path
+	local command = 'curl -s -S -f -H  "Cache-Control: no-cache" ' .. url .. ' > ' .. plug_path
 	return execute(command)
 end
 
