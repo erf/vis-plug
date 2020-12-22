@@ -1,27 +1,21 @@
 # vis-plug 🦑
 
-A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
+A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor
 
-[Configure](#Configure) your plugins in your `visrc` and type a few [Commands](#Commands).
+[Configure](#Configure) third-party plugins in your `visrc` and type a few [Commands](#Commands)
 
 ## Install
 
-Download and `require` in your `visrc` file (see [plugins](https://github.com/martanne/vis/wiki/Plugins)).
-
-Here is a simple `curl` install script:
-
-```bash
-curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs
-```
+Download and `require` in your `visrc` file, see [plugins](https://github.com/martanne/vis/wiki/Plugins).
 
 ## Configure
 
 ### Configure plugins in visrc
 
-Configure plugins in your `visrc.lua` as below:
+Configure plugins as below:
 
 ```Lua
-local plug = require('plugins/vis-plug')
+local plug = require('vis-plug')
 
 -- configure plugins with URL / file|options
 local conf = {
@@ -30,18 +24,14 @@ local conf = {
 	['https://github.com/erf/vis-test.git'] = { file = 'init', branch = 'other' },
 }
 
--- set custom install path
-plug.path('/Users/some-user/my-plugins')
-
--- require (and optionally install) plugins
+-- require plugins and optionally install them on init
 plug.init(conf)
-
 ```
 
 Each configuration has a:
 
 - **key** - URL to the `git` repository
-	- you can remove host if `https://github.com/`
+	- short urls for `https://github.com/` is allowed
 - **value** - the `file` or a `table|array` with the following
 	- `file` - lua file required on `init`
 	- `alias` - access plugins via `plug.plugins.{alias}` (opt)
@@ -50,22 +40,26 @@ Each configuration has a:
 
 ### Install on init
 
-Pass **true** as the second argument to `init` to `install_on_init`
+Pass **true** as a second arg to `init` to install and checkout on init.
+
+Example:
 
 ```Lua
 require('plugins/vis-plug').init(conf, true)
 ```
 
-### Plugins install path
+### Install path
 
-Plugins are by default installed to your `visrc` configuration path. 
+Plugins are by default installed to the default cache folder on your system.. 
 
->E.g.`$HOME/.config/vis/plugins`
+That is `(XDG_CACHE_HOME|HOME/.cache)/vis-plug`.
 
-Use `plug.path(path)` to override this.
+Use `plug.path(path)` to set a custom plugins folder.
+
+Example:
 
 ```Lua
-plug.path('/Users/some-user/my-plugins')
+plug.path('/Users/user/my-plugins')
 ```
 
 ## Commands

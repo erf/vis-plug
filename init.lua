@@ -6,25 +6,25 @@ local conf = {}
 -- the required plugins are stored here
 M.plugins = {}
 
--- E.g. '~/.config/vis/plugins'
-local get_default_plugins_path = function()
-	local visrc, err = package.searchpath('visrc', package.path)
-	if err then return nil end
-	local visrc_path = visrc:match('(.*/)')
-	return visrc_path ..'plugins'
+-- e.g. /Users/user/.cache/vis-plug
+local get_default_cache_path = function()
+	local HOME = os.getenv('HOME')
+	local XDG_CACHE_HOME = os.getenv('XDG_CACHE_HOME')
+	local CACHE_DIR = XDG_CACHE_HOME or (HOME .. '/.cache')
+	return CACHE_DIR .. '/vis-plug'
 end
 
 -- the dir where we store plugins on disk
-local root_dir = nil
+local plugins_dir = nil
 
 -- set custom path and add it first to package.path for require
 M.path = function(path)
-	root_dir = path
+	plugins_dir = path
 	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
 end
 
--- set default path
-M.path(get_default_plugins_path())
+-- set default install path for plugins
+M.path(get_default_cache_path())
 
 -- table used by the :plug-commands command
 local commands = {
@@ -62,15 +62,15 @@ local file_exists = function (path)
 	return true
 end
 
--- get folder name, used as name for plugin
+-- use repo folder as plugin name
 -- E.g. https://github.com/erf/{vis-highlight}.git -> vis-highlight
 local get_name_from_url = function(url)
 	return url:match('^.*/([^.]+)')
 end
 
--- E.g. '~/.config/vis/plugins/vis-highlight'
+-- E.g. '~/.cache/vis-plug/vis-highlight'
 local get_plugin_path = function(name)
-	return root_dir .. '/' .. name
+	return plugins_dir .. '/' .. name
 end
 
 -- remove protocol from url to make it shorter for output
@@ -134,7 +134,7 @@ local plug_install = function(url, name, path, file, alias, branch, commit, args
 			vis:message(name .. ' (' .. short_url .. ') already installed')
 		end
 	else
-		os.execute('git -C ' .. root_dir .. ' clone ' .. url .. ' --quiet 2> /dev/null')
+		os.execute('git -C ' .. plugins_dir .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		checkout(path, branch, commit)
 		if not silent then
 			vis:message(name .. ' (' .. short_url .. ') installed')
@@ -164,7 +164,8 @@ local plug_require = function(url, name, path, file, alias, branch, commit, args
 	if not file_exists(path) then
 		return
 	end
-	local plugin = require(name .. '/' .. file)
+	local plugin_name = name .. '/' .. file
+	local plugin = require(plugin_name)
 	if alias then
 		M.plugins[alias] = plugin
 	end
@@ -206,8 +207,8 @@ local plug_list = function(url, name, path, file, alias, branch, commit, args)
 end
 
 local install_plugins = function(silent)
-	if not file_exists(root_dir) then
-		os.execute('mkdir -p ' .. root_dir)
+	if not file_exists(plugins_dir) then
+		os.execute('mkdir -p ' .. plugins_dir)
 	end
 	for_each_plugin(plug_install, silent)
 end
@@ -284,7 +285,7 @@ vis:command_register('plug-commands', function(argv, force, win, selection, rang
 	return true
 end)
 
--- install, checkout and require plugins
+-- require plugins (and optionally install and checkout)
 M.init = function(plugins, install_on_init)
 	conf = plugins or {}
 	if install_on_init then
