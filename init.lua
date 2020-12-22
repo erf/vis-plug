@@ -261,7 +261,7 @@ end)
 
 local try_to_get_required_plug_path = function()
 	local plug_path = package.searchpath('plugins/vis-plug', package.path)
-	if plug_path == nil then
+	if plug_path ~= nil then
 		return plug_path
 	end
 	return package.searchpath('vis-plug', package.path)
