@@ -28,24 +28,26 @@ M.path(get_default_cache_path())
 
 -- table used by the :plug-commands command
 local commands = {
-	[':plug-ls'] = 'list plugins',
-	[':plug-install'] = 'install plugins in conf (using git clone)',
-	[':plug-outdated'] = 'check if repos are up-to-date',
-	[':plug-update'] = 'update plugins in conf (using git pull)',
-	[':plug-upgrade'] = 'download and overwrite latest vis-plug',
-	[':plug-rm {name}'] = 'remove plugin by name (see plug-list for name)',
-	[':plug-clean'] = 'delete all plugins in conf',
-	[':plug-commands'] = 'list commands (this!)',
+	':plug-ls',
+	':plug-install',
+	':plug-outdated',
+	':plug-update',
+	':plug-upgrade',
+	':plug-rm {name}',
+	':plug-clean',
+	':plug-commands',
 }
 
--- concat a table to a string, effectivly
-local concat = function(iterable, func)
-	local arr = {}
-	for key, val in pairs(iterable) do
-		table.insert(arr, func(key, val))
-	end
-	return table.concat(arr, '\n')
-end
+local commands_desc = {
+	'list plugins',
+	'install plugins in conf (git clone)',
+	'check if repos are up-to-date (diff commits)',
+	'update plugins in conf (git pull)',
+	'download and overwrite latest vis-plug',
+	'remove plugin by name (:plug-ls for names)',
+	'delete all plugins in conf',
+	'list commands (these!)',
+}
 
 -- execute a command and return result string
 local execute = function(command)
@@ -312,9 +314,12 @@ end)
 vis:command_register('plug-commands', function(argv, force, win, selection, range)
 	vis:message('vis-plug commands')
 	vis:redraw()
-	local str = concat(commands, function(command, desc)
-		return command .. ' - ' .. desc
-	end)
+	local arr = {}
+	for i, command in ipairs(commands) do
+		local desc = commands_desc[i]
+		table.insert(arr, command .. ' - ' .. desc)
+	end
+	local str = table.concat(arr, '\n')
 	vis:message(str)
 	vis:redraw()
 	return true
