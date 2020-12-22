@@ -287,7 +287,7 @@ vis:command_register('plug-upgrade', function(argv, force, win, selection, range
 	if result ~= nil and result ~= '' then
 		vis:message('upgrade error: ' .. result)
 	else
-		vis:message('upgraded - restart for latest vis-plug')
+		vis:message('upgrade OK - restart for latest vis-plug')
 	end
 	vis:redraw()
 	return true
