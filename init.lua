@@ -20,8 +20,7 @@ local plugin_path = nil
 -- set custom path
 M.path = function(path)
 	plugin_path = path
-	package.path = package.path .. ';' .. path .. '/?.lua'
-	package.path = package.path .. ';' .. path .. '/?/init.lua'
+	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
 end
 
 -- set default path
@@ -66,7 +65,7 @@ end
 -- get folder name, used as name for plugin
 -- E.g. https://github.com/erf/{vis-highlight}.git -> vis-highlight
 local get_name_from_url = function(url)
-	return string.match(url, '^.*/([^$.]+)')
+	return url:match('^.*/([^$.]+)')
 end
 
 -- E.g. '~/.config/vis/plugins/vis-highlight'
@@ -90,8 +89,9 @@ end
 local get_full_url = function(url)
 	if is_full_url(url) then
 		return url
+	else
+		return 'https://github.com/' .. url
 	end
-	return string.gsub(url, '.+', 'https://github.com/%1')
 end
 
 -- iterate the plugins conf and call an operation per plugin
@@ -134,8 +134,7 @@ local plug_install = function(url, name, path, file, alias, branch, commit, args
 			vis:message(name .. ' (' .. short_url .. ') already installed')
 		end
 	else
-		local cmd = 'git -C ' .. plugin_path .. ' clone ' .. url .. ' --quiet 2> /dev/null'
-		os.execute(cmd)
+		os.execute('git -C ' .. plugin_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		checkout(path, branch, commit)
 		if not silent then
 			vis:message(name .. ' (' .. short_url .. ') installed')
