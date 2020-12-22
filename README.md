@@ -18,7 +18,7 @@ curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.co
 
 ### Configure plugins in visrc
 
-Configure plugins in your `visrc.lua` using a set of URLs like below:
+Configure plugins in your `visrc.lua` as below:
 
 ```Lua
 local plug = require('plugins/vis-plug')
