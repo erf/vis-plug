@@ -27,7 +27,7 @@ local plug = require('plugins/vis-plug')
 local conf = {
 	['erf/vis-cursors'] = 'init',
 	['erf/vis-highlight'] = { file = 'init', alias = 'hi' },
-	['https://github.com/erf/vis-test.git'] = { file = 'init', commit = 'f4849d4' },
+	['https://github.com/erf/vis-test.git'] = { file = 'init', branch = 'other' },
 }
 
 -- set custom install path
@@ -40,8 +40,8 @@ plug.init(conf)
 
 Each configuration has a:
 
-- **key** - the `git` repository 
-	- defaults to `https://github.com/` if no **host** is defined
+- **key** - URL to the `git` repository
+	- you can remove host if `https://github.com/`
 - **value** - the `file` or a `table|array` with the following
 	- `file` - lua file required on `init`
 	- `alias` - access plugins via `plug.plugins.{alias}` (opt)
