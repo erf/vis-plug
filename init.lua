@@ -14,12 +14,12 @@ local get_default_plugins_path = function()
 	return visrc_path ..'plugins'
 end
 
--- the path where we store plugins on disk
-local plugin_path = nil
+-- the dir where we store plugins on disk
+local root_dir = nil
 
 -- set custom path and add it first to package.path for require
 M.path = function(path)
-	plugin_path = path
+	root_dir = path
 	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
 end
 
@@ -70,7 +70,7 @@ end
 
 -- E.g. '~/.config/vis/plugins/vis-highlight'
 local get_plugin_path = function(name)
-	return plugin_path .. '/' .. name
+	return root_dir .. '/' .. name
 end
 
 -- remove protocol from url to make it shorter for output
@@ -134,7 +134,7 @@ local plug_install = function(url, name, path, file, alias, branch, commit, args
 			vis:message(name .. ' (' .. short_url .. ') already installed')
 		end
 	else
-		os.execute('git -C ' .. plugin_path .. ' clone ' .. url .. ' --quiet 2> /dev/null')
+		os.execute('git -C ' .. root_dir .. ' clone ' .. url .. ' --quiet 2> /dev/null')
 		checkout(path, branch, commit)
 		if not silent then
 			vis:message(name .. ' (' .. short_url .. ') installed')
@@ -206,8 +206,8 @@ local plug_list = function(url, name, path, file, alias, branch, commit, args)
 end
 
 local install_plugins = function(silent)
-	if not file_exists(plugin_path) then
-		os.execute('mkdir -p ' .. plugin_path)
+	if not file_exists(root_dir) then
+		os.execute('mkdir -p ' .. root_dir)
 	end
 	for_each_plugin(plug_install, silent)
 end
