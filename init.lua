@@ -99,7 +99,7 @@ local for_each_plugin = function (op, args)
 	for url, val in pairs(conf) do
 		local file, alias, branch, commit
 		if type(val) == 'table' then
-			file   = val['file']   or val[1]
+			file   = val['file']   or val[1] or 'init'
 			alias  = val['alias']  or val[2]
 			branch = val['branch'] or val[3]
 			commit = val['commit'] or val[4]
