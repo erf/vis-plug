@@ -2,31 +2,13 @@
 
 A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
 
-Keep up-to-date with third-party `vis` plugins by [Configuring](#Configure) your `visrc` and typing a few [Commands](#Commands).
-
-## Commands
-
-We support the following `vis` commands:
-
-`:plug-ls` - list plugins in conf
-
-`:plug-install` - install plugins in conf (using git clone)
-
-`:plug-update` - update plugins in conf (using git pull)
-
-`:plug-rm {name}` - remove plugin by name (see `plug-list` for name)
-
-`:plug-clean` - delete all plugins in conf
-
-`:plug-outdated` - check if repos are up-to-date
-
-`:plug-commands` - list available commands (these!)
+[Configure](#Configure) your plugins in your `visrc` and type a few [Commands](#Commands).
 
 ## Install
 
-Download `vis-plug` and `require` in your `visrc` file. See [plugins](https://github.com/martanne/vis/wiki/Plugins).
+Download `vis-plug` and `require` in your `visrc` file (see [plugins](https://github.com/martanne/vis/wiki/Plugins)).
 
-Simple `curl` install script, that might work for you.
+Here is a simple `curl` install script:
 
 ```bash
 curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs
@@ -80,3 +62,21 @@ Use `plug.set_path(path)` to override this.
 ```Lua
 plug.set_path('/Users/some-user/my-plugins')
 ```
+
+## Commands
+
+We support the following `vis` commands:
+
+`:plug-ls` - list plugins in conf
+
+`:plug-install` - install plugins in conf (using git clone)
+
+`:plug-update` - update plugins in conf (using git pull)
+
+`:plug-rm {name}` - remove plugin by name (see `plug-list` for name)
+
+`:plug-clean` - delete all plugins in conf
+
+`:plug-outdated` - check if repos are up-to-date
+
+`:plug-commands` - list available commands (these!)
