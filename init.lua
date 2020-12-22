@@ -17,7 +17,7 @@ end
 -- the path where we store plugins on disk
 local plugin_path = nil
 
--- set custom path
+-- set custom path and add it first to package.path for require
 M.path = function(path)
 	plugin_path = path
 	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
