@@ -18,14 +18,14 @@ end
 local plugin_path = nil
 
 -- set custom path
-M.set_path = function(path)
+M.path = function(path)
 	plugin_path = path
 	package.path = package.path .. ';' .. path .. '/?.lua'
 	package.path = package.path .. ';' .. path .. '/?/init.lua'
 end
 
 -- set default path
-M.set_path(get_default_plugins_path())
+M.path(get_default_plugins_path())
 
 -- table used by the :plug-commands command
 local commands = {

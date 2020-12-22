@@ -23,12 +23,17 @@ Configure plugins in your `visrc.lua` as below:
 ```Lua
 local plug = require('plugins/vis-plug')
 
+-- configure plugins
 local conf = {
 	['erf/vis-cursors'] = 'init',
 	['erf/vis-highlight'] = { file = 'init', alias = 'hi' },
 	['https://github.com/erf/vis-test.git'] = { file = 'init', commit = 'f4849d4' },
 }
 
+-- set custom install path
+plug.path('/Users/some-user/my-plugins')
+
+-- require (and optionally install) plugins
 plug.init(conf)
 
 ```
@@ -57,10 +62,10 @@ Plugins are by default installed to your `visrc` configuration path.
 
 >E.g.`$HOME/.config/vis/plugins`
 
-Use `plug.set_path(path)` to override this.
+Use `plug.path(path)` to override this.
 
 ```Lua
-plug.set_path('/Users/some-user/my-plugins')
+plug.path('/Users/some-user/my-plugins')
 ```
 
 ## Commands
