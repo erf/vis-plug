@@ -273,7 +273,7 @@ vis:command_register('plug-upgrade', function(argv, force, win, selection, range
 		return
 	end
 	local url = 'https://raw.githubusercontent.com/erf/vis-plug/master/init.lua'
-	local command = 'curl -s -S -f ' .. url .. ' -o ' .. plug_path
+	local command = 'curl -s -S -f -H ' .. url .. ' -o ' .. plug_path
 	local result = execute(command)
 	--  NOTE: can't read stderr ..
 	if result ~= nil and result ~= '' then
