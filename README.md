@@ -10,12 +10,10 @@ Download and `require` in your `visrc` file, see [plugins](https://github.com/ma
 
 ## Configure
 
-### Configure plugins in visrc
-
-Configure plugins as below:
+Configure plugins in `visrc` as below:
 
 ```Lua
-local plug = require('vis-plug')
+local plug = require('plugins/vis-plug')
 
 -- configure plugins with URL / file|options
 local conf = {
@@ -25,7 +23,7 @@ local conf = {
 }
 
 -- require plugins and optionally install them on init
-plug.init(conf)
+plug.init(conf, true)
 ```
 
 Each configuration has a:
@@ -42,21 +40,17 @@ Each configuration has a:
 
 Pass **true** as a second arg to `init` to install and checkout on init.
 
-Example:
-
 ```Lua
 require('plugins/vis-plug').init(conf, true)
 ```
 
 ### Install path
 
-Plugins are by default installed to the default cache folder on your system.. 
+Plugins are by default installed to the default cache folder on your system:  
 
-That is `(XDG_CACHE_HOME|HOME/.cache)/vis-plug`.
+`(XDG_CACHE_HOME|HOME/.cache)/vis-plug`
 
 Use `plug.path(path)` to set a custom plugins folder.
-
-Example:
 
 ```Lua
 plug.path('/Users/user/my-plugins')
