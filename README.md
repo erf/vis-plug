@@ -6,7 +6,7 @@ A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor.
 
 ## Install
 
-Download `vis-plug` and `require` in your `visrc` file (see [plugins](https://github.com/martanne/vis/wiki/Plugins)).
+Download and `require` in your `visrc` file (see [plugins](https://github.com/martanne/vis/wiki/Plugins)).
 
 Here is a simple `curl` install script:
 
