@@ -65,7 +65,7 @@ end
 -- get folder name, used as name for plugin
 -- E.g. https://github.com/erf/{vis-highlight}.git -> vis-highlight
 local get_name_from_url = function(url)
-	return url:match('^.*/([^$.]+)')
+	return url:match('^.*/([^.]+)')
 end
 
 -- E.g. '~/.config/vis/plugins/vis-highlight'
