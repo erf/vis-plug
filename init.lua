@@ -81,21 +81,34 @@ local get_plugin_path = function(name)
 	return plugins_dir .. '/' .. name
 end
 
--- remove protocol from url to make it shorter for output
-local get_short_url = function(url)
-	return url:match('^.+://(.*)')
-end
-
 -- return true if has the protocol part of the url
 -- '{https://}github.com/erf/vis-cursors.git'
 local is_full_url = function(url)
 	return url:find('^.+://') ~= nil
 end
 
+-- [user@]server:project.git
+local is_short_ssh_url = function(url)
+	return url:find('^.+@.+:.+')
+end
+
+-- remove protocol from url to make it shorter for output
+local get_short_url = function(url)
+	if is_full_url(url) then
+		return url:match('^.+://(.*)')
+	elseif is_short_ssh_url(url) then
+		return url -- TODO shorten?
+	else
+		return url
+	end
+end
+
 -- given a github short hand url, return the full url
 -- E.g. 'erf/vis-cursors' -> 'https://github.com/erf/vis-cursors.git'
 local get_full_url = function(url)
 	if is_full_url(url) then
+		return url
+	elseif is_short_ssh_url(url) then
 		return url
 	else
 		return 'https://github.com/' .. url
