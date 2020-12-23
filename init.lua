@@ -139,12 +139,21 @@ local for_each_plugin = function (op, args)
 end
 
 local checkout = function(path, branch, commit)
+	-- TODO don't checkout if we already are on the correct branch / commit (if more performant)
 	if commit then
 		os.execute('git -C ' .. path .. ' checkout --quiet ' .. commit)
 	elseif branch then
 		os.execute('git -C ' .. path .. ' checkout --quiet ' .. branch)
 	else
-		os.execute('git -C ' .. path .. ' checkout --quiet master')
+		local result = execute('git -C ' .. path .. ' rev-parse --abbrev-ref HEAD')
+		if result == ('master' or 'main') then
+			-- we're already on the correct branch, so no need to checkout, which is a bit faster
+			return
+		end
+		-- set 'master|main' branch by default
+		-- https://stackoverflow.com/questions/28666357/git-how-to-get-default-branch
+		local master = execute('git symbolic-ref refs/remotes/origin/HEAD | sed "s@^refs/remotes/origin/@@"')
+		os.execute('git -C ' .. path .. ' checkout --quiet ' .. master)
 	end
 end
 
