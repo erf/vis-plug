@@ -55,6 +55,11 @@ local execute = function(command)
 	local result = handle:read("*a")
 	handle:close()
 	return result
+
+	--TODO improve this by also getting errors based on vis-digraph
+	--local file = io.popen(string.format("vis-digraph '%s' 2>&1", keys:gsub("'", "'\\''")))
+	--local output = file:read('*all')
+	--local success, msg, status = file:close()
 end
 
 -- check if file exists
