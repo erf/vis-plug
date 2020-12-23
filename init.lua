@@ -53,6 +53,8 @@ local commands_desc = {
 local execute = function(command)
 	local handle = io.popen(command)
 	local result = handle:read("*a")
+	-- strip trailing spaces
+	result = result:gsub('(.-)%s*$', '%1')
 	handle:close()
 	return result
 
