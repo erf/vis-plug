@@ -31,7 +31,7 @@ local conf = {
 }
 
 -- require plugins and optionally install them on init
-plug.init(conf, true)
+plug.init(conf)
 ```
 
 Each configuration has a:
@@ -70,9 +70,9 @@ We support the following `vis` commands:
 
 `:plug-ls` - list plugins
 
-`:plug-install` - install plugins (git clone)
+`:plug-install` - install plugins (git clone and checkout)
 
-`:plug-update` - update plugins (git pull)
+`:plug-update` - update plugins (git pull and checkout)
 
 `:plug-outdated` - are repos up-to-date? (diff commits)
 
