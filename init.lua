@@ -21,13 +21,13 @@ end
 local plugins_dir = nil
 
 -- set custom path and add it first to package.path for require
-M.path = function(path)
+M.set_path = function(path)
 	plugins_dir = path
 	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
 end
 
 -- set default install path for plugins
-M.path(get_default_cache_path())
+M.set_path(get_default_cache_path())
 
 -- execute a command and return result string
 local execute = function(command)
