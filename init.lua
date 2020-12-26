@@ -1,13 +1,22 @@
 local M = {}
 
+-- the required plugins are stored here
+M.plugins = {}
+
 -- the plugins configurations set in visrc.lua
-local conf = {}
+local plugins_conf = {}
+
+-- the dir where we store plugins on disk
+local plugins_path = nil
 
 -- we store commands in an array of tables {name, func, desc}
 local commands = {}
 
--- the required plugins are stored here
-M.plugins = {}
+-- set custom path and add it first to package.path for require
+M.set_path = function(path)
+	plugins_path = path
+	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
+end
 
 -- e.g. /Users/user/.cache/vis-plug
 local get_default_cache_path = function()
@@ -15,15 +24,6 @@ local get_default_cache_path = function()
 	local XDG_CACHE_HOME = os.getenv('XDG_CACHE_HOME')
 	local CACHE_DIR = XDG_CACHE_HOME or (HOME .. '/.cache')
 	return CACHE_DIR .. '/vis-plug'
-end
-
--- the dir where we store plugins on disk
-local plugins_dir = nil
-
--- set custom path and add it first to package.path for require
-M.set_path = function(path)
-	plugins_dir = path
-	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
 end
 
 -- set default install path for plugins
@@ -54,7 +54,7 @@ end
 
 -- E.g. '~/.cache/vis-plug/vis-highlight'
 local get_path_from_name = function(name)
-	return plugins_dir .. '/' .. name
+	return plugins_path .. '/' .. name
 end
 
 -- return true if has the protocol part of the url
@@ -96,7 +96,7 @@ local get_plug_by_name = function(name)
 	if name == nil then
 		return nil
 	end
-	for _, plug in ipairs(conf) do
+	for _, plug in ipairs(plugins_conf) do
 		if plug.name == name then
 			return plug
 		end
@@ -105,7 +105,7 @@ end
 
 -- iterate the plugins conf and call an operation per plugin
 local for_each_plugin = function (func, args)
-	for _, plug in ipairs(conf) do
+	for _, plug in ipairs(plugins_conf) do
 		func(plug, args)
 	end
 end
@@ -141,7 +141,7 @@ local plug_install = function(plug, args)
 			vis:message(plug.name .. ' (' .. short_url .. ') is already installed')
 		end
 	else
-		os.execute('git -C ' .. plugins_dir .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
+		os.execute('git -C ' .. plugins_path .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
 		checkout(plug)
 		if not silent then
 			vis:message(plug.name .. ' (' .. short_url .. ') installed')
@@ -208,8 +208,8 @@ local plug_list = function(plug, args)
 end
 
 local install_plugins = function(silent)
-	if not file_exists(plugins_dir) then
-		os.execute('mkdir -p ' .. plugins_dir)
+	if not file_exists(plugins_path) then
+		os.execute('mkdir -p ' .. plugins_path)
 	end
 	for_each_plugin(plug_install, silent)
 end
@@ -225,7 +225,7 @@ end
 
 -- require plugins (and optionally install and checkout)
 M.init = function(plugins, install_on_init)
-	conf = plugins or {}
+	plugins_conf = plugins or {}
 	for_each_plugin(plug_prepare)
 	if install_on_init then
 		install_plugins(true)
@@ -270,7 +270,9 @@ local command_update = function(argv, force, win, selection, range)
 	return true
 end
 
--- look for vis-plug path in package.path
+-- look for vis-plug path in package.path because it is NOT necessarily in the
+-- `plugins_path` but could rather have been required from some other path E.g.
+-- the `visrc` config path
 local look_for_vis_plug_path = function()
 	local plug_path = package.searchpath('plugins/vis-plug', package.path)
 	if plug_path ~= nil then
@@ -307,7 +309,7 @@ local command_upgrade = function(argv, force, win, selection, range)
 end
 
 local command_ls = function(argv, force, win, selection, range)
-	vis:message('plugins (' .. #conf .. ')')
+	vis:message('plugins (' .. #plugins_conf .. ')')
 	vis:redraw()
 	for_each_plugin(plug_list)
 	vis:redraw()
