@@ -156,18 +156,20 @@ local plug_install = function(url, name, path, file, alias, branch, commit, args
 end
 
 local plug_update = function(url, name, path, file, alias, branch, commit, args)
-	if file_exists(path) then
-		checkout(path, branch, commit)
-		local local_hash = execute('git -C ' .. path .. ' rev-parse HEAD')
-		local remote_hash = execute('git ls-remote ' .. url .. ' HEAD | cut -f1')
-		if local_hash ~= remote_hash then
-			os.execute('git -C ' .. path .. ' pull')
-			vis:message(name .. ' UPDATED')
-		else
-			vis:message(name .. ' is up-to-date')
-		end
+	local short_url = get_short_url(url)
+	if not file_exists(path) then
+		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
+		vis:redraw()
+		return
+	end
+	checkout(path, branch, commit)
+	local local_hash = execute('git -C ' .. path .. ' rev-parse HEAD')
+	local remote_hash = execute('git ls-remote ' .. url .. ' HEAD | cut -f1')
+	if local_hash ~= remote_hash then
+		os.execute('git -C ' .. path .. ' pull')
+		vis:message(name .. ' UPDATED')
 	else
-		vis:message(name .. ' is NOT installed')
+		vis:message(name .. ' is up-to-date')
 	end
 	vis:redraw()
 end
