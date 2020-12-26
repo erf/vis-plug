@@ -126,7 +126,6 @@ end
 
 -- checkout specific branch
 local checkout = function(plug)
-	-- TODO cache branch we are on
 	if plug.commit then
 		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.commit)
 	elseif plug.branch then
