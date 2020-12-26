@@ -326,43 +326,35 @@ local command_list_commands = function(argv, force, win, selection, range)
 	return true
 end
 
-commands = {
-	{
+commands = { {
 		name = 'plug-ls',
 		desc = 'list plugins',
 		func = command_ls,
-	},
-	{
+	}, {
 		name = 'plug-install',
 		desc = 'install plugins (git clone)',
 		func = command_install,
-	},
-	{
+	}, {
 		name = 'plug-update',
 		desc = 'update plugins (git pull)',
 		func = command_update,
-	},
-	{
+	}, {
 		name = 'plug-outdated',
 		desc = 'are repos up-to-date? (diff commits)',
 		func = command_outdated,
-	},
-	{
+	}, {
 		name = 'plug-upgrade',
 		desc = 'fetch latest vis-plug (overwrite current)',
 		func = command_upgrade,
-	},
-	{
+	}, {
 		name = 'plug-rm',
 		desc = 'delete plugin by {name} (:plug-ls for names)',
 		func = command_rm,
-	},
-	{
+	}, {
 		name = 'plug-clean',
 		desc = 'delete all plugins in conf',
 		func = command_clean,
-	},
-	{
+	}, {
 		name = 'plug-commands',
 		desc = 'list these commands',
 		func = command_list_commands,
