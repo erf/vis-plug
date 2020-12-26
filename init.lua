@@ -31,17 +31,11 @@ M.set_path(get_default_cache_path())
 
 -- execute a command and return result string
 local execute = function(command)
-	local handle = io.popen(command)
-	local result = handle:read("*a")
-	-- strip trailing spaces
-	result = result:gsub('(.-)%s*$', '%1')
-	handle:close()
-	return result
-
-	--TODO improve by also getting errors based on vis-digraph
-	--local file = io.popen(string.format("vis-digraph '%s' 2>&1", keys:gsub("'", "'\\''")))
-	--local output = file:read('*all')
-	--local success, msg, status = file:close()
+	local file = io.popen(command)
+	local result = file:read("*a")
+	result = result:gsub('(.-)%s*$', '%1') -- strip trailing spaces
+	local success, message, code = file:close()
+	return result, success, message, code
 end
 
 -- check if file exists
@@ -301,12 +295,12 @@ local command_upgrade = function(argv, force, win, selection, range)
 		vis:redraw()
 		return
 	end
-	--  TODO: read stderr
-	local result = fetch_latest_vis_plug(plug_path)
-	if result ~= nil and result ~= '' then
-		vis:message('upgrade error: ' .. result)
-	else
+
+	local result, success, message, code = fetch_latest_vis_plug(plug_path)
+	if success then
 		vis:message('upgrade OK - restart for latest vis-plug')
+	else
+		vis:message('upgrade failed with code: ' .. tostring(code))
 	end
 	vis:redraw()
 	return true
