@@ -99,22 +99,15 @@ end
 
 -- iterate the plugins conf and call an operation per plugin
 local for_each_plugin = function (op, args)
-	for url, val in pairs(conf) do
-		local file, alias, branch, commit
-		if type(val) == 'table' then
-			file   = val['file']   or val[1] or 'init'
-			alias  = val['alias']  or val[2]
-			branch = val['branch'] or val[3]
-			commit = val['commit'] or val[4]
-		else
-			file   = val
-		end
-		local full_url = get_full_url(url)
- 		local name = get_name_from_url(url)
-		if name then
-			local path = get_plugin_path(name)
-			op(full_url, name, path, file, alias, branch, commit, args)
-		end
+	for _, plug in ipairs(conf) do
+		local url    = get_full_url(plug.url)
+		local file   = plug.file or 'init'
+		local alias  = plug.alias
+		local branch = plug.branch
+		local commit = plug.commit
+ 		local name   = get_name_from_url(url)
+		local path   = get_plugin_path(name)
+		op(url, name, path, file, alias, branch, commit, args)
 	end
 end
 
@@ -183,14 +176,6 @@ local plug_require = function(url, name, path, file, alias, branch, commit, args
 	if alias then
 		M.plugins[alias] = plugin
 	end
-end
-
-local plug_count = function()
-	local count = 0
-	for _ in pairs(conf) do
-		count = count + 1
-	end
-	return count
 end
 
 local plug_outdated = function(url, name, path, file, alias, branch, commit, args)
@@ -316,7 +301,7 @@ local command_upgrade = function(argv, force, win, selection, range)
 end
 
 local command_ls = function(argv, force, win, selection, range)
-	vis:message('plugins (' .. plug_count() .. ')')
+	vis:message('plugins (' .. #conf .. ')')
 	vis:redraw()
 	for_each_plugin(plug_list)
 	vis:redraw()
@@ -336,7 +321,7 @@ local command_list_commands = function(argv, force, win, selection, range)
 	vis:redraw()
 	local arr = {}
 	for _, command in ipairs(commands) do
-		table.insert(arr, ': ' .. command.name .. ' - ' .. command.desc)
+		table.insert(arr, ':' .. command.name .. ' - ' .. command.desc)
 	end
 	local str = table.concat(arr, '\n')
 	vis:message(str)

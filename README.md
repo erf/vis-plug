@@ -21,32 +21,31 @@ curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.co
 Configure plugins in `visrc` as below:
 
 ```Lua
+
 local plug = require('plugins/vis-plug')
 
--- configure plugins with URL / file|options
-local conf = {
-	['erf/vis-cursors'] = 'init',
-	['erf/vis-highlight'] = { file = 'init', alias = 'hi' },
-	['https://github.com/erf/vis-test.git'] = { file = 'init', branch = 'other' },
+-- configure plugins as an array of tables with { url, file, alias, branch, commit }
+local plugins = {
+	{ url = 'erf/vis-cursors' },
+	{ url = 'erf/vis-sneak', file = 'init', alias = 'hi' },
+	{ url = 'https://github.com/erf/vis-test.git', file = 'init', branch = 'other' },
 }
 
 -- require plugins and optionally install them on init
-plug.init(conf)
+plug.init(plugins)
 ```
 
-Each configuration has a:
+Each configuration is a table with the following records:
 
-- **key** - URL to the `git` repository
-	- short urls for `https://github.com/` is allowed
-- **value** - the `file` or a `table|array` with the following
-	- `file` - lua file required on `init`
-	- `alias` - access plugins via `plug.plugins.{alias}` (opt)
-	- `branch` - use a specific branch (opt)
-	- `commit` - use a specific commit (opt)
+- `url` - the git repo ( you can drop `https://github.com` )
+- `file` - lua file required on init - defaults to `init` (opt)
+- `alias` - access plugins via `plug.plugins.{alias}` (opt)
+- `branch` - use branch (opt)
+- `commit` - use commit (opt)
 
 ### Install on init
 
-Pass **true** as a second arg to `init` to install and checkout on init.
+Pass **true** as second argument to `init` to install and checkout on init.
 
 ```Lua
 require('plugins/vis-plug').init(conf, true)
@@ -78,7 +77,7 @@ We support the following `vis` commands:
 
 `:plug-upgrade` - fetch latest vis-plug (overwrite current)
 
-`:plug-rm {name}` - delete plugin by name (`:plug-ls` for names)
+`:plug-rm` - delete plugin by {name} (`:plug-ls` for names)
 
 `:plug-clean` - delete all plugins in conf
 
