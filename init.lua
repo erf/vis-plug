@@ -100,23 +100,20 @@ end
 -- iterate the plugins conf and call an operation per plugin
 local for_each_plugin = function (op, args)
 	for _, plug in ipairs(conf) do
-		local url    = get_full_url(plug.url)
-		local file   = plug.file or 'init'
-		local alias  = plug.alias
-		local branch = plug.branch
-		local commit = plug.commit
- 		local name   = get_name_from_url(url)
-		local path   = get_plugin_path(name)
-		op(url, name, path, file, alias, branch, commit, args)
+		plug.file = plug.file or 'init'
+		local url = get_full_url(plug.url)
+ 		local name = get_name_from_url(url)
+		local path = get_plugin_path(name)
+		op(url, name, path, plug, args)
 	end
 end
 
-local checkout = function(path, branch, commit)
+local checkout = function(path, plug)
 	-- TODO don't checkout if we already are on the correct branch / commit (if more performant)
-	if commit then
-		os.execute('git -C ' .. path .. ' checkout --quiet ' .. commit)
-	elseif branch then
-		os.execute('git -C ' .. path .. ' checkout --quiet ' .. branch)
+	if plug.commit then
+		os.execute('git -C ' .. path .. ' checkout --quiet ' .. plug.commit)
+	elseif plug.branch then
+		os.execute('git -C ' .. path .. ' checkout --quiet ' .. plug.branch)
 	else
 		local result = execute('git -C ' .. path .. ' rev-parse --abbrev-ref HEAD')
 		if result == ('master' or 'main') then
@@ -130,17 +127,17 @@ local checkout = function(path, branch, commit)
 	end
 end
 
-local plug_install = function(url, name, path, file, alias, branch, commit, args)
+local plug_install = function(url, name, path, plug, args)
 	local short_url = get_short_url(url)
 	local silent = args
 	if file_exists(path) then
-		checkout(path, branch, commit)
+		checkout(path, plug)
 		if not silent then
 			vis:message(name .. ' (' .. short_url .. ') is already installed')
 		end
 	else
 		os.execute('git -C ' .. plugins_dir .. ' clone ' .. url .. ' --quiet 2> /dev/null')
-		checkout(path, branch, commit)
+		checkout(path, plug)
 		if not silent then
 			vis:message(name .. ' (' .. short_url .. ') installed')
 		end
@@ -148,14 +145,14 @@ local plug_install = function(url, name, path, file, alias, branch, commit, args
 	vis:redraw()
 end
 
-local plug_update = function(url, name, path, file, alias, branch, commit, args)
+local plug_update = function(url, name, path, plug, args)
 	local short_url = get_short_url(url)
 	if not file_exists(path) then
 		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
 		vis:redraw()
 		return
 	end
-	checkout(path, branch, commit)
+	checkout(path, plug)
 	local local_hash = execute('git -C ' .. path .. ' rev-parse HEAD')
 	local remote_hash = execute('git ls-remote ' .. url .. ' HEAD | cut -f1')
 	if local_hash ~= remote_hash then
@@ -167,18 +164,18 @@ local plug_update = function(url, name, path, file, alias, branch, commit, args)
 	vis:redraw()
 end
 
-local plug_require = function(url, name, path, file, alias, branch, commit, args)
+local plug_require = function(url, name, path, plug, args)
 	if not file_exists(path) then
 		return
 	end
-	local plugin_name = name .. '/' .. file
+	local plugin_name = name .. '/' .. plug.file
 	local plugin = require(plugin_name)
-	if alias then
-		M.plugins[alias] = plugin
+	if plug.alias then
+		M.plugins[plug.alias] = plugin
 	end
 end
 
-local plug_outdated = function(url, name, path, file, alias, branch, commit, args)
+local plug_outdated = function(url, name, path, plug, args)
 	local short_url = get_short_url(url)
 	if not file_exists(path) then
 		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
@@ -195,7 +192,7 @@ local plug_outdated = function(url, name, path, file, alias, branch, commit, arg
 	vis:redraw()
 end
 
-local plug_list = function(url, name, path, file, alias, branch, commit, args)
+local plug_list = function(url, name, path, plug, args)
 	local short_url = get_short_url(url)
 	if file_exists(path) then
 		vis:message(name .. ' (' .. short_url .. ')')
@@ -212,7 +209,7 @@ local install_plugins = function(silent)
 	for_each_plugin(plug_install, silent)
 end
 
-local plug_delete = function(url, name, path, file)
+local plug_delete = function(url, name, path, plug)
 	if file_exists(path) then
 		os.execute('rm -rf ' .. path)
 		vis:message(name .. ' (' .. path .. ') deleted')
