@@ -124,22 +124,20 @@ local plug_prepare = function(plug, args)
 	plug.path = get_path_from_name(plug.name)
 end
 
+-- checkout specific branch
 local checkout = function(plug)
-	-- TODO don't checkout if we already are on the correct branch / commit (if more performant)
+	-- TODO cache branch we are on
 	if plug.commit then
 		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.commit)
 	elseif plug.branch then
 		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.branch)
 	else
-		local result = execute('git -C ' .. plug.path .. ' rev-parse --abbrev-ref HEAD')
-		if result == ('master' or 'main') then
-			-- we're already on the correct branch, so no need to checkout, which is a bit faster
-			return
-		end
-		-- set 'master|main' branch by default
-		-- https://stackoverflow.com/questions/28666357/git-how-to-get-default-branch
-		local master = execute('git symbolic-ref refs/remotes/origin/HEAD | sed "s@^refs/remotes/origin/@@"')
-		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. master)
+		-- ELSE do nothing; there is no default "master" branch and not all
+		-- remotes are named "origin", so we should not guess
+		-- for reference, these are useful git commands for this type of info
+		-- git rev-parse --abbrev-ref HEAD
+		-- git symbolic-ref refs/remotes/origin/HEAD --short
+		-- git checkout --quiet master
 	end
 end
 
