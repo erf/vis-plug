@@ -124,19 +124,17 @@ local plug_prepare = function(plug, args)
 	plug.path = get_path_from_name(plug.name)
 end
 
--- checkout specific branch
+-- checkout specific branch or commit
 local checkout = function(plug)
 	if plug.commit then
 		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.commit)
 	elseif plug.branch then
 		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.branch)
 	else
-		-- ELSE do nothing; there is no default "master" branch and not all
-		-- remotes are named "origin", so we should not guess
-		-- for reference, these are useful git commands for this type of info
+		-- ELSE do nothing; there is no default "master" branch or "origin"
+		-- for reference:
 		-- git rev-parse --abbrev-ref HEAD
 		-- git symbolic-ref refs/remotes/origin/HEAD --short
-		-- git checkout --quiet master
 	end
 end
 
