@@ -3,6 +3,9 @@ local M = {}
 -- the plugins configurations set in visrc.lua
 local conf = {}
 
+-- we store commands in an array of tables {name, func, desc}
+local commands = {}
+
 -- the required plugins are stored here
 M.plugins = {}
 
@@ -25,29 +28,6 @@ end
 
 -- set default install path for plugins
 M.path(get_default_cache_path())
-
--- table used by the :plug-commands command
-local commands = {
-	':plug-ls',
-	':plug-install',
-	':plug-update',
-	':plug-outdated',
-	':plug-upgrade',
-	':plug-rm {name}',
-	':plug-clean',
-	':plug-commands',
-}
-
-local commands_desc = {
-	'list plugins',
-	'install plugins (git clone)',
-	'update plugins (git pull)',
-	'are repos up-to-date? (diff commits)',
-	'fetch latest vis-plug (overwrite current)',
-	'delete plugin by name (:plug-ls for names)',
-	'delete all plugins in conf',
-	'list commands (these!)',
-}
 
 -- execute a command and return result string
 local execute = function(command)
@@ -163,7 +143,7 @@ local plug_install = function(url, name, path, file, alias, branch, commit, args
 	if file_exists(path) then
 		checkout(path, branch, commit)
 		if not silent then
-			vis:message(name .. ' (' .. short_url .. ') already installed')
+			vis:message(name .. ' (' .. short_url .. ') is already installed')
 		end
 	else
 		os.execute('git -C ' .. plugins_dir .. ' clone ' .. url .. ' --quiet 2> /dev/null')
@@ -214,7 +194,7 @@ end
 local plug_diff = function(url, name, path, file, alias, branch, commit, args)
 	local short_url = get_short_url(url)
 	if not file_exists(path) then
-		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
+		vis:message(name .. ' (' .. short_url .. ') NOT installed')
 		vis:redraw()
 		return
 	end
@@ -254,42 +234,6 @@ local plug_delete = function(url, name, path, file)
 	end
 end
 
-vis:command_register('plug-install', function(argv, force, win, selection, range)
-	vis:message('installing..')
-	vis:redraw()
-	install_plugins(false)
-	vis:redraw()
-	return true
-end)
-
-vis:command_register('plug-rm', function(argv, force, win, selection, range)
-	local name = argv[1]
-	if name then
-		vis:message('deleting ' .. name)
-		plug_delete(nil, name, get_plugin_path(name))
-	else
-		vis:message('Error: missing name')
-	end
-	vis:redraw()
-	return true
-end)
-
-vis:command_register('plug-clean', function(argv, force, win, selection, range)
-	vis:message('cleaning..')
-	vis:redraw()
-	for_each_plugin(plug_delete)
-	vis:redraw()
-	return true
-end)
-
-vis:command_register('plug-update', function(argv, force, win, selection, range)
-	vis:message('updating..')
-	vis:redraw()
-	for_each_plugin(plug_update)
-	vis:redraw()
-	return true
-end)
-
 local try_to_get_required_plug_path = function()
 	local plug_path = package.searchpath('plugins/vis-plug', package.path)
 	if plug_path ~= nil then
@@ -305,7 +249,52 @@ local fetch_latest_vis_plug = function(plug_path)
 	return execute(command)
 end
 
-vis:command_register('plug-upgrade', function(argv, force, win, selection, range)
+-- require plugins (and optionally install and checkout)
+M.init = function(plugins, install_on_init)
+	conf = plugins or {}
+	if install_on_init then
+		install_plugins(true)
+	end
+	for_each_plugin(plug_require)
+	return M
+end
+
+local plug_install = function(argv, force, win, selection, range)
+	vis:message('installing..')
+	vis:redraw()
+	install_plugins(false)
+	vis:redraw()
+	return true
+end
+
+local plug_rm = function(argv, force, win, selection, range)
+	local name = argv[1]
+	if name then
+		plug_delete(nil, name, get_plugin_path(name))
+	else
+		vis:message('Error: plug-rm missing {name}')
+	end
+	vis:redraw()
+	return true
+end
+
+local plug_clean = function(argv, force, win, selection, range)
+	vis:message('cleaning..')
+	vis:redraw()
+	for_each_plugin(plug_delete)
+	vis:redraw()
+	return true
+end
+
+local plug_update = function(argv, force, win, selection, range)
+	vis:message('updating..')
+	vis:redraw()
+	for_each_plugin(plug_update)
+	vis:redraw()
+	return true
+end
+
+local plug_upgrade = function(argv, force, win, selection, range)
 	vis:message('upgrading..')
 	vis:redraw()
 	local plug_path = try_to_get_required_plug_path()
@@ -322,46 +311,83 @@ vis:command_register('plug-upgrade', function(argv, force, win, selection, range
 	end
 	vis:redraw()
 	return true
-end)
+end
 
-vis:command_register('plug-ls', function(argv, force, win, selection, range)
+local plug_ls = function(argv, force, win, selection, range)
 	vis:message('plugins (' .. plug_count() .. ')')
 	vis:redraw()
 	for_each_plugin(plug_list)
 	vis:redraw()
 	return true
-end)
+end
 
-vis:command_register('plug-outdated', function(argv, force, win, selection, range)
+local plug_outdated = function(argv, force, win, selection, range)
 	vis:message('checking if up-to-date..')
 	vis:redraw()
 	for_each_plugin(plug_diff)
 	vis:redraw()
 	return true
-end)
+end
 
-vis:command_register('plug-commands', function(argv, force, win, selection, range)
+local plug_commands = function(argv, force, win, selection, range)
 	vis:message('vis-plug commands')
 	vis:redraw()
 	local arr = {}
-	for i, command in ipairs(commands) do
-		local desc = commands_desc[i]
-		table.insert(arr, command .. ' - ' .. desc)
+	for _, command in ipairs(commands) do
+		table.insert(arr, ': ' .. command.name .. ' - ' .. command.desc)
 	end
 	local str = table.concat(arr, '\n')
 	vis:message(str)
 	vis:redraw()
 	return true
-end)
+end
 
--- require plugins (and optionally install and checkout)
-M.init = function(plugins, install_on_init)
-	conf = plugins or {}
-	if install_on_init then
-		install_plugins(true)
-	end
-	for_each_plugin(plug_require)
-	return M
+commands = {
+	{
+		name = 'plug-ls',
+		desc = 'list plugins',
+		func = plug_ls,
+	},
+	{
+		name = 'plug-install',
+		desc = 'install plugins (git clone)',
+		func = plug_install,
+	},
+	{
+		name = 'plug-update',
+		desc = 'update plugins (git pull)',
+		func = plug_update,
+	},
+	{
+		name = 'plug-outdated',
+		desc = 'are repos up-to-date? (diff commits)',
+		func = plug_outdated,
+	},
+	{
+		name = 'plug-upgrade',
+		desc = 'fetch latest vis-plug (overwrite current)',
+		func = plug_upgrade,
+	},
+	{
+		name = 'plug-rm',
+		desc = 'delete plugin by {name} (:plug-ls for names)',
+		func = plug_rm,
+	},
+	{
+		name = 'plug-clean',
+		desc = 'delete all plugins in conf',
+		func = plug_clean,
+	},
+	{
+		name = 'plug-commands',
+		desc = 'list these commands',
+		func = plug_commands,
+	},
+}
+
+-- initialize commands
+for _, command in ipairs(commands) do
+	vis:command_register(command.name, command.func, command.desc)
 end
 
 return M
