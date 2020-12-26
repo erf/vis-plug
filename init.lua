@@ -162,9 +162,9 @@ local plug_update = function(plug, args)
 	local remote_hash = execute('git ls-remote ' .. plug.url .. ' HEAD | cut -f1')
 	if local_hash ~= remote_hash then
 		os.execute('git -C ' .. plug.path .. ' pull')
-		vis:message(plug.name .. ' UPDATED')
+		vis:message(plug.name .. ' (' .. short_url .. ') UPDATED')
 	else
-		vis:message(plug.name .. ' is up-to-date')
+		vis:message(plug.name .. ' (' .. short_url .. ') is up-to-date')
 	end
 	vis:redraw()
 end
