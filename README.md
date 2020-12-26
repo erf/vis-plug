@@ -57,7 +57,7 @@ require('plugins/vis-plug').init(conf, true)
 Plugins are by default installed to the default cache folder on your system: 
 `(XDG_CACHE_HOME|HOME/.cache)/vis-plug`
 
-Use `plug.set_path` to set a custom install path
+Use `plug.set_path` to set a custom install path for plugins.
 
 ```Lua
 plug.set_path('/Users/user/my-plugins')
