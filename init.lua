@@ -38,7 +38,7 @@ local execute = function(command)
 	handle:close()
 	return result
 
-	--TODO improve this by also getting errors based on vis-digraph
+	--TODO improve by also getting errors based on vis-digraph
 	--local file = io.popen(string.format("vis-digraph '%s' 2>&1", keys:gsub("'", "'\\''")))
 	--local output = file:read('*all')
 	--local success, msg, status = file:close()
@@ -59,7 +59,7 @@ local get_name_from_url = function(url)
 end
 
 -- E.g. '~/.cache/vis-plug/vis-highlight'
-local get_plugin_path = function(name)
+local get_path_from_name = function(name)
 	return plugins_dir .. '/' .. name
 end
 
@@ -97,25 +97,41 @@ local get_full_url = function(url)
 	end
 end
 
--- iterate the plugins conf and call an operation per plugin
-local for_each_plugin = function (op, args)
+-- find the plug in conf by name, used by plug-rm
+local get_plug_by_name = function(name)
+	if name == nil then
+		return nil
+	end
 	for _, plug in ipairs(conf) do
-		plug.file = plug.file or 'init'
-		local url = get_full_url(plug.url)
- 		local name = get_name_from_url(url)
-		local path = get_plugin_path(name)
-		op(url, name, path, plug, args)
+		if plug.name == name then
+			return plug
+		end
 	end
 end
 
-local checkout = function(path, plug)
+-- iterate the plugins conf and call an operation per plugin
+local for_each_plugin = function (func, args)
+	for _, plug in ipairs(conf) do
+		func(plug, args)
+	end
+end
+
+-- prepare the plug configuration
+local plug_prepare = function(plug, args)
+	plug.file = plug.file or 'init'
+	plug.url  = get_full_url(plug.url)
+ 	plug.name = get_name_from_url(plug.url)
+	plug.path = get_path_from_name(plug.name)
+end
+
+local checkout = function(plug)
 	-- TODO don't checkout if we already are on the correct branch / commit (if more performant)
 	if plug.commit then
-		os.execute('git -C ' .. path .. ' checkout --quiet ' .. plug.commit)
+		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.commit)
 	elseif plug.branch then
-		os.execute('git -C ' .. path .. ' checkout --quiet ' .. plug.branch)
+		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.branch)
 	else
-		local result = execute('git -C ' .. path .. ' rev-parse --abbrev-ref HEAD')
+		local result = execute('git -C ' .. plug.path .. ' rev-parse --abbrev-ref HEAD')
 		if result == ('master' or 'main') then
 			-- we're already on the correct branch, so no need to checkout, which is a bit faster
 			return
@@ -123,81 +139,81 @@ local checkout = function(path, plug)
 		-- set 'master|main' branch by default
 		-- https://stackoverflow.com/questions/28666357/git-how-to-get-default-branch
 		local master = execute('git symbolic-ref refs/remotes/origin/HEAD | sed "s@^refs/remotes/origin/@@"')
-		os.execute('git -C ' .. path .. ' checkout --quiet ' .. master)
+		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. master)
 	end
 end
 
-local plug_install = function(url, name, path, plug, args)
-	local short_url = get_short_url(url)
+local plug_install = function(plug, args)
+	local short_url = get_short_url(plug.url)
 	local silent = args
-	if file_exists(path) then
-		checkout(path, plug)
+	if file_exists(plug.path) then
+		checkout(plug)
 		if not silent then
-			vis:message(name .. ' (' .. short_url .. ') is already installed')
+			vis:message(plug.name .. ' (' .. short_url .. ') is already installed')
 		end
 	else
-		os.execute('git -C ' .. plugins_dir .. ' clone ' .. url .. ' --quiet 2> /dev/null')
-		checkout(path, plug)
+		os.execute('git -C ' .. plugins_dir .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
+		checkout(plug)
 		if not silent then
-			vis:message(name .. ' (' .. short_url .. ') installed')
+			vis:message(plug.name .. ' (' .. short_url .. ') installed')
 		end
 	end
 	vis:redraw()
 end
 
-local plug_update = function(url, name, path, plug, args)
-	local short_url = get_short_url(url)
-	if not file_exists(path) then
-		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
+local plug_update = function(plug, args)
+	local short_url = get_short_url(plug.url)
+	if not file_exists(plug.path) then
+		vis:message(plug.name .. ' (' .. short_url .. ') is NOT installed')
 		vis:redraw()
 		return
 	end
-	checkout(path, plug)
-	local local_hash = execute('git -C ' .. path .. ' rev-parse HEAD')
-	local remote_hash = execute('git ls-remote ' .. url .. ' HEAD | cut -f1')
+	checkout(plug)
+	local local_hash = execute('git -C ' .. plug.path .. ' rev-parse HEAD')
+	local remote_hash = execute('git ls-remote ' .. plug.url .. ' HEAD | cut -f1')
 	if local_hash ~= remote_hash then
-		os.execute('git -C ' .. path .. ' pull')
-		vis:message(name .. ' UPDATED')
+		os.execute('git -C ' .. plug.path .. ' pull')
+		vis:message(plug.name .. ' UPDATED')
 	else
-		vis:message(name .. ' is up-to-date')
+		vis:message(plug.name .. ' is up-to-date')
 	end
 	vis:redraw()
 end
 
-local plug_require = function(url, name, path, plug, args)
-	if not file_exists(path) then
+local plug_require = function(plug, args)
+	if not file_exists(plug.path) then
 		return
 	end
-	local plugin_name = name .. '/' .. plug.file
+	local plugin_name = plug.name .. '/' .. plug.file
 	local plugin = require(plugin_name)
 	if plug.alias then
 		M.plugins[plug.alias] = plugin
 	end
 end
 
-local plug_outdated = function(url, name, path, plug, args)
-	local short_url = get_short_url(url)
-	if not file_exists(path) then
-		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
+local plug_outdated = function(plug, args)
+	local short_url = get_short_url(plug.url)
+	if not file_exists(plug.path) then
+		vis:message(plug.name .. ' (' .. short_url .. ') is NOT installed')
 		vis:redraw()
 		return
 	end
-	local local_hash = execute('git -C ' .. path .. ' rev-parse HEAD')
-	local remote_hash = execute('git ls-remote ' .. url .. ' HEAD | cut -f1')
+	local local_hash = execute('git -C ' .. plug.path .. ' rev-parse HEAD')
+	local remote_hash = execute('git ls-remote ' .. plug.url .. ' HEAD | cut -f1')
 	if local_hash == remote_hash then
-		vis:message(name .. ' (' .. short_url .. ') is up-to-date')
+		vis:message(plug.name .. ' (' .. short_url .. ') is up-to-date')
 	else
-		vis:message(name .. ' (' .. short_url .. ') needs UPDATE')
+		vis:message(plug.name .. ' (' .. short_url .. ') needs UPDATE')
 	end
 	vis:redraw()
 end
 
-local plug_list = function(url, name, path, plug, args)
-	local short_url = get_short_url(url)
-	if file_exists(path) then
-		vis:message(name .. ' (' .. short_url .. ')')
+local plug_list = function(plug, args)
+	local short_url = get_short_url(plug.url)
+	if file_exists(plug.path) then
+		vis:message(plug.name .. ' (' .. short_url .. ')')
 	else
-		vis:message(name .. ' (' .. short_url .. ') is NOT installed')
+		vis:message(plug.name .. ' (' .. short_url .. ') is NOT installed')
 	end
 	vis:redraw()
 end
@@ -209,18 +225,19 @@ local install_plugins = function(silent)
 	for_each_plugin(plug_install, silent)
 end
 
-local plug_delete = function(url, name, path, plug)
-	if file_exists(path) then
-		os.execute('rm -rf ' .. path)
-		vis:message(name .. ' (' .. path .. ') deleted')
+local plug_delete = function(plug, args)
+	if file_exists(plug.path) then
+		os.execute('rm -rf ' .. plug.path)
+		vis:message(plug.name .. ' (' .. plug.path .. ') deleted')
 	else
-		vis:message(name .. ' (' .. path .. ') is NOT installed')
+		vis:message(plug.name .. ' (' .. plug.path .. ') is NOT installed')
 	end
 end
 
 -- require plugins (and optionally install and checkout)
 M.init = function(plugins, install_on_init)
 	conf = plugins or {}
+	for_each_plugin(plug_prepare)
 	if install_on_init then
 		install_plugins(true)
 	end
@@ -238,10 +255,11 @@ end
 
 local command_rm = function(argv, force, win, selection, range)
 	local name = argv[1]
-	if name then
-		plug_delete(nil, name, get_plugin_path(name))
+	local plug = get_plug_by_name(name)
+	if plug then
+		plug_delete(plug)
 	else
-		vis:message('Error: plug-rm missing {name}')
+		vis:message('Error: plug-rm missing plug {name}')
 	end
 	vis:redraw()
 	return true
@@ -263,7 +281,8 @@ local command_update = function(argv, force, win, selection, range)
 	return true
 end
 
-local try_to_get_required_plug_path = function()
+-- look for vis-plug path in package.path
+local look_for_vis_plug_path = function()
 	local plug_path = package.searchpath('plugins/vis-plug', package.path)
 	if plug_path ~= nil then
 		return plug_path
@@ -271,8 +290,8 @@ local try_to_get_required_plug_path = function()
 	return package.searchpath('vis-plug', package.path)
 end
 
+-- curl fetch vis-plug init.lua file
 local fetch_latest_vis_plug = function(plug_path)
-	--  NOTE: can't read stderr ..
 	local url = 'https://raw.githubusercontent.com/erf/vis-plug/master/init.lua'
 	local command = 'curl -s -S -f -H  "Cache-Control: no-cache" ' .. url .. ' > ' .. plug_path
 	return execute(command)
@@ -281,12 +300,13 @@ end
 local command_upgrade = function(argv, force, win, selection, range)
 	vis:message('upgrading..')
 	vis:redraw()
-	local plug_path = try_to_get_required_plug_path()
+	local plug_path = look_for_vis_plug_path()
 	if plug_path == nil then
 		vis:message('error: could not find vis-plug path')
 		vis:redraw()
 		return
 	end
+	--  TODO: read stderr
 	local result = fetch_latest_vis_plug(plug_path)
 	if result ~= nil and result ~= '' then
 		vis:message('upgrade error: ' .. result)
