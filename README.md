@@ -26,8 +26,9 @@ local plug = require('plugins/vis-plug')
 
 -- configure plugins as an array of tables with { url, file, alias, branch, commit }
 local plugins = {
-	{ url = 'erf/vis-cursors' },
-	{ url = 'erf/vis-sneak', file = 'init', alias = 'hi' },
+	{ url = 'erf/vis-sneak' },
+	{ url = 'erf/vis-cursors', file = 'init' },
+	{ url = 'erf/vis-highlight', file = 'init', alias = 'hi' },
 	{ url = 'https://github.com/erf/vis-test.git', file = 'init', branch = 'other' },
 }
 
@@ -53,11 +54,10 @@ require('plugins/vis-plug').init(conf, true)
 
 ### Install path
 
-Plugins are by default installed to the default cache folder on your system:  
-
+Plugins are by default installed to the default cache folder on your system: 
 `(XDG_CACHE_HOME|HOME/.cache)/vis-plug`
 
-Use `plug.set_path(path)` to set a custom plugins folder.
+Use `plug.set_path` to set a custom install path
 
 ```Lua
 plug.set_path('/Users/user/my-plugins')
