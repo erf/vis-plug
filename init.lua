@@ -248,7 +248,26 @@ local command_rm = function(argv, force, win, selection, range)
 	if plug then
 		plug_delete(plug)
 	else
-		vis:message('Error: plug-rm missing plug {name}')
+		vis:message('Error: plug-rm missing plugin ' .. name)
+	end
+	vis:redraw()
+	return true
+end
+
+local command_checkout = function(argv, force, win, selection, range)
+	local name = argv[1]
+	local branch_or_commit = argv[2]
+	if name == nil or branch_or_commit == nil then
+		vis:message('Error: missing {name} or {branch|commit}')
+		return
+	end
+	local plug = get_plug_by_name(name)
+	if plug then
+		plug.commit = branch_or_commit
+		checkout(plug)
+		vis:message('checked out \'' .. branch_or_commit .. '\'')
+	else
+		vis:message('Error: plug-checkout did not find plugin ' .. name)
 	end
 	vis:redraw()
 	return true
@@ -365,6 +384,10 @@ commands = { {
 		name = 'plug-clean',
 		desc = 'delete all plugins in conf',
 		func = command_clean,
+	}, {
+		name = 'plug-checkout',
+		desc = 'checkout a {branch|commit} for a given {name}',
+		func = command_checkout,
 	}, {
 		name = 'plug-commands',
 		desc = 'list these commands',
