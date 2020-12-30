@@ -67,20 +67,20 @@ plug.set_path('/Users/user/my-plugins')
 
 We support the following `vis` commands:
 
-`:plug-ls` - list plugins
+`:plug-ls` - list all plugins in conf
 
-`:plug-install` - install plugins (git clone and checkout)
+`:plug-install` - install all plugins in conf (git clone)
 
-`:plug-update` - update plugins (git pull and checkout)
+`:plug-update` - update all plugins in conf (git pull)
 
 `:plug-outdated` - are repos up-to-date? (diff commits)
 
-`:plug-upgrade` - fetch latest vis-plug (overwrite current)
+`:plug-upgrade` - download latest vis-plug version (overwrites current)
 
-`:plug-rm` - delete plugin by {name} (`:plug-ls` for names)
+`:plug-rm` - delete a plugin by {name} (`:plug-ls` for names)
 
 `:plug-clean` - delete all plugins in conf
 
 `:plug-checkout` - checkout {name} {branch|commit}
 
-`:plug-commands` - list commands (these!)
+`:plug-commands` - list all commands (these)

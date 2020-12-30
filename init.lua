@@ -358,27 +358,27 @@ end
 
 commands = { {
 		name = 'plug-ls',
-		desc = 'list plugins',
+		desc = 'list all plugins in conf',
 		func = command_ls,
 	}, {
 		name = 'plug-install',
-		desc = 'install plugins (git clone)',
+		desc = 'install all plugins in conf (git clone)',
 		func = command_install,
 	}, {
 		name = 'plug-update',
-		desc = 'update plugins (git pull)',
+		desc = 'update all plugins in conf (git pull)',
 		func = command_update,
 	}, {
 		name = 'plug-outdated',
-		desc = 'are repos up-to-date? (diff commits)',
+		desc = 'check if all plugins are up-to-date (diff commits)',
 		func = command_outdated,
 	}, {
 		name = 'plug-upgrade',
-		desc = 'fetch latest vis-plug (overwrite current)',
+		desc = 'download latest vis-plug version (overwrite current)',
 		func = command_upgrade,
 	}, {
 		name = 'plug-rm',
-		desc = 'delete plugin by {name} (:plug-ls for names)',
+		desc = 'delete a plugin by {name} (:plug-ls for names)',
 		func = command_rm,
 	}, {
 		name = 'plug-clean',
@@ -390,7 +390,7 @@ commands = { {
 		func = command_checkout,
 	}, {
 		name = 'plug-commands',
-		desc = 'list these commands',
+		desc = 'list all commands (these)',
 		func = command_list_commands,
 	},
 }
