@@ -81,6 +81,6 @@ We support the following `vis` commands:
 
 `:plug-clean` - delete all plugins in conf
 
-`:plug-checkout` - checkout a {branch|commit} for a given {name}
+`:plug-checkout` - checkout {name} {branch|commit}
 
 `:plug-commands` - list commands (these!)

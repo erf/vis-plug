@@ -386,7 +386,7 @@ commands = { {
 		func = command_clean,
 	}, {
 		name = 'plug-checkout',
-		desc = 'checkout a {branch|commit} for a given {name}',
+		desc = 'checkout {name} {branch|commit}',
 		func = command_checkout,
 	}, {
 		name = 'plug-commands',
