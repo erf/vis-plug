@@ -39,10 +39,10 @@ plug.init(plugins)
 Each configuration is a table with the following records:
 
 - `url` - the git repo ( you can drop `https://github.com` )
-- `file` - lua file required on init - defaults to `init` (opt)
-- `alias` - access plugins via `plug.plugins.{alias}` (opt)
-- `branch` - use branch (opt)
-- `commit` - use commit (opt)
+- `file` - lua file required on init - defaults to `init` (optional)
+- `alias` - access plugins via `plug.plugins.{alias}` (optional)
+- `branch` - use branch (optional)
+- `commit` - use commit (optional)
 
 ### Install on init
 
