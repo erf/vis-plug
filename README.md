@@ -2,15 +2,15 @@
 
 A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor
 
-[Configure](#Configure) third-party plugins in your `visrc` and use [Commands](#Commands)
+[Configure](#Configure) third-party plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
 ## Install
 
-Download and `require` in your `visrc` file, see [plugins](https://github.com/martanne/vis/wiki/Plugins).
+Download and `require` in your `visrc` file, see [Plugins](https://github.com/martanne/vis/wiki/Plugins).
 
 ### Download script
 
-A simple `curl` download script that works for me on macOS.
+This simple download script works for me on macOS.
 
 ```bash
 curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs
