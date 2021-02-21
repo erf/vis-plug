@@ -53,8 +53,12 @@ local get_name_from_url = function(url)
 end
 
 -- E.g. '~/.cache/vis-plug/vis-highlight'
-local get_path_from_name = function(name)
-	return plugins_path .. '/' .. name
+local get_path_from_name = function(name, theme)
+	local folder=''
+	if theme then
+		folder = 'themes/'
+	end
+	return plugins_path .. '/'.. folder .. name
 end
 
 -- return true if has the protocol part of the url
@@ -115,7 +119,7 @@ local plug_prepare = function(plug, args)
 	plug.file = plug.file or 'init'
 	plug.url  = get_full_url(plug.url)
  	plug.name = get_name_from_url(plug.url)
-	plug.path = get_path_from_name(plug.name)
+	plug.path = get_path_from_name(plug.name, plug.theme)
 end
 
 -- checkout specific branch or commit
@@ -141,7 +145,11 @@ local plug_install = function(plug, args)
 			vis:message(plug.name .. ' (' .. short_url .. ') is already installed')
 		end
 	else
-		os.execute('git -C ' .. plugins_path .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
+		if plug.theme then
+			os.execute('git -C ' .. plugins_path .. '/themes' .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
+		else
+			os.execute('git -C ' .. plugins_path .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
+		end
 		checkout(plug)
 		if not silent then
 			vis:message(plug.name .. ' (' .. short_url .. ') installed')
@@ -173,10 +181,12 @@ local plug_require = function(plug, args)
 	if not file_exists(plug.path) then
 		return
 	end
-	local plugin_name = plug.name .. '/' .. plug.file
-	local plugin = require(plugin_name)
-	if plug.alias then
-		M.plugins[plug.alias] = plugin
+	if not plug.theme then
+		local plugin_name = plug.name .. '/' .. plug.file
+		local plugin = require(plugin_name)
+		if plug.alias then
+			M.plugins[plug.alias] = plugin
+		end
 	end
 end
 
@@ -208,8 +218,8 @@ local plug_list = function(plug, args)
 end
 
 local install_plugins = function(silent)
-	if not file_exists(plugins_path) then
-		os.execute('mkdir -p ' .. plugins_path)
+	if not file_exists(plugins_path) or not file_exists(plugins_path .. '/themes') then
+		os.execute('mkdir -p ' .. plugins_path .. '/themes')
 	end
 	for_each_plugin(plug_install, silent)
 end

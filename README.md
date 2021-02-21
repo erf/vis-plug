@@ -30,6 +30,7 @@ local plugins = {
 	{ url = 'erf/vis-cursors', file = 'init' },
 	{ url = 'erf/vis-highlight', file = 'init', alias = 'hi' },
 	{ url = 'https://github.com/erf/vis-test.git', file = 'init', branch = 'other' },
+	{ url = 'samlwood/vis-gruvbox.git', theme = true },
 }
 
 -- require plugins and optionally install them on init
@@ -43,6 +44,7 @@ Each configuration is a table with the following records:
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `branch` - use branch (optional)
 - `commit` - use commit (optional)
+- `theme` - is theme boolean (optional)
 
 ### Install on init
 
@@ -61,6 +63,15 @@ Use `plug.set_path` to set a custom install path for plugins.
 
 ```Lua
 plug.set_path('/Users/user/my-plugins')
+```
+
+### Themes
+
+Themes are installed to `plug.set_path/themes/pluginname` 
+In order to use them, add the following to your `visrc` file
+
+```Lua
+set theme 'themename/filename'
 ```
 
 ## Commands
@@ -84,3 +95,4 @@ We support the following `vis` commands:
 `:plug-checkout` - checkout {name} {branch|commit}
 
 `:plug-commands` - list all commands (these)
+
