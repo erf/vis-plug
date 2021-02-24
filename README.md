@@ -1,30 +1,22 @@
 # vis-plug
 
-A minimal plugin manager for the [vis](https://github.com/martanne/vis) editor
+A plugin and theme manager for [vis](https://github.com/martanne/vis)
 
-[Configure](#Configure) third-party plugins in your `visrc` and use [Commands](#Commands) to install and more.
+[Configure](#Configure) plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
 ## Install
 
-Download and `require` in your `visrc` file, see [Plugins](https://github.com/martanne/vis/wiki/Plugins).
-
-### Download script
-
-This simple download script works for me on macOS.
-
-```bash
-curl https://raw.githubusercontent.com/erf/vis-plug/master/init.lua -o $HOME/.config/vis/plugins/vis-plug/init.lua --create-dirs
-```
+Download and `require` `vis-plug` in your `visrc` file, see [Plugins](https://github.com/martanne/vis/wiki/Plugins).
 
 ## Configure
 
-Configure plugins in `visrc` as below:
+Configure plugins in your `visrc` as below:
 
 ```Lua
 
 local plug = require('plugins/vis-plug')
 
--- configure plugins as an array of tables with { url, file, alias, branch, commit }
+-- plugins are configured as an array of tables with { url, file, alias, branch, commit }
 local plugins = {
 	{ url = 'erf/vis-sneak' },
 	{ url = 'erf/vis-cursors', file = 'init' },
@@ -44,7 +36,7 @@ Each configuration is a table with the following records:
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `branch` - use branch (optional)
 - `commit` - use commit (optional)
-- `theme` - is theme boolean (optional)
+- `theme` - true if theme (optional)
 
 ### Install on init
 
@@ -59,7 +51,7 @@ require('plugins/vis-plug').init(conf, true)
 Plugins are by default installed to the default cache folder on your system: 
 `(XDG_CACHE_HOME|HOME/.cache)/vis-plug`
 
-Use `plug.set_path` to set a custom install path for plugins.
+Use `plug.set_path` to set a custom install path:
 
 ```Lua
 plug.set_path('/Users/user/my-plugins')
@@ -67,11 +59,12 @@ plug.set_path('/Users/user/my-plugins')
 
 ### Themes
 
-Themes are installed to `plug.set_path/themes/pluginname` 
-In order to use them, add the following to your `visrc` file
+Themes are installed to `{plug-path}/themes/name`.
+
+Set theme in `visrc` file like:
 
 ```Lua
-set theme 'themename/filename'
+set theme 'name/file'
 ```
 
 ## Commands
