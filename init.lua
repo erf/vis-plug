@@ -52,13 +52,17 @@ local get_name_from_url = function(url)
 	return url:match('^.*/([^.]+)')
 end
 
--- E.g. '~/.cache/vis-plug/vis-highlight'
-local get_path_from_name = function(name, theme)
-	local folder=''
+local get_folder = function(theme)
 	if theme then
-		folder = 'themes/'
+		return '/themes'
+	else
+		return '/plugins'
 	end
-	return plugins_path .. '/'.. folder .. name
+end
+
+-- E.g. '~/.cache/vis-plug/plugins/vis-highlight'
+local get_path_from_name = function(name, theme)
+	return plugins_path .. get_folder(theme) .. '/' .. name
 end
 
 -- return true if has the protocol part of the url
@@ -145,11 +149,8 @@ local plug_install = function(plug, args)
 			vis:message(plug.name .. ' (' .. short_url .. ') is already installed')
 		end
 	else
-		if plug.theme then
-			os.execute('git -C ' .. plugins_path .. '/themes' .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
-		else
-			os.execute('git -C ' .. plugins_path .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
-		end
+		local folder = get_folder(plug.theme)
+		os.execute('git -C ' .. plugins_path .. folder .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
 		checkout(plug)
 		if not silent then
 			vis:message(plug.name .. ' (' .. short_url .. ') installed')
@@ -182,7 +183,7 @@ local plug_require = function(plug, args)
 		return
 	end
 	if not plug.theme then
-		local plugin_name = plug.name .. '/' .. plug.file
+		local plugin_name = 'plugins/' .. plug.name .. '/' .. plug.file
 		local plugin = require(plugin_name)
 		if plug.alias then
 			M.plugins[plug.alias] = plugin
@@ -218,7 +219,10 @@ local plug_list = function(plug, args)
 end
 
 local install_plugins = function(silent)
-	if not file_exists(plugins_path) or not file_exists(plugins_path .. '/themes') then
+	if not file_exists(plugins_path .. '/plugins') then
+		os.execute('mkdir -p ' .. plugins_path .. '/plugins')
+	end
+	if not file_exists(plugins_path .. '/themes') then
 		os.execute('mkdir -p ' .. plugins_path .. '/themes')
 	end
 	for_each_plugin(plug_install, silent)
