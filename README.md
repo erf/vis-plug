@@ -2,6 +2,8 @@
 
 A plugin and theme manager for [vis](https://github.com/martanne/vis)
 
+Installs plugins (and themes) via `git` to a cache folder and require plugins on `init`.
+
 [Configure](#Configure) plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
 ## Install
