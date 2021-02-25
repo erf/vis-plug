@@ -21,9 +21,8 @@ local plug = require('plugins/vis-plug')
 -- plugins are configured as an array of tables with { url, file, alias, branch, commit }
 local plugins = {
 	{ url = 'erf/vis-sneak' },
-	{ url = 'erf/vis-cursors', file = 'init' },
-	{ url = 'erf/vis-highlight', file = 'init', alias = 'hi' },
-	{ url = 'https://github.com/erf/vis-test.git', file = 'init', branch = 'other' },
+	{ url = 'erf/vis-highlight', alias = 'hi' },
+	{ url = 'github.com/erf/vis-test.git', file = 'init', branch = 'other' },
 	{ url = 'samlwood/vis-gruvbox.git', theme = true },
 }
 
