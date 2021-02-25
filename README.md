@@ -18,7 +18,7 @@ Configure plugins in your `visrc` as below:
 
 local plug = require('plugins/vis-plug')
 
--- plugins are configured as an array of tables with { url, file, alias, branch, commit }
+-- plugins are configured as an array of tables with a git url and other params 
 local plugins = {
 	{ url = 'erf/vis-sneak' },
 	{ url = 'erf/vis-highlight', alias = 'hi' },
@@ -30,9 +30,9 @@ local plugins = {
 plug.init(plugins)
 ```
 
-Each configuration is a table with the following records:
+Each table can have the following options:
 
-- `url` - the git repo ( you can drop `https://github.com` )
+- `url` - the git repo ( you can drop `https://github.com` or `https://` )
 - `file` - lua file required on init - defaults to `init` (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `branch` - use branch (optional)
