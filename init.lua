@@ -71,6 +71,12 @@ local is_full_url = function(url)
 	return url:find('^.+://') ~= nil
 end
 
+-- return true if has the protocol part of the url
+-- '{github.com/}erf/vis-cursors.git'
+local is_no_host_url = function(url)
+	return url:find('^%w+%.%w+[^/]') ~= nil
+end
+
 -- [user@]server:project.git
 local is_short_ssh_url = function(url)
 	return url:find('^.+@.+:.+')
@@ -92,6 +98,8 @@ end
 local get_full_url = function(url)
 	if is_full_url(url) then
 		return url
+	elseif is_no_host_url(url) then
+		return 'https://' .. url
 	elseif is_short_ssh_url(url) then
 		return url
 	else
