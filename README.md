@@ -1,6 +1,6 @@
 # vis-plug
 
-A plugin and theme manager for [vis](https://github.com/martanne/vis)
+A minial plugin manager for [vis](https://github.com/martanne/vis)
 
 Installs plugins (and themes) via `git` to a cache folder and require plugins on `init`.
 
