@@ -60,9 +60,9 @@ local get_folder = function(theme)
 	end
 end
 
--- E.g. '~/.cache/vis-plug/plugins/vis-highlight'
-local get_path_from_name = function(name, theme)
-	return plugins_path .. get_folder(theme) .. '/' .. name
+-- E.g. '~/.cache/vis-plug/plugins/'
+local get_base_path = function(theme)
+	return plugins_path .. get_folder(theme)
 end
 
 -- return true if has the protocol part of the url
@@ -131,7 +131,7 @@ local plug_prepare = function(plug, args)
 	plug.file = plug.file or 'init'
 	plug.url  = get_full_url(plug.url)
  	plug.name = get_name_from_url(plug.url)
-	plug.path = get_path_from_name(plug.name, plug.theme)
+	plug.path = get_base_path(plug.theme) .. '/' .. plug.name
 end
 
 -- checkout specific branch or commit
@@ -157,8 +157,7 @@ local plug_install = function(plug, args)
 			vis:message(plug.name .. ' (' .. short_url .. ') is already installed')
 		end
 	else
-		local folder = get_folder(plug.theme)
-		os.execute('git -C ' .. plugins_path .. folder .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
+		os.execute('git -C ' .. get_base_path(plug.theme) .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
 		checkout(plug)
 		if not silent then
 			vis:message(plug.name .. ' (' .. short_url .. ') installed')
