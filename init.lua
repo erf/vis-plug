@@ -226,13 +226,31 @@ local plug_list = function(plug, args)
 end
 
 local install_plugins = function(silent)
-	if not file_exists(plugins_path .. '/plugins') then
-		os.execute('mkdir -p ' .. plugins_path .. '/plugins')
+
+	-- create folders
+	os.execute('mkdir -p ' .. plugins_path .. '/{plugins,themes}')
+
+	-- collect base paths + git urls
+	local urls = ''
+	local installed = 0
+	for _, plug in ipairs(plugins_conf) do
+		if not file_exists(plug.path) then
+			urls = urls .. ' ' .. plug.url .. ' ' .. get_base_path(plug.theme)
+			installed = installed + 1
+		end
 	end
-	if not file_exists(plugins_path .. '/themes') then
-		os.execute('mkdir -p ' .. plugins_path .. '/themes')
-	end
-	for_each_plugin(plug_install, silent)
+
+	if urls == '' then return end
+
+	-- git clone urls in parallel to given dirs
+	local cmd = 'echo' .. urls .. ' | xargs -n 2 -P 0 sh -c \'git -C $1 clone $0 --quiet 2> /dev/null\''
+	os.execute(cmd)
+
+	-- TODO checkout git repo
+	--checkout(plug)
+
+	vis:info('vis-plug: ' .. installed .. ' plugins installed')
+	vis:redraw()
 end
 
 local plug_delete = function(plug, args)
