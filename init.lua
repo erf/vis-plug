@@ -65,9 +65,14 @@ local get_base_path = function(theme)
 	return plugins_path .. get_folder(theme)
 end
 
+-- '{http[s]://github.com}/erf/vis-cursors.git'
+local is_github_url = function(url)
+	return url:find('^http[s]?://github.com.+') ~= nil
+end
+
 -- return true if has the protocol part of the url
 -- '{https://}github.com/erf/vis-cursors.git'
-local is_full_url = function(url)
+local is_host_url = function(url)
 	return url:find('^.+://') ~= nil
 end
 
@@ -84,7 +89,9 @@ end
 
 -- remove protocol from url to make it shorter for output
 local get_short_url = function(url)
-	if is_full_url(url) then
+	if is_github_url(url) then
+		return url:match('^.+://.-/(.*)')
+	elseif is_host_url(url) then
 		return url:match('^.+://(.*)')
 	elseif is_short_ssh_url(url) then
 		return url -- TODO shorten?
@@ -96,7 +103,7 @@ end
 -- given a github short hand url, return the full url
 -- E.g. 'erf/vis-cursors' -> 'https://github.com/erf/vis-cursors.git'
 local get_full_url = function(url)
-	if is_full_url(url) then
+	if is_host_url(url) then
 		return url
 	elseif is_no_host_url(url) then
 		return 'https://' .. url
