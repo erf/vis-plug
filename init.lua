@@ -148,24 +148,6 @@ local checkout = function(plug)
 	end
 end
 
-local plug_install = function(plug, args)
-	local short_url = get_short_url(plug.url)
-	local silent = args
-	if file_exists(plug.path) then
-		checkout(plug)
-		if not silent then
-			vis:message(plug.name .. ' (' .. short_url .. ') is already installed')
-		end
-	else
-		os.execute('git -C ' .. get_base_path(plug.theme) .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null')
-		checkout(plug)
-		if not silent then
-			vis:message(plug.name .. ' (' .. short_url .. ') installed')
-		end
-	end
-	vis:redraw()
-end
-
 local plug_update = function(plug, args)
 	local short_url = get_short_url(plug.url)
 	if not file_exists(plug.path) then
@@ -190,8 +172,8 @@ local plug_require = function(plug, args)
 		return
 	end
 	if not plug.theme then
-		local plugin_name = 'plugins/' .. plug.name .. '/' .. plug.file
-		local plugin = require(plugin_name)
+		local name = 'plugins/' .. plug.name .. '/' .. plug.file
+		local plugin = require(name)
 		if plug.alias then
 			M.plugins[plug.alias] = plugin
 		end
@@ -240,17 +222,25 @@ local install_plugins = function(silent)
 		end
 	end
 
-	if urls == '' then return end
+	-- parallel git clone using xargs
+	if urls ~= '' then
+		if not silent then
+			vis:message('installing..')
+			vis:redraw()
+		end
+		local cmd = 'echo' .. urls .. ' | xargs -n2 -P0 sh -c \'git -C $1 clone $0 --quiet 2> /dev/null\''
+		os.execute(cmd)
+	end
 
-	-- git clone urls in parallel to given dirs
-	local cmd = 'echo' .. urls .. ' | xargs -n 2 -P 0 sh -c \'git -C $1 clone $0 --quiet 2> /dev/null\''
-	os.execute(cmd)
+	-- checkout git repo
+	for_each_plugin(checkout)
 
-	-- TODO checkout git repo
-	--checkout(plug)
-
-	vis:info('vis-plug: ' .. installed .. ' plugins installed')
-	vis:redraw()
+	if urls ~= '' then
+		vis:message('' .. installed .. ' plugins installed to ' .. plugins_path)
+	elseif not silent then
+		vis:message('nothing to install')
+	end
+	--vis:redraw()
 end
 
 local plug_delete = function(plug, args)
@@ -274,10 +264,7 @@ M.init = function(plugins, install_on_init)
 end
 
 local command_install = function(argv, force, win, selection, range)
-	vis:message('installing..')
-	vis:redraw()
 	install_plugins(false)
-	vis:redraw()
 	return true
 end
 
