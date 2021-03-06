@@ -228,11 +228,9 @@ local update_plugins = function()
 
 	-- collect paths (if exists and has changed?)
 	local paths = ''
-	local updated = 0
 	for _, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
 			paths = paths .. ' ' .. plug.path
-			updated = updated + 1
 		end
 	end
 
