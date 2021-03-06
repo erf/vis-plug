@@ -1,8 +1,8 @@
 # vis-plug
 
-A minial plugin (and theme) manager for [vis](https://github.com/martanne/vis)
+A minimal plugin (and theme) manager for [vis](https://github.com/martanne/vis)
 
-Installs plugins (and themes) in parallel using `git` and `xargs` to a cache folder and require them on `init`.
+Installs plugins in parallel using `git` and `xargs` to a cache folder and require them on `init`.
 
 [Configure](#Configure) plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
