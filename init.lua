@@ -148,25 +148,6 @@ local checkout = function(plug)
 	end
 end
 
-local plug_update = function(plug, args)
-	local short_url = get_short_url(plug.url)
-	if not file_exists(plug.path) then
-		vis:message(plug.name .. ' (' .. short_url .. ') is NOT installed')
-		vis:redraw()
-		return
-	end
-	checkout(plug)
-	local local_hash = execute('git -C ' .. plug.path .. ' rev-parse HEAD')
-	local remote_hash = execute('git ls-remote ' .. plug.url .. ' HEAD | cut -f1')
-	if local_hash ~= remote_hash then
-		os.execute('git -C ' .. plug.path .. ' pull')
-		vis:message(plug.name .. ' (' .. short_url .. ') UPDATED')
-	else
-		vis:message(plug.name .. ' (' .. short_url .. ') is up-to-date')
-	end
-	vis:redraw()
-end
-
 local plug_require = function(plug, args)
 	if not file_exists(plug.path) then
 		return
@@ -212,35 +193,66 @@ local install_plugins = function(silent)
 	-- create folders
 	os.execute('mkdir -p ' .. plugins_path .. '/{plugins,themes}')
 
-	-- collect base paths + git urls
+	-- collect urls + paths
 	local urls = ''
 	local installed = 0
 	for _, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
-			urls = urls .. ' ' .. plug.url .. ' ' .. get_base_path(plug.theme)
+			urls = urls .. ' ' .. get_base_path(plug.theme)  .. ' ' .. plug.url
 			installed = installed + 1
 		end
 	end
 
-	-- parallel git clone using xargs
+	-- git clone in parallel using xargs
 	if urls ~= '' then
 		if not silent then
 			vis:message('installing..')
 			vis:redraw()
 		end
-		local cmd = 'echo' .. urls .. ' | xargs -n2 -P0 sh -c \'git -C $1 clone $0 --quiet 2> /dev/null\''
+		local cmd = 'echo' .. urls .. ' | xargs -n2 -P0 sh -c \'git -C $0 clone $1 --quiet 2> /dev/null\''
 		os.execute(cmd)
 	end
 
 	-- checkout git repo
 	for_each_plugin(checkout)
 
+	-- print result
 	if urls ~= '' then
 		vis:message('' .. installed .. ' plugins installed to ' .. plugins_path)
 	elseif not silent then
 		vis:message('nothing to install')
 	end
-	--vis:redraw()
+end
+
+local update_plugins = function()
+
+	-- collect paths (if exists and has changed?)
+	local paths = ''
+	local updated = 0
+	for _, plug in ipairs(plugins_conf) do
+		if file_exists(plug.path) then
+			paths = paths .. ' ' .. plug.path
+			updated = updated + 1
+		end
+	end
+
+	-- git pull in parallel using xargs
+	if paths ~= '' then
+		vis:message('updating..')
+		vis:redraw()
+		local cmd = 'echo' .. paths .. ' | xargs -n1 -P0 -I{} git -C {} pull --quiet 2> /dev/null'
+		os.execute(cmd)
+	end
+
+	-- checkout git repo
+	for_each_plugin(checkout)
+
+	-- print result
+	if paths ~= '' then
+		vis:message('plugins up-to-date')
+	else
+		vis:message('nothing to update')
+	end
 end
 
 local plug_delete = function(plug, args)
@@ -308,10 +320,7 @@ local command_clean = function(argv, force, win, selection, range)
 end
 
 local command_update = function(argv, force, win, selection, range)
-	vis:message('updating..')
-	vis:redraw()
-	for_each_plugin(plug_update)
-	vis:redraw()
+	update_plugins()
 	return true
 end
 
