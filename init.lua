@@ -171,7 +171,7 @@ end
 local plug_outdated = function(plug, args)
 	local short_url = get_short_url(plug.url)
 	if not file_exists(plug.path) then
-		vis:message(plug.name .. ' (' .. short_url .. ') is NOT installed')
+		vis:message(plug.name .. ' (' .. short_url .. ') is not installed')
 		vis:redraw()
 		return
 	end
@@ -180,7 +180,7 @@ local plug_outdated = function(plug, args)
 	if local_hash == remote_hash then
 		vis:message(plug.name .. ' (' .. short_url .. ') is up-to-date')
 	else
-		vis:message(plug.name .. ' (' .. short_url .. ') needs UPDATE')
+		vis:message(plug.name .. ' (' .. short_url .. ') needs update')
 	end
 	vis:redraw()
 end
@@ -190,7 +190,7 @@ local plug_list = function(plug, args)
 	if file_exists(plug.path) then
 		vis:message(plug.name .. ' (' .. short_url .. ')')
 	else
-		vis:message(plug.name .. ' (' .. short_url .. ') is NOT installed')
+		vis:message(plug.name .. ' (' .. short_url .. ') is not installed')
 	end
 	vis:redraw()
 end
@@ -213,7 +213,7 @@ local install_plugins = function(silent)
 	-- git clone in parallel using xargs
 	if urls ~= '' then
 		if not silent then
-			vis:message('installing..')
+			vis:info('installing..')
 			vis:redraw()
 		end
 		os.execute('echo' .. urls .. ' | xargs -n2 -P0 sh -c \'git -C $0 clone $1 --quiet 2> /dev/null\'')
@@ -224,9 +224,9 @@ local install_plugins = function(silent)
 
 	-- print result
 	if urls ~= '' then
-		vis:message('' .. installed .. ' plugins installed to ' .. plugins_path)
+		vis:info('' .. installed .. ' plugins installed')
 	elseif not silent then
-		vis:message('nothing to install')
+		vis:info('nothing to install')
 	end
 end
 
@@ -234,15 +234,17 @@ local update_plugins = function()
 
 	-- collect paths (if exists and has changed?)
 	local paths = ''
+	local updated = 0
 	for _, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
+			updated = updated + 1
 			paths = paths .. ' ' .. plug.path
 		end
 	end
 
 	-- git pull in parallel using xargs
 	if paths ~= '' then
-		vis:message('updating..')
+		vis:info('updating..')
 		vis:redraw()
 		os.execute('echo' .. paths .. ' | xargs -n1 -P0 -I{} git -C {} pull --quiet 2> /dev/null')
 	end
@@ -252,18 +254,9 @@ local update_plugins = function()
 
 	-- print result
 	if paths ~= '' then
-		vis:message('plugins up-to-date')
+		vis:info('' .. updated .. ' plugins updated')
 	else
-		vis:message('nothing to update')
-	end
-end
-
-local plug_delete = function(plug, args)
-	if file_exists(plug.path) then
-		os.execute('rm -rf ' .. plug.path)
-		vis:message(plug.name .. ' (' .. plug.path .. ') deleted')
-	else
-		vis:message(plug.name .. ' (' .. plug.path .. ') is NOT installed')
+		vis:info('nothing to update')
 	end
 end
 
@@ -287,11 +280,15 @@ local command_rm = function(argv, force, win, selection, range)
 	local name = argv[1]
 	local plug = get_plug_by_name(name)
 	if plug then
-		plug_delete(plug)
+		if file_exists(plug.path) then
+			os.execute('rm -rf ' .. plug.path)
+			vis:info(plug.name .. ' (' .. plug.path .. ') deleted')
+		else
+			vis:info(plug.name .. ' is not installed')
+		end
 	else
-		vis:message('Error: plug-rm missing plugin ' .. name)
+		vis:info('did not find plugin \'' .. name .. '\'')
 	end
-	vis:redraw()
 	return true
 end
 
@@ -299,26 +296,33 @@ local command_checkout = function(argv, force, win, selection, range)
 	local name = argv[1]
 	local branch_or_commit = argv[2]
 	if name == nil or branch_or_commit == nil then
-		vis:message('Error: missing {name} or {branch|commit}')
+		vis:info('missing {name} or {branch|commit}')
 		return
 	end
 	local plug = get_plug_by_name(name)
 	if plug then
 		plug.commit = branch_or_commit
 		checkout(plug)
-		vis:message('checked out \'' .. branch_or_commit .. '\'')
+		vis:info('checked out \'' .. branch_or_commit .. '\'')
 	else
-		vis:message('Error: plug-checkout did not find plugin ' .. name)
+		vis:info('did not find plugin \'' .. name .. '\'')
 	end
-	vis:redraw()
 	return true
 end
 
 local command_clean = function(argv, force, win, selection, range)
-	vis:message('cleaning..')
-	vis:redraw()
-	for_each_plugin(plug_delete)
-	vis:redraw()
+	local deleted = 0
+	for _, plug in ipairs(plugins_conf) do
+		if file_exists(plug.path) then
+			os.execute('rm -rf ' .. plug.path)
+			deleted = deleted + 1
+		end
+	end
+	if deleted == 0 then
+		vis:info('nothing to delete')
+	else
+		vis:info('' .. deleted .. ' packages deleted')
+	end
 	return true
 end
 
@@ -346,22 +350,20 @@ local fetch_latest_vis_plug = function(plug_path)
 end
 
 local command_upgrade = function(argv, force, win, selection, range)
-	vis:message('upgrading..')
+	vis:info('upgrading..')
 	vis:redraw()
 	local plug_path = look_for_vis_plug_path()
 	if plug_path == nil then
-		vis:message('error: could not find vis-plug path')
-		vis:redraw()
+		vis:info('error: could not find vis-plug path')
 		return
 	end
 
 	local result, success, message, code = fetch_latest_vis_plug(plug_path)
 	if success then
-		vis:message('upgrade OK - restart for latest vis-plug')
+		vis:info('upgrade OK - restart for latest vis-plug')
 	else
-		vis:message('upgrade failed with code: ' .. tostring(code))
+		vis:info('upgrade failed with code: ' .. tostring(code))
 	end
-	vis:redraw()
 	return true
 end
 
@@ -369,58 +371,54 @@ local command_ls = function(argv, force, win, selection, range)
 	vis:message('plugins (' .. #plugins_conf .. ')')
 	vis:redraw()
 	for_each_plugin(plug_list)
-	vis:redraw()
 	return true
 end
 
 local command_outdated = function(argv, force, win, selection, range)
-	vis:message('up-to-date..?')
+	vis:message('up-to-date?')
 	vis:redraw()
 	for_each_plugin(plug_outdated)
-	vis:redraw()
 	return true
 end
 
 local command_list_commands = function(argv, force, win, selection, range)
-	vis:message('vis-plug commands')
-	vis:redraw()
 	local arr = {}
+	table.insert(arr, 'vis-plug commands')
 	for _, command in ipairs(commands) do
 		table.insert(arr, ':' .. command.name .. ' - ' .. command.desc)
 	end
 	local str = table.concat(arr, '\n')
 	vis:message(str)
-	vis:redraw()
 	return true
 end
 
 commands = { {
-		name = 'plug-ls',
-		desc = 'list all plugins in conf',
+		name = 'plug-list',
+		desc = 'list plugins (in conf)',
 		func = command_ls,
 	}, {
 		name = 'plug-install',
-		desc = 'install all plugins in conf (git clone)',
+		desc = 'install plugins (clone)',
 		func = command_install,
 	}, {
 		name = 'plug-update',
-		desc = 'update all plugins in conf (git pull)',
+		desc = 'update plugins (pull)',
 		func = command_update,
 	}, {
 		name = 'plug-outdated',
-		desc = 'check if all plugins are up-to-date (diff commits)',
+		desc = 'check if plugins are up-to-date',
 		func = command_outdated,
 	}, {
 		name = 'plug-upgrade',
-		desc = 'download latest vis-plug version (overwrite current)',
+		desc = 'upgrade to latest vis-plug version',
 		func = command_upgrade,
 	}, {
-		name = 'plug-rm',
-		desc = 'delete a plugin by {name} (:plug-ls for names)',
+		name = 'plug-remove',
+		desc = 'delete plugin by {name} (:plug-ls for names)',
 		func = command_rm,
 	}, {
 		name = 'plug-clean',
-		desc = 'delete all plugins in conf',
+		desc = 'delete all plugins from disk (in conf)',
 		func = command_clean,
 	}, {
 		name = 'plug-checkout',
@@ -428,7 +426,7 @@ commands = { {
 		func = command_checkout,
 	}, {
 		name = 'plug-commands',
-		desc = 'list all commands (these)',
+		desc = 'list commands (these)',
 		func = command_list_commands,
 	},
 }

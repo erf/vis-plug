@@ -72,21 +72,20 @@ set theme 'name/file'
 
 We support the following `vis` commands:
 
-`:plug-ls` - list all plugins in conf
+`:plug-list` - list plugins (in conf)
 
-`:plug-install` - install all plugins in conf (git clone)
+`:plug-install` - install plugins (clone)
 
-`:plug-update` - update all plugins in conf (git pull)
+`:plug-update` - update plugins (pull)
 
-`:plug-outdated` - are repos up-to-date? (diff commits)
+`:plug-outdated` - check if plugins are up-to-date
 
-`:plug-upgrade` - download latest vis-plug version (overwrites current)
+`:plug-upgrade` - upgrade to latest vis-plug
 
-`:plug-rm` - delete a plugin by {name} (`:plug-ls` for names)
+`:plug-remove` - delete plugin by {name} (`:plug-ls` for names)
 
-`:plug-clean` - delete all plugins in conf
+`:plug-clean` - delete all plugins from disk (in conf)
 
 `:plug-checkout` - checkout {name} {branch|commit}
 
-`:plug-commands` - list all commands (these)
-
+`:plug-commands` - list commands (these)
