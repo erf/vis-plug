@@ -198,7 +198,8 @@ end
 local install_plugins = function(silent)
 
 	-- create folders
-	os.execute('mkdir -p ' .. plugins_path .. '/{plugins,themes}')
+	os.execute('mkdir -p ' .. plugins_path .. '/plugins')
+	os.execute('mkdir -p ' .. plugins_path .. '/themes')
 
 	-- collect urls + paths
 	local urls = ''
