@@ -18,7 +18,7 @@ Configure plugins in your `visrc` as below:
 
 local plug = require('plugins/vis-plug')
 
--- plugins are configured as an array of tables with a git url + params 
+-- configure plugins in an array of tables with git urls and options 
 local plugins = {
 	{ url = 'erf/vis-sneak' },
 	{ url = 'erf/vis-highlight', alias = 'hi' },
@@ -33,7 +33,7 @@ plug.plugins.hi.patterns[' +\n'] = { style = 'back:#444444' }
 plug.init(plugins, true)
 ```
 
-Each table can have the following options:
+Each plugin table can have the following options:
 
 - `url` - the git url (you can skip `https://github.com` and `https://`)
 - `file` - lua file required on init. defaults to `init` (optional)
