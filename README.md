@@ -18,13 +18,16 @@ Configure plugins in your `visrc` as below:
 
 local plug = require('plugins/vis-plug')
 
--- plugins are configured as an array of tables with a git url and other params 
+-- plugins are configured as an array of tables with a git url + params 
 local plugins = {
 	{ url = 'erf/vis-sneak' },
 	{ url = 'erf/vis-highlight', alias = 'hi' },
 	{ url = 'erf/vis-test.git', file = 'init', ref = 'other' },
 	{ url = 'samlwood/vis-gruvbox.git', theme = true },
 }
+
+-- access plugin variables via alias
+plug.plugins.hi.patterns[' +\n'] = { style = 'back:#444444' }
 
 -- require plugins and optionally install them on init
 plug.init(plugins)
