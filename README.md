@@ -49,7 +49,9 @@ require('plugins/vis-plug').init(conf, true)
 ### Install path
 
 Plugins are by default installed to the default cache folder on your system: 
-`(XDG_CACHE_HOME|HOME/.cache)/vis-plug`
+`(XDG_CACHE_HOME|HOME/.cache)/vis-plug/{plugins|themes}/{plug-name}`
+
+`plug-name` is the git url last folder.
 
 Use `plug.set_path` to set a custom install path:
 
@@ -59,12 +61,12 @@ plug.set_path('/Users/user/my-plugins')
 
 ### Themes
 
-Themes are installed to `{plug-path}/themes/name`.
+Themes are installed to `{plug-path}/themes/{plug-name}`.
 
-Set theme in `visrc` file like:
+Set using `set theme` command:
 
 ```Lua
-set theme 'name/file'
+set theme '{plug-name}/{file}'
 ```
 
 ## Commands
