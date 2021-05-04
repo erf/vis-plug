@@ -141,12 +141,10 @@ local plug_prepare = function(plug, args)
 	plug.path = get_base_path(plug.theme) .. '/' .. plug.name
 end
 
--- checkout specific branch or commit
+-- checkout specific commit, branch or tag
 local checkout = function(plug)
-	if plug.commit then
-		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.commit)
-	elseif plug.branch then
-		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.branch)
+	if plug.ref then
+		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.ref)
 	else
 		-- ELSE do nothing; there is no default "master" branch or "origin"
 		-- for reference:
@@ -295,16 +293,16 @@ end
 
 local command_checkout = function(argv, force, win, selection, range)
 	local name = argv[1]
-	local branch_or_commit = argv[2]
-	if name == nil or branch_or_commit == nil then
-		vis:info('missing {name} or {branch|commit}')
+	local ref = argv[2]
+	if name == nil or ref == nil then
+		vis:info('missing {name} or {commit|branch|tag}')
 		return
 	end
 	local plug = get_plug_by_name(name)
 	if plug then
-		plug.commit = branch_or_commit
+		plug.ref = ref
 		checkout(plug)
-		vis:info('checked out \'' .. branch_or_commit .. '\'')
+		vis:info('checked out \'' .. ref .. '\'')
 	else
 		vis:info('did not find plugin \'' .. name .. '\'')
 	end
@@ -423,7 +421,7 @@ commands = { {
 		func = command_clean,
 	}, {
 		name = 'plug-checkout',
-		desc = 'checkout {name} {branch|commit}',
+		desc = 'checkout {name} {commit|branch|tag}',
 		func = command_checkout,
 	}, {
 		name = 'plug-commands',

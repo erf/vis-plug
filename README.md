@@ -22,7 +22,7 @@ local plug = require('plugins/vis-plug')
 local plugins = {
 	{ url = 'erf/vis-sneak' },
 	{ url = 'erf/vis-highlight', alias = 'hi' },
-	{ url = 'github.com/erf/vis-test.git', file = 'init', branch = 'other' },
+	{ url = 'erf/vis-test.git', file = 'init', ref = 'other' },
 	{ url = 'samlwood/vis-gruvbox.git', theme = true },
 }
 
@@ -32,12 +32,11 @@ plug.init(plugins)
 
 Each table can have the following options:
 
-- `url` - the git repo ( you can drop `https://github.com` or `https://` )
-- `file` - lua file required on init - defaults to `init` (optional)
+- `url` - the git url (you can skip `https://github.com` and `https://`)
+- `file` - lua file required on init. defaults to `init` (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
-- `branch` - use branch (optional)
-- `commit` - use commit (optional)
-- `theme` - true if theme (optional)
+- `ref` - use a spesific commit, branch or tag (optional)
+- `theme` - set true if theme (optional)
 
 ### Install on init
 
@@ -86,6 +85,6 @@ We support the following `vis` commands:
 
 `:plug-clean` - delete all plugins from disk (in conf)
 
-`:plug-checkout` - checkout {name} {branch|commit}
+`:plug-checkout` - checkout {name} {commit|branch|tag}
 
 `:plug-commands` - list commands (these)
