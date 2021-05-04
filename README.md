@@ -26,11 +26,11 @@ local plugins = {
 	{ url = 'samlwood/vis-gruvbox.git', theme = true },
 }
 
--- access plugin variables via alias
+-- access plugins via alias
 plug.plugins.hi.patterns[' +\n'] = { style = 'back:#444444' }
 
--- require plugins and optionally install them on init
-plug.init(plugins)
+-- require and optionally install plugins on init
+plug.init(plugins, true)
 ```
 
 Each table can have the following options:
