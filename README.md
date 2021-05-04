@@ -2,13 +2,13 @@
 
 A minimal plugin (and theme) manager for [vis](https://github.com/martanne/vis)
 
-Installs plugins in parallel using `git` and `xargs` to a cache folder and require them on `init`.
+Plugins are installed using `git` and `xargs` (in parallel) to a cache folder and required on `init`.
 
 [Configure](#Configure) plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
 ## Install
 
-Download and `require` `vis-plug` in your `visrc` file, see [Plugins](https://github.com/martanne/vis/wiki/Plugins).
+Download and `require` `vis-plug` in your `visrc` file. See [Plugins](https://github.com/martanne/vis/wiki/Plugins).
 
 ## Configure
 
