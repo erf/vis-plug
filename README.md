@@ -1,14 +1,14 @@
 # vis-plug
 
-A minimal plugin (and theme) manager for [vis](https://github.com/martanne/vis)
-
-Plugins are installed using `git` and `xargs` (in parallel) to a cache folder and required on `init`.
+A minimal plugin-manager for [vis](https://github.com/martanne/vis)
 
 [Configure](#Configure) plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
+Plugins are installed using `git` and `xargs` (in parallel), to a cache folder and required on `init`.
+
 ## Install
 
-Download and `require` `vis-plug` in your `visrc` file. See [Plugins](https://github.com/martanne/vis/wiki/Plugins).
+Download and require `vis-plug` in your `visrc`. See [Plugins](https://github.com/martanne/vis/wiki/Plugins).
 
 ## Configure
 
@@ -38,12 +38,12 @@ Each plugin table can have the following options:
 - `url` - the git url (you can skip `https://github.com` and `https://`)
 - `file` - lua file required on init. defaults to `init` (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
-- `ref` - use a spesific commit, branch or tag (optional)
+- `ref` - checkout a spesific commit, branch or tag (optional)
 - `theme` - set true if theme (optional)
 
 ### Install on init
 
-Pass **true** as second argument to `init` to install and checkout on init.
+Pass *true* as second argument to `init` to install and checkout on init.
 
 ```Lua
 require('plugins/vis-plug').init(conf, true)
@@ -64,9 +64,11 @@ plug.set_path('/Users/user/my-plugins')
 
 ### Themes
 
+Install themes by setting the `theme = true` option.
+
 Themes are installed to `{plug-path}/themes/{plug-name}`.
 
-Set using `set theme` command:
+Set a theme using the `set theme` command in your `visrc`.
 
 ```Lua
 set theme '{plug-name}/{file}'
