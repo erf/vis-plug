@@ -20,10 +20,10 @@ local plug = require('plugins/vis-plug')
 
 -- configure plugins in an array of tables with git urls and options 
 local plugins = {
-	{ url = 'erf/vis-sneak' },
+	{ url = 'erf/vis-cursors' },
 	{ url = 'erf/vis-highlight', alias = 'hi' },
-	{ url = 'erf/vis-test.git', file = 'init', ref = 'other' },
-	{ url = 'samlwood/vis-gruvbox.git', theme = true },
+	{ url = 'erf/vis-test', file = 'init', ref = 'other' },
+	{ url = 'samlwood/vis-gruvbox', theme = true },
 }
 
 -- access plugins via alias
