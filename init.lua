@@ -413,7 +413,7 @@ commands = { {
 		func = command_upgrade,
 	}, {
 		name = 'plug-remove',
-		desc = 'delete plugin by {name} (:plug-ls for names)',
+		desc = 'delete plugin by {name} (:plug-list for names)',
 		func = command_rm,
 	}, {
 		name = 'plug-clean',

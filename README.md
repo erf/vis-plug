@@ -21,8 +21,8 @@ local plug = require('plugins/vis-plug')
 -- configure plugins in an array of tables with git urls and options 
 local plugins = {
 	{ url = 'erf/vis-cursors' },
-	{ url = 'erf/vis-highlight', alias = 'hi' },
 	{ url = 'erf/vis-test', file = 'init', ref = 'other' },
+	{ url = 'erf/vis-highlight', alias = 'hi' },
 	{ url = 'samlwood/vis-gruvbox', theme = true },
 }
 
@@ -37,8 +37,8 @@ Each plugin table can have the following options:
 
 - `url` - the git url (you can skip `https://github.com` and `https://`)
 - `file` - lua file required on init. defaults to `init` (optional)
-- `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `ref` - checkout a spesific commit, branch or tag (optional)
+- `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `theme` - set true if theme (optional)
 
 ### Install on init
@@ -88,7 +88,7 @@ We support the following `vis` commands:
 
 `:plug-upgrade` - upgrade to latest vis-plug
 
-`:plug-remove` - delete plugin by {name} (`:plug-ls` for names)
+`:plug-remove` - delete plugin by {name} (`:plug-list` for names)
 
 `:plug-clean` - delete all plugins from disk (in conf)
 
