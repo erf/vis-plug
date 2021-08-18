@@ -19,7 +19,7 @@ M.set_path = function(path)
 end
 
 -- e.g. /Users/user/.cache/vis-plug
-local get_default_cache_path = function()
+local get_cache_path = function()
 	local HOME = os.getenv('HOME')
 	local XDG_CACHE_HOME = os.getenv('XDG_CACHE_HOME')
 	local CACHE_DIR = XDG_CACHE_HOME or (HOME .. '/.cache')
@@ -27,7 +27,7 @@ local get_default_cache_path = function()
 end
 
 -- set default install path for plugins
-M.set_path(get_default_cache_path())
+M.set_path(get_cache_path())
 
 -- execute a command and return result string
 local execute = function(command)
