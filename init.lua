@@ -215,7 +215,7 @@ local install_plugins = function(silent)
 			vis:info('installing..')
 			vis:redraw()
 		end
-		os.execute('echo' .. urls .. ' | xargs -n2 -P0 sh -c \'git -C $0 clone $1 --quiet 2> /dev/null\'')
+		os.execute('echo' .. urls .. ' | xargs -n 2 -P 0 sh -c \'git -C $0 clone $1 --quiet 2> /dev/null\'')
 	end
 
 	-- checkout git repo
@@ -245,7 +245,7 @@ local update_plugins = function()
 	if paths ~= '' then
 		vis:info('updating..')
 		vis:redraw()
-		os.execute('echo' .. paths .. ' | xargs -n1 -P0 -I{} git -C {} pull --quiet 2> /dev/null')
+		os.execute('echo' .. paths .. ' | xargs -n 1 -P 0 -I{} git -C {} pull --quiet 2> /dev/null')
 	end
 
 	-- checkout git repo
