@@ -157,12 +157,13 @@ local plug_require = function(plug, args)
 	if not file_exists(plug.path) then
 		return
 	end
-	if not plug.theme then
-		local name = 'plugins/' .. plug.name .. '/' .. plug.file
-		local plugin = require(name)
-		if plug.alias then
-			M.plugins[plug.alias] = plugin
-		end
+	if plug.theme then
+		return
+	end
+	local name = 'plugins/' .. plug.name .. '/' .. plug.file
+	local plugin = require(name)
+	if plug.alias then
+		M.plugins[plug.alias] = plugin
 	end
 end
 
