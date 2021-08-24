@@ -206,7 +206,7 @@ local install_plugins = function(silent)
 	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
 			local path = get_base_path(plug.theme)  
-			table.insert(cmds, string.format('git -C %s clone %s --quiet 2> /dev/null &\n', path, plug.url))
+			table.insert(cmds, string.format('git -C %s clone %s --quiet 2> /dev/null &', path, plug.url))
 		end
 	end
 
@@ -214,7 +214,7 @@ local install_plugins = function(silent)
 	if #cmds > 0 then
 		vis:info('installing..')
 		vis:redraw()
-		os.execute(string.format('sh -c \'{\n %s wait\n}\'', table.concat(cmds, '\n')))
+		os.execute(string.format('sh -c \'{\n%s\nwait\n}\'', table.concat(cmds, '\n')))
 	end
 
 	-- checkout git repo
@@ -236,7 +236,7 @@ local update_plugins = function()
 	for key, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
 			local path = get_base_path(plug.theme)  
-			table.insert(cmds, string.format('git -C %s pull --quiet 2> /dev/null &\n', path))
+			table.insert(cmds, string.format('git -C %s pull --quiet 2> /dev/null &', path))
 		end
 	end
 
@@ -244,7 +244,7 @@ local update_plugins = function()
 	if #cmds > 0 then
 		vis:info('updating..')
 		vis:redraw()
-		os.execute(string.format('sh -c \'{\n %s wait\n}\'', table.concat(cmds, '\n')))
+		os.execute(string.format('sh -c \'{\n%s\nwait\n}\'', table.concat(cmds, '\n')))
 	end
 
 	-- checkout git repo
