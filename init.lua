@@ -210,11 +210,13 @@ local install_plugins = function(silent)
 		end
 	end
 
-	-- execute commands
+	-- execute commands and wait
 	if #cmds > 0 then
 		vis:info('installing..')
 		vis:redraw()
-		os.execute(string.format('sh -c \'{\n%s\nwait\n}\'', table.concat(cmds, '\n')))
+		table.insert(cmds, 'wait')
+		local command = string.format('sh -c \'{\n%s\n}\'', table.concat(cmds, '\n'))
+		os.execute(command)
 	end
 
 	-- checkout git repo
@@ -239,11 +241,13 @@ local update_plugins = function()
 		end
 	end
 
-	-- execute commands
+	-- execute commands and wait
 	if #cmds > 0 then
 		vis:info('updating..')
 		vis:redraw()
-		os.execute(string.format('sh -c \'{\n%s\nwait\n}\'', table.concat(cmds, '\n')))
+		table.insert(cmds, 'wait')
+		local command = string.format('sh -c \'{\n%s\n}\'', table.concat(cmds, '\n'))
+		os.execute(command)
 	end
 
 	-- checkout git repo
