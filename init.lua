@@ -135,7 +135,7 @@ local for_each_plugin = function (func, args)
 end
 
 -- prepare the plug configuration
-local plug_prepare = function(plug, args)
+local plug_init = function(plug, args)
 	plug.file = plug.file or 'init'
 	plug.url  = get_full_url(plug.url)
  	plug.name = get_name_from_url(plug.url)
@@ -267,7 +267,7 @@ end
 -- require plugins (and optionally install and checkout)
 M.init = function(plugins, install_on_init)
 	plugins_conf = plugins or {}
-	for_each_plugin(plug_prepare)
+	for_each_plugin(plug_init)
 	if install_on_init then
 		install_plugins(true)
 	end
