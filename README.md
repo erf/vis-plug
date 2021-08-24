@@ -4,7 +4,7 @@ A minimal plugin-manager for [vis](https://github.com/martanne/vis)
 
 [Configure](#Configure) plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
-Plugins are installed using `git` and `xargs` (in parallel), to a cache folder and required on `init`.
+Plugins are installed using `git` (in the background) to a cache folder and required on `init`.
 
 ## Install
 

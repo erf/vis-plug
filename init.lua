@@ -22,7 +22,8 @@ end
 local get_cache_path = function()
 	local HOME = os.getenv('HOME')
 	local XDG_CACHE_HOME = os.getenv('XDG_CACHE_HOME')
-	local CACHE_DIR = XDG_CACHE_HOME or (HOME .. '/.cache')
+	local HOME_CACHE = HOME .. '/.cache'
+	local CACHE_DIR = XDG_CACHE_HOME or HOME_CACHE
 	return CACHE_DIR .. '/vis-plug'
 end
 
@@ -200,53 +201,56 @@ local install_plugins = function(silent)
 	os.execute('mkdir -p ' .. plugins_path .. '/plugins')
 	os.execute('mkdir -p ' .. plugins_path .. '/themes')
 
-	-- collect urls + paths
-	local urls = ''
+	-- build shell commands which run in the background and wait
 	local installed = 0
-	for _, plug in ipairs(plugins_conf) do
+	local commands = 'sh -c \'{\n'
+	for key, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
-			urls = urls .. ' ' .. get_base_path(plug.theme)  .. ' ' .. plug.url
 			installed = installed + 1
+			local path = get_base_path(plug.theme)  
+			commands = commands .. 'git -C ' .. path .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null &\n'
 		end
 	end
+	commands = commands .. 'wait\n}\''
 
-	-- git clone in parallel using xargs
-	if urls ~= '' then
-		if not silent then
-			vis:info('installing..')
-			vis:redraw()
-		end
-		os.execute('echo' .. urls .. ' | xargs -n 2 -P 0 sh -c \'git -C $0 clone $1 --quiet 2> /dev/null\'')
+	-- execute commands
+	if installed > 0 then
+		vis:info('installing..')
+		vis:redraw()
+		os.execute(commands)
 	end
 
 	-- checkout git repo
 	for_each_plugin(checkout)
 
 	-- print result
-	if urls ~= '' then
+	if installed > 0 then
 		vis:info('' .. installed .. ' plugins installed')
 	elseif not silent then
-		vis:info('nothing to install')
+		vis:info('nothing installed')
 	end
+
 end
 
 local update_plugins = function()
 
-	-- collect paths (if exists and has changed?)
-	local paths = ''
+	-- build shell commands which run in the background and wait
 	local updated = 0
-	for _, plug in ipairs(plugins_conf) do
+	local commands = 'sh -c \'{\n'
+	for key, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
 			updated = updated + 1
-			paths = paths .. ' ' .. plug.path
+			local path = get_base_path(plug.theme)  
+			commands = commands .. 'git -C ' .. path .. ' pull --quiet 2> /dev/null &\n'
 		end
 	end
+	commands = commands .. 'wait\n}\''
 
-	-- git pull in parallel using xargs
-	if paths ~= '' then
+	-- execute commands
+	if updated > 0 then
 		vis:info('updating..')
 		vis:redraw()
-		os.execute('echo' .. paths .. ' | xargs -n 1 -P 0 -I{} git -C {} pull --quiet 2> /dev/null')
+		os.execute(commands)
 	end
 
 	-- checkout git repo
