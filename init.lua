@@ -202,30 +202,27 @@ local install_plugins = function(silent)
 	os.execute('mkdir -p ' .. plugins_path .. '/themes')
 
 	-- build shell commands which run in the background and wait
-	local install_count = 0
-	local commands = 'sh -c \'{\n'
-	for key, plug in ipairs(plugins_conf) do
+	local cmds = {}
+	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
-			install_count = install_count + 1
 			local path = get_base_path(plug.theme)  
-			commands = commands .. 'git -C ' .. path .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null &\n'
+			table.insert(cmds, string.format('git -C %s clone %s --quiet 2> /dev/null &\n', path, plug.url))
 		end
 	end
-	commands = commands .. 'wait\n}\''
 
 	-- execute commands
-	if install_count > 0 then
+	if #cmds > 0 then
 		vis:info('installing..')
 		vis:redraw()
-		os.execute(commands)
+		os.execute(string.format('sh -c \'{\n %s wait\n}\'', table.concat(cmds, '\n')))
 	end
 
 	-- checkout git repo
 	for_each_plugin(checkout)
 
 	-- print result
-	if install_count > 0 then
-		vis:info('' .. install_count .. ' plugins installed')
+	if #cmds > 0 then
+		vis:info('' .. #cmds .. ' plugins installed')
 	elseif not silent then
 		vis:info('nothing to install')
 	end
@@ -235,30 +232,27 @@ end
 local update_plugins = function()
 
 	-- build shell commands which run in the background and wait
-	local update_count = 0
-	local commands = 'sh -c \'{\n'
+	local cmds = {}
 	for key, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
-			update_count = update_count + 1
 			local path = get_base_path(plug.theme)  
-			commands = commands .. 'git -C ' .. path .. ' pull --quiet 2> /dev/null &\n'
+			table.insert(cmds, string.format('git -C %s pull --quiet 2> /dev/null &\n', path))
 		end
 	end
-	commands = commands .. 'wait\n}\''
 
 	-- execute commands
-	if update_count > 0 then
+	if #cmds > 0 then
 		vis:info('updating..')
 		vis:redraw()
-		os.execute(commands)
+		os.execute(string.format('sh -c \'{\n %s wait\n}\'', table.concat(cmds, '\n')))
 	end
 
 	-- checkout git repo
 	for_each_plugin(checkout)
 
 	-- print result
-	if paths ~= '' then
-		vis:info('' .. update_count .. ' plugins updated')
+	if #cmds then
+		vis:info('' .. #cmds .. ' plugins updated')
 	else
 		vis:info('nothing to update')
 	end
