@@ -227,7 +227,7 @@ local install_plugins = function(silent)
 	if install_count > 0 then
 		vis:info('' .. install_count .. ' plugins installed')
 	elseif not silent then
-		vis:info('nothing installed')
+		vis:info('nothing to install')
 	end
 
 end
