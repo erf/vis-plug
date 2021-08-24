@@ -235,8 +235,7 @@ local update_plugins = function()
 	local cmds = {}
 	for key, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
-			local path = get_base_path(plug.theme)  
-			table.insert(cmds, string.format('git -C %s pull --quiet 2> /dev/null &', path))
+			table.insert(cmds, string.format('git -C %s pull --quiet 2> /dev/null &', plug.path))
 		end
 	end
 
