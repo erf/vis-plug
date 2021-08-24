@@ -195,6 +195,10 @@ local plug_list = function(plug, args)
 	vis:redraw()
 end
 
+function run_commands(cmds)
+	os.execute(string.format('sh -c \'{\n%s\n}\'', table.concat(cmds, '\n')))
+end
+
 local install_plugins = function(silent)
 
 	-- create folders
@@ -215,8 +219,7 @@ local install_plugins = function(silent)
 		vis:info('installing..')
 		vis:redraw()
 		table.insert(cmds, 'wait')
-		local command = string.format('sh -c \'{\n%s\n}\'', table.concat(cmds, '\n'))
-		os.execute(command)
+		run_commands(cmds)
 	end
 
 	-- checkout git repo
@@ -224,7 +227,7 @@ local install_plugins = function(silent)
 
 	-- print result
 	if #cmds > 0 then
-		vis:info('' .. #cmds .. ' plugins installed')
+		vis:info('' .. #cmds - 1 .. ' plugins installed')
 	elseif not silent then
 		vis:info('nothing to install')
 	end
@@ -246,16 +249,15 @@ local update_plugins = function()
 		vis:info('updating..')
 		vis:redraw()
 		table.insert(cmds, 'wait')
-		local command = string.format('sh -c \'{\n%s\n}\'', table.concat(cmds, '\n'))
-		os.execute(command)
+		run_commands(cmds)
 	end
 
 	-- checkout git repo
 	for_each_plugin(checkout)
 
 	-- print result
-	if #cmds then
-		vis:info('' .. #cmds .. ' plugins updated')
+	if #cmds > 0 then
+		vis:info('' .. #cmds - 1 .. ' plugins updated')
 	else
 		vis:info('nothing to update')
 	end
