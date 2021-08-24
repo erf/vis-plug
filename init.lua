@@ -202,11 +202,11 @@ local install_plugins = function(silent)
 	os.execute('mkdir -p ' .. plugins_path .. '/themes')
 
 	-- build shell commands which run in the background and wait
-	local installed = 0
+	local install_count = 0
 	local commands = 'sh -c \'{\n'
 	for key, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
-			installed = installed + 1
+			install_count = install_count + 1
 			local path = get_base_path(plug.theme)  
 			commands = commands .. 'git -C ' .. path .. ' clone ' .. plug.url .. ' --quiet 2> /dev/null &\n'
 		end
@@ -214,7 +214,7 @@ local install_plugins = function(silent)
 	commands = commands .. 'wait\n}\''
 
 	-- execute commands
-	if installed > 0 then
+	if install_count > 0 then
 		vis:info('installing..')
 		vis:redraw()
 		os.execute(commands)
@@ -224,8 +224,8 @@ local install_plugins = function(silent)
 	for_each_plugin(checkout)
 
 	-- print result
-	if installed > 0 then
-		vis:info('' .. installed .. ' plugins installed')
+	if install_count > 0 then
+		vis:info('' .. install_count .. ' plugins installed')
 	elseif not silent then
 		vis:info('nothing installed')
 	end
@@ -235,11 +235,11 @@ end
 local update_plugins = function()
 
 	-- build shell commands which run in the background and wait
-	local updated = 0
+	local update_count = 0
 	local commands = 'sh -c \'{\n'
 	for key, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
-			updated = updated + 1
+			update_count = update_count + 1
 			local path = get_base_path(plug.theme)  
 			commands = commands .. 'git -C ' .. path .. ' pull --quiet 2> /dev/null &\n'
 		end
@@ -247,7 +247,7 @@ local update_plugins = function()
 	commands = commands .. 'wait\n}\''
 
 	-- execute commands
-	if updated > 0 then
+	if update_count > 0 then
 		vis:info('updating..')
 		vis:redraw()
 		os.execute(commands)
@@ -258,7 +258,7 @@ local update_plugins = function()
 
 	-- print result
 	if paths ~= '' then
-		vis:info('' .. updated .. ' plugins updated')
+		vis:info('' .. update_count .. ' plugins updated')
 	else
 		vis:info('nothing to update')
 	end
