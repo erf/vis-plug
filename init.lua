@@ -195,9 +195,10 @@ local plug_list = function(plug, args)
 	vis:redraw()
 end
 
--- run a list of bash commands inside brackets, given a table
+-- run a set of bash commands given a table
 function run_commands(cmds)
-	os.execute(string.format('sh -c \'{\n%s\n}\'', table.concat(cmds, '\n')))
+	local command = string.format('sh -c \'(\n%s\n)\'', table.concat(cmds, '\n'))
+	os.execute(command)
 end
 
 local install_plugins = function(silent)
