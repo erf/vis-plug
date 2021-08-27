@@ -197,8 +197,7 @@ end
 
 -- run a set of bash commands given a table
 function run_commands(cmds)
-	local command = string.format('sh -c \'(\n%s\n)\'', table.concat(cmds, '\n'))
-	os.execute(command)
+	os.execute(string.format('sh -c \'(\n%s\n)\'', table.concat(cmds, '\n')))
 end
 
 local install_plugins = function(silent)
