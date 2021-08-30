@@ -56,9 +56,8 @@ end
 local get_folder = function(theme)
 	if theme then
 		return '/themes'
-	else
-		return '/plugins'
 	end
+	return '/plugins'
 end
 
 -- E.g. '~/.cache/vis-plug/plugins/'
