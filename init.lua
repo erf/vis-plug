@@ -282,15 +282,15 @@ end
 local command_rm = function(argv, force, win, selection, range)
 	local name = argv[1]
 	local plug = get_plug_by_name(name)
-	if plug then
-		if file_exists(plug.path) then
-			os.execute('rm -rf ' .. plug.path)
-			vis:info(plug.name .. ' (' .. plug.path .. ') deleted')
-		else
-			vis:info(plug.name .. ' is not installed')
-		end
-	else
+	if not plug then
 		vis:info('did not find plugin \'' .. name .. '\'')
+		return true
+	end
+	if file_exists(plug.path) then
+		os.execute('rm -rf ' .. plug.path)
+		vis:info(plug.name .. ' (' .. plug.path .. ') deleted')
+	else
+		vis:info(plug.name .. ' is not installed')
 	end
 	return true
 end
@@ -300,16 +300,16 @@ local command_checkout = function(argv, force, win, selection, range)
 	local ref = argv[2]
 	if name == nil or ref == nil then
 		vis:info('missing {name} or {commit|branch|tag}')
-		return
+		return true
 	end
 	local plug = get_plug_by_name(name)
-	if plug then
-		plug.ref = ref
-		checkout(plug)
-		vis:info('checked out \'' .. ref .. '\'')
-	else
+	if not plug then
 		vis:info('did not find plugin \'' .. name .. '\'')
+		return true
 	end
+	plug.ref = ref
+	checkout(plug)
+	vis:info('checked out \'' .. ref .. '\'')
 	return true
 end
 
