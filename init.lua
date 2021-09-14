@@ -195,8 +195,9 @@ local plug_list = function(plug, args)
 end
 
 -- run a set of bash commands given a table
-function run_commands(cmds)
-	os.execute(string.format('sh -c \'(\n%s\n)\'', table.concat(cmds, '\n')))
+function execute_commands_in_background(commands)
+	table.insert(commands, 'wait')
+	os.execute(string.format('sh -c \'(\n%s\n)\'', table.concat(commands, '\n')))
 end
 
 local install_plugins = function(silent)
@@ -218,8 +219,7 @@ local install_plugins = function(silent)
 	if #cmds > 0 then
 		vis:info('installing..')
 		vis:redraw()
-		table.insert(cmds, 'wait')
-		run_commands(cmds)
+		execute_commands_in_background(cmds)
 	end
 
 	-- checkout git repo
@@ -248,8 +248,7 @@ local update_plugins = function()
 	if #cmds > 0 then
 		vis:info('updating..')
 		vis:redraw()
-		table.insert(cmds, 'wait')
-		run_commands(cmds)
+		execute_commands_in_background(cmds)
 	end
 
 	-- checkout git repo
