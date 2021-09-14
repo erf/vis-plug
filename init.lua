@@ -207,27 +207,27 @@ local install_plugins = function(silent)
 	os.execute('mkdir -p ' .. plugins_path .. '/themes')
 
 	-- build shell commands which run in the background and wait
-	local cmds = {}
+	local commands = {}
 	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
 			local path = get_base_path(plug.theme)  
-			table.insert(cmds, string.format('git -C %s clone %s --quiet 2> /dev/null &', path, plug.url))
+			table.insert(commands, string.format('git -C %s clone %s --quiet 2> /dev/null &', path, plug.url))
 		end
 	end
 
 	-- execute commands and wait
-	if #cmds > 0 then
+	if #commands > 0 then
 		vis:info('installing..')
 		vis:redraw()
-		execute_commands_in_background(cmds)
+		execute_commands_in_background(commands)
 	end
 
 	-- checkout git repo
 	for_each_plugin(checkout)
 
 	-- print result
-	if #cmds > 0 then
-		vis:info('' .. #cmds - 1 .. ' plugins installed')
+	if #commands > 0 then
+		vis:info('' .. #commands - 1 .. ' plugins installed')
 	elseif not silent then
 		vis:info('nothing to install')
 	end
@@ -237,26 +237,26 @@ end
 local update_plugins = function()
 
 	-- build shell commands which run in the background and wait
-	local cmds = {}
+	local commands = {}
 	for key, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
-			table.insert(cmds, string.format('git -C %s pull --quiet 2> /dev/null &', plug.path))
+			table.insert(commands, string.format('git -C %s pull --quiet 2> /dev/null &', plug.path))
 		end
 	end
 
 	-- execute commands and wait
-	if #cmds > 0 then
+	if #commands > 0 then
 		vis:info('updating..')
 		vis:redraw()
-		execute_commands_in_background(cmds)
+		execute_commands_in_background(commands)
 	end
 
 	-- checkout git repo
 	for_each_plugin(checkout)
 
 	-- print result
-	if #cmds > 0 then
-		vis:info('' .. #cmds - 1 .. ' plugins updated')
+	if #commands > 0 then
+		vis:info('' .. #commands - 1 .. ' plugins updated')
 	else
 		vis:info('nothing to update')
 	end
