@@ -177,9 +177,9 @@ local plug_outdated = function(plug, args)
 	local local_hash = execute('git -C ' .. plug.path .. ' rev-parse HEAD')
 	local remote_hash = execute('git ls-remote ' .. plug.url .. ' HEAD | cut -f1')
 	if local_hash == remote_hash then
-		vis:message(plug.name .. ' (' .. short_url .. ') YES')
+		vis:message(plug.name .. ' (' .. short_url .. ') ✓')
 	else
-		vis:message(plug.name .. ' (' .. short_url .. ') NEED UPDATE')
+		vis:message(plug.name .. ' (' .. short_url .. ') OUTDATED')
 	end
 	vis:redraw()
 end
@@ -362,7 +362,7 @@ local command_upgrade = function(argv, force, win, selection, range)
 
 	local result, success, message, code = fetch_latest_vis_plug(plug_path)
 	if success then
-		vis:info('vis-plug upgraded - restart for latest')
+		vis:info('Upgraded vis-plug - restart for latest')
 	else
 		vis:info('Upgrade failed with code: ' .. tostring(code))
 	end
