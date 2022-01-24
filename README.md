@@ -1,4 +1,4 @@
-# vis-plug
+# vis-plug 🍜
 
 A minimal plugin-manager for [vis](https://github.com/martanne/vis)
 
