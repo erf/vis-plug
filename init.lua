@@ -438,4 +438,16 @@ for _, command in ipairs(commands) do
 	vis:command_register(command.name, command.func, command.desc)
 end
 
+-- set theme on INIT event
+vis.events.subscribe(vis.events.INIT, function()
+	for _, plug in ipairs(plugins_conf) do
+		if plug.theme then
+			if file_exists(plug.path .. '/' .. plug.file .. '.lua') then
+				vis:command('set theme ' .. plug.name .. '/' .. plug.file)
+				return
+			end
+		end
+	end
+end)
+
 return M

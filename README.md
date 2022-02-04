@@ -23,7 +23,7 @@ local plugins = {
 	{ url = 'erf/vis-cursors' },
 	{ url = 'erf/vis-test', file = 'init', ref = 'other' },
 	{ url = 'erf/vis-highlight', alias = 'hi' },
-	{ url = 'samlwood/vis-gruvbox', theme = true },
+	{ url = 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
 }
 
 -- access plugins via alias
@@ -36,7 +36,7 @@ plug.init(plugins, true)
 Each plugin table can have the following options:
 
 - `url` - the git url (you can skip `https://github.com` and `https://`)
-- `file` - lua file required on init. defaults to `init` (optional)
+- `file` - the lua plugin file required on init (defaults to `init`) or the theme file (optional)
 - `ref` - checkout a spesific commit, branch or tag (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `theme` - set true if theme (optional)
@@ -64,14 +64,16 @@ plug.set_path('/Users/user/my-plugins')
 
 ### Themes
 
-Install themes by setting the `theme = true` option.
+Install themes using the `{ theme = true, file = 'acme' }` option
 
-Themes are installed to `{plug-path}/themes/{plug-name}`.
+The first theme in the config table is set on the `INIT` event.
 
-Set a theme using the `set theme` command in your `visrc`.
+Example theme:
 
-```Lua
-set theme '{plug-name}/{file}'
+```
+local conf = {
+	{ url = 'timoha/vis-acme', theme = true, file = 'acme' },
+}
 ```
 
 ## Commands
