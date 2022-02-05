@@ -142,7 +142,7 @@ end
 local plug_init = function(plug, args)
 	plug.file = plug.file or 'init'
 	plug.url  = get_full_url(plug.url)
- 	plug.name = get_name_from_url(plug.url)
+	plug.name = get_name_from_url(plug.url)
 	plug.path = get_base_path(plug.theme) .. '/' .. plug.name
 end
 
@@ -449,7 +449,7 @@ vis.events.subscribe(vis.events.INIT, function()
 	for _, plug in ipairs(plugins_conf) do
 		if plug.theme and file_exists(get_file_path(plug)) then
 			vis:command('set theme ' .. plug.name .. '/' .. plug.file)
-			return
+			return -- set first theme and return
 		end
 	end
 end)
