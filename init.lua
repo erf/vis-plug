@@ -65,6 +65,11 @@ local get_base_path = function(theme)
 	return plugins_path .. get_folder(theme)
 end
 
+-- get path to file
+local get_file_path = function(plug)
+	return plug.path .. '/' .. plug.file .. '.lua'
+end
+
 -- '{http[s]://github.com}/erf/vis-cursors.git'
 local is_github_url = function(url)
 	return url:find('^http[s]?://github.com.+') ~= nil
@@ -438,14 +443,13 @@ for _, command in ipairs(commands) do
 	vis:command_register(command.name, command.func, command.desc)
 end
 
+
 -- set theme on INIT event
 vis.events.subscribe(vis.events.INIT, function()
 	for _, plug in ipairs(plugins_conf) do
-		if plug.theme then
-			if file_exists(plug.path .. '/' .. plug.file .. '.lua') then
-				vis:command('set theme ' .. plug.name .. '/' .. plug.file)
-				return
-			end
+		if plug.theme and file_exists(get_file_path(plug)) then
+			vis:command('set theme ' .. plug.name .. '/' .. plug.file)
+			return
 		end
 	end
 end)
