@@ -189,7 +189,20 @@ local plug_outdated = function(plug, args)
 	vis:redraw()
 end
 
-local plug_list = function(plug, args)
+local count_themes = function()
+	local themes = 0
+	for _, plug in ipairs(plugins_conf) do
+		if plug.theme then
+			themes = themes + 1
+		end
+	end
+	return themes
+end
+
+local plug_list = function(plug, theme_only)
+	if (theme_only and not plug.theme) or (not theme_only and plug.theme) then
+		return
+	end
 	local short_url = get_short_url(plug.url)
 	if file_exists(plug.path) then
 		vis:message(plug.name .. ' (' .. short_url .. ')')
@@ -375,9 +388,18 @@ local command_upgrade = function(argv, force, win, selection, range)
 end
 
 local command_ls = function(argv, force, win, selection, range)
-	vis:message('List of plugins (' .. #plugins_conf .. ')')
+
+	local num_themes = count_themes()
+	local num_plugins = #plugins_conf - num_themes
+
+	vis:message('Plugins (' .. num_plugins .. ')')
 	vis:redraw()
-	for_each_plugin(plug_list)
+	for_each_plugin(plug_list, false)
+
+	vis:message('\nThemes (' .. num_themes .. ')')
+	vis:redraw()
+	for_each_plugin(plug_list, true)
+
 	return true
 end
 
@@ -442,7 +464,6 @@ commands = { {
 for _, command in ipairs(commands) do
 	vis:command_register(command.name, command.func, command.desc)
 end
-
 
 -- set theme on INIT event
 vis.events.subscribe(vis.events.INIT, function()

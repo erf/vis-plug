@@ -80,11 +80,11 @@ local conf = {
 
 We support the following `vis` commands:
 
-`:plug-list` - list plugins (in conf)
+`:plug-list` - list plugins and themes in config table
 
-`:plug-install` - install plugins (clone)
+`:plug-install` - install plugins (git clone)
 
-`:plug-update` - update plugins (pull)
+`:plug-update` - update plugins (git pull)
 
 `:plug-outdated` - check if plugins are up-to-date
 
