@@ -53,6 +53,11 @@ local get_name_from_url = function(url)
 	return url:match('^.*/([^.]+)')
 end
 
+-- get the dir from the given file
+local get_dir_from_file = function(file)
+	return file:match('(.+)%/.+$')
+end
+
 -- separate folders in CACHE_DIR/vis-plug/{plugins|themes}
 local get_folder = function(theme)
 	if theme then
@@ -364,15 +369,9 @@ local look_for_vis_plug_path = function()
 	return package.searchpath('vis-plug', package.path)
 end
 
--- curl fetch vis-plug init.lua file
-local fetch_latest_vis_plug = function(plug_path)
-	local url = 'https://raw.githubusercontent.com/erf/vis-plug/master/init.lua'
-	local command = 'curl -s -S -f -H  "Cache-Control: no-cache" ' .. url .. ' > ' .. plug_path
-	return execute(command)
-end
-
+-- upgrade vis-plug by doing a git pull
 local command_upgrade = function(argv, force, win, selection, range)
-	vis:info('Upgrading..')
+	vis:info('Upgrading vis-plug..')
 	vis:redraw()
 	local plug_path = look_for_vis_plug_path()
 	if plug_path == nil then
@@ -380,9 +379,11 @@ local command_upgrade = function(argv, force, win, selection, range)
 		return
 	end
 
-	local result, success, message, code = fetch_latest_vis_plug(plug_path)
+	local plug_dir = get_dir_from_file(plug_path)
+	local upgrade_command = string.format('git -C %s pull --quiet 2> /dev/null', plug_dir)
+	local result, success, message, code = execute(upgrade_command)
 	if success then
-		vis:info('Upgraded vis-plug - restart for latest')
+		vis:info('vis-plug is up-to-date - restart for latest')
 	else
 		vis:info('Upgrade failed with code: ' .. tostring(code))
 	end
