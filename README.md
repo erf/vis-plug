@@ -24,17 +24,17 @@ local plugins = {
 	-- load a plugin given a 'url' (defaults to https://github.com/) and expects a 'init.lua' file
 	{ url = 'erf/vis-cursors' },
 
-	-- you can skip the first parameter and it will default to 'url'
+	-- the first parameter will default to 'url'
 	{ 'erf/vis-cursors' },
 
 	-- you can specify the lua file to require (or theme to set) and give a ref (commit, branch, tag) to checkout
-	{ url = 'erf/vis-test', file = 'init', ref = 'other' },
+	{ 'erf/vis-test', file = 'init', ref = 'other' },
 
 	-- you can specify a alias to later use to access plugin variables (see example below)
-	{ url = 'erf/vis-highlight', alias = 'hi' },
+	{ 'erf/vis-highlight', alias = 'hi' },
 
 	-- you can configure a theme by setting 'theme = true' and the theme 'file' will be set on INIT
-	{ url = 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
+	{ 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
 }
 
 -- access plugins via alias
