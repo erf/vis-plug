@@ -53,11 +53,13 @@ local get_name_from_url = function(url)
 	return url:match('^.*/([^.]+)')
 end
 
+-- separate folders in CACHE_DIR/vis-plug/{plugins|themes}
 local get_folder = function(theme)
 	if theme then
 		return '/themes'
+	else
+		return '/plugins'
 	end
-	return '/plugins'
 end
 
 -- E.g. '~/.cache/vis-plug/plugins/'
