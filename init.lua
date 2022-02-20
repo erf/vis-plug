@@ -143,7 +143,7 @@ end
 -- prepare the plug configuration
 local plug_init = function(plug, args)
 	plug.file = plug.file or 'init'
-	plug.url  = get_full_url(plug.url)
+	plug.url  = get_full_url(plug.url or plug[1])
 	plug.name = get_name_from_url(plug.url)
 	plug.path = get_base_path(plug.theme) .. '/' .. plug.name
 end
