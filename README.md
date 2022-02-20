@@ -20,9 +20,17 @@ local plug = require('plugins/vis-plug')
 
 -- configure plugins in an array of tables with git urls and options 
 local plugins = {
+
+	-- load a plugin given a 'url' (host defaults to https://github.com/) and expects a 'init.lua' file
 	{ url = 'erf/vis-cursors' },
+
+	-- you can specify the lua file to require (or theme to set) and give a ref (commit, branch, tag) to checkout
 	{ url = 'erf/vis-test', file = 'init', ref = 'other' },
+
+	-- you can specify a alias to later use to access plugin variables (see example below)
 	{ url = 'erf/vis-highlight', alias = 'hi' },
+
+	-- you can configure a theme by setting 'theme = true' and the theme 'file' will be set on INIT
 	{ url = 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
 }
 
@@ -35,11 +43,11 @@ plug.init(plugins, true)
 
 Each plugin table can have the following options:
 
-- `url` - the git url (you can skip `https://github.com` and `https://`)
-- `file` - the lua file required on init (defaults to `init`) or the theme file set on INIT event (optional)
+- `url` - the git url (defaults to `https://github.com` and `https://`)
+- `file` - the lua file to require on init (defaults to `init`) or the theme file to set on INIT (optional)
 - `ref` - checkout a spesific commit, branch or tag (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
-- `theme` - set true if theme (optional)
+- `theme` - set `theme = true` if theme; will set theme on INIT event (optional)
 
 ### Install on init
 
