@@ -8,7 +8,7 @@ Plugins are installed using `git` (in the background) to a cache folder and requ
 
 ## Install
 
-Download and require `vis-plug` in your `visrc`. See [Plugins](https://github.com/martanne/vis/wiki/Plugins).
+git clone `vis-plug` and require it via your `visrc`. See [Plugins](https://github.com/martanne/vis/wiki/Plugins).
 
 ## Configure
 
@@ -99,7 +99,7 @@ We support the following `vis` commands:
 
 `:plug-outdated` - check if plugins are up-to-date
 
-`:plug-upgrade` - upgrade to latest vis-plug
+`:plug-upgrade` - upgrade to latest vis-plug using git pull
 
 `:plug-remove` - delete plugin by {name} (`:plug-list` for names)
 
