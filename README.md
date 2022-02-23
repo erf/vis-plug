@@ -85,7 +85,7 @@ Example theme:
 
 ```
 local conf = {
-	{ url = 'timoha/vis-acme', theme = true, file = 'acme' },
+	{ 'timoha/vis-acme', theme = true, file = 'acme' },
 }
 ```
 
