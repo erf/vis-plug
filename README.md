@@ -12,7 +12,9 @@ git clone `vis-plug` and require it via your `visrc`. See [Plugins](https://gith
 
 ## Configure
 
-Configure plugins in your `visrc` as below:
+Configure plugins in your `visrc` as a list of tables given to the `plug.init` method.
+
+Example:
 
 ```Lua
 
@@ -27,13 +29,13 @@ local plugins = {
 	-- the first parameter is actually a shorthand for the 'url' parameter
 	{ url = 'erf/vis-cursors' },
 
-	-- you can specify the lua file to require (or theme to set) and give a ref (commit, branch, tag) to checkout
+	-- specify the lua file to require (or theme to set) and give a ref (commit, branch, tag) to checkout
 	{ 'erf/vis-test', file = 'init', ref = 'other' },
 
-	-- you can specify a alias to later use to access plugin variables (see example below)
+	-- specify an alias to later use to access plugin variables (see example below)
 	{ 'erf/vis-highlight', alias = 'hi' },
 
-	-- you can configure a theme by setting 'theme = true' and the theme 'file' will be set on INIT
+	-- configure themes by setting 'theme = true'. The theme 'file' will be set on INIT
 	{ 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
 }
 
