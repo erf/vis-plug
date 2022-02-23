@@ -26,7 +26,7 @@ local plugins = {
 	-- load a plugin given a url (defaults to https://github.com/) and expects a 'init.lua' file
 	{ 'erf/vis-cursors' },
 
-	-- the first parameter is actually a shorthand for the 'url' parameter
+	-- first parameter is a shorthand for 'url'
 	{ url = 'erf/vis-cursors' },
 
 	-- specify the lua file to require (or theme to set) and give a ref (commit, branch, tag) to checkout
