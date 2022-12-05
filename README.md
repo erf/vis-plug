@@ -110,3 +110,10 @@ We support the following `vis` commands:
 `:plug-checkout` - checkout {name} {commit|branch|tag}
 
 `:plug-commands` - list commands (these)
+
+
+## vis-plugins
+
+I maintain a repo [vis-plugins](https://github.com/erf/vis-plugins) which is a list of plugins and themes based on the [vis wiki](https://github.com/martanne/vis/wiki).
+
+You can check out the web page at [https://erf.github.io/vis-plugins](https://erf.github.io/vis-plugins).
