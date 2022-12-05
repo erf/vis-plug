@@ -114,6 +114,6 @@ We support the following `vis` commands:
 
 ## vis-plugins
 
-I maintain a repo [vis-plugins](https://github.com/erf/vis-plugins) which is a list of plugins and themes based on the [vis wiki](https://github.com/martanne/vis/wiki).
+I've created [vis-plugins](https://github.com/erf/vis-plugins) - a web page with is a list of plugins and themes based on the [vis wiki](https://github.com/martanne/vis/wiki).
 
-You can check out the web page at [https://erf.github.io/vis-plugins](https://erf.github.io/vis-plugins).
+It's hosted by github at [https://erf.github.io/vis-plugins](https://erf.github.io/vis-plugins)
