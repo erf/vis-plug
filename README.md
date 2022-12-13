@@ -95,7 +95,7 @@ local plugins = {
 
 We support the following `vis` commands:
 
-`:plug-list` - list plugins and themes in config table
+`:plug-list` - list plugins and themes
 
 `:plug-install` - install plugins (git clone)
 
@@ -107,7 +107,7 @@ We support the following `vis` commands:
 
 `:plug-remove` - delete plugin by {name} (`:plug-list` for names)
 
-`:plug-clean` - delete all plugins from disk (in plugins)
+`:plug-clean` - delete all plugins from disk
 
 `:plug-checkout` - checkout {name} {commit|branch|tag}
 
