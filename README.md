@@ -2,7 +2,7 @@
 
 A minimal plugin-manager for [vis](https://github.com/martanne/vis)
 
-Plugins in `vis-plug` are defined by a Lua file in a git repository and can be both a plugin or a theme.
+`vis-plug` plugins are defined by a Lua file in a git repository and can be both a [plugin](https://github.com/martanne/vis/wiki/Plugins) or a [theme](https://github.com/martanne/vis/wiki/Themes).
 
 [Configure](#Configure) plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
@@ -10,7 +10,7 @@ Plugins are installed using `git` (in the background) to a cache folder and requ
 
 ## Install
 
-git clone `vis-plug` and require it via your `visrc`. See [Plugins](https://github.com/martanne/vis/wiki/Plugins).
+git clone `vis-plug` and require it via your `visrc`. 
 
 ## Configure
 
