@@ -206,15 +206,15 @@ local count_themes = function()
 	return themes
 end
 
-local plug_list = function(plug, theme_only)
-	if (theme_only and not plug.theme) or (not theme_only and plug.theme) then
+local plug_list = function(plug, theme)
+	if (theme and not plug.theme) or (not theme and plug.theme) then
 		return
 	end
 	local short_url = get_short_url(plug.repo)
 	if file_exists(plug.path) then
-		vis:message(plug.name .. ' (' .. short_url .. ')')
+		vis:message(short_url .. ' (' .. plug.file .. ')')
 	else
-		vis:message(plug.name .. ' (' .. short_url .. ') NOT INSTALLED')
+		vis:message(short_url .. ' (' .. plug.file .. ') NOT INSTALLED')
 	end
 	vis:redraw()
 end
