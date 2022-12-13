@@ -50,7 +50,7 @@ plug.init(plugins, true)
 
 Each plugin table can have the following options:
 
-- `repo` - the git repo (`[https://]github.com` can be omitted)
+- `repo` - the git repo (`https://github.com or https://` can be omitted)
 - `file` - the lua file to require on init (defaults to `init`) or the theme file to set on INIT (optional)
 - `ref` - checkout a spesific commit, branch or tag (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
