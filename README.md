@@ -2,6 +2,8 @@
 
 A minimal plugin-manager for [vis](https://github.com/martanne/vis)
 
+Plugins in `vis-plug` are defined by a Lua file in a git repository and can be both a plugin or a theme.
+
 [Configure](#Configure) plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
 Plugins are installed using `git` (in the background) to a cache folder and required on `init`.
@@ -23,7 +25,7 @@ local plug = require('plugins/vis-plug')
 -- configure plugins in an array of tables with git urls and options 
 local plugins = {
 
-	-- load a plugin given a url (defaults to https://github.com/) and expects a 'init.lua' file
+	-- load a plugin given a url (https://github.com/ can be omitted) and expects a 'init.lua' file
 	{ 'erf/vis-cursors' },
 
 	-- first parameter is a shorthand for 'url'
