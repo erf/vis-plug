@@ -25,14 +25,14 @@ local plug = require('plugins/vis-plug')
 -- configure plugins in an array of tables with git urls and options 
 local plugins = {
 
-	-- load a plugin given a url (https://github.com/ can be omitted) and expects a 'init.lua' file
+	-- load a plugin given a repo (https://github.com/ can be omitted and expects a 'init.lua' file)
 	{ 'erf/vis-cursors' },
 
-	-- first parameter is a shorthand for 'url'
-	{ url = 'erf/vis-cursors' },
+	-- first parameter is a shorthand for 'repo'
+	{ repo = 'erf/vis-cursors' },
 
 	-- specify the lua file to require (or theme to set) and give a ref (commit, branch, tag) to checkout
-	{ 'erf/vis-test', file = 'init', ref = 'other' },
+	{ 'erf/vis-test', file = 'init', ref = 'some-branch' },
 
 	-- specify an alias to later use to access plugin variables (see example below)
 	{ 'erf/vis-highlight', alias = 'hi' },
@@ -50,7 +50,7 @@ plug.init(plugins, true)
 
 Each plugin table can have the following options:
 
-- `url` - the git url (defaults to `https://github.com` and `https://`)
+- `repo` - the git repo (`[https://]github.com` can be omitted)
 - `file` - the lua file to require on init (defaults to `init`) or the theme file to set on INIT (optional)
 - `ref` - checkout a spesific commit, branch or tag (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
@@ -61,7 +61,7 @@ Each plugin table can have the following options:
 Pass *true* as second argument to `init` to install and checkout on init.
 
 ```Lua
-require('plugins/vis-plug').init(conf, true)
+require('plugins/vis-plug').init(plugins, true)
 ```
 
 ### Install path
@@ -69,7 +69,7 @@ require('plugins/vis-plug').init(conf, true)
 Plugins are by default installed to the default cache folder on your system: 
 `(XDG_CACHE_HOME|HOME/.cache)/vis-plug/{plugins|themes}/{plug-name}`
 
-`plug-name` is the git url last folder.
+`plug-name` is the git repo last folder.
 
 Use `plug.set_path` to set a custom install path:
 
@@ -86,7 +86,7 @@ The first theme in the config table is set on the `INIT` event.
 Example theme:
 
 ```
-local conf = {
+local plugins = {
 	{ 'timoha/vis-acme', theme = true, file = 'acme' },
 }
 ```
@@ -107,7 +107,7 @@ We support the following `vis` commands:
 
 `:plug-remove` - delete plugin by {name} (`:plug-list` for names)
 
-`:plug-clean` - delete all plugins from disk (in conf)
+`:plug-clean` - delete all plugins from disk (in plugins)
 
 `:plug-checkout` - checkout {name} {commit|branch|tag}
 
