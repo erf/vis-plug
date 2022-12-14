@@ -148,8 +148,8 @@ end
 -- prepare the plug configuration
 local plug_init = function(plug, args)
 	plug.file = plug.file or 'init'
-	plug.repo = get_full_url(plug.repo or plug[1])
-	plug.name = get_name_from_url(plug.repo)
+	plug.url = get_full_url(plug.url or plug[1])
+	plug.name = get_name_from_url(plug.url)
 	plug.path = get_base_path(plug.theme) .. '/' .. plug.name
 end
 
@@ -180,14 +180,14 @@ local plug_require = function(plug, args)
 end
 
 local plug_outdated = function(plug, args)
-	local short_url = get_short_url(plug.repo)
+	local short_url = get_short_url(plug.url)
 	if not file_exists(plug.path) then
 		vis:message(plug.name .. ' (' .. short_url .. ') NOT INSTALLED')
 		vis:redraw()
 		return
 	end
 	local local_hash = execute('git -C ' .. plug.path .. ' rev-parse HEAD')
-	local remote_hash = execute('git ls-remote ' .. plug.repo .. ' HEAD | cut -f1')
+	local remote_hash = execute('git ls-remote ' .. plug.url .. ' HEAD | cut -f1')
 	if local_hash == remote_hash then
 		vis:message(plug.name .. ' (' .. short_url .. ') ✓')
 	else
@@ -210,7 +210,7 @@ local plug_list = function(plug, theme)
 	if (theme and not plug.theme) or (not theme and plug.theme) then
 		return
 	end
-	local short_url = get_short_url(plug.repo)
+	local short_url = get_short_url(plug.url)
 	if file_exists(plug.path) then
 		vis:message(short_url .. ' (' .. plug.file .. ')')
 	else
@@ -236,7 +236,7 @@ local install_plugins = function(silent)
 	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
 			local path = get_base_path(plug.theme)  
-			table.insert(commands, string.format('git -C %s clone %s --quiet 2> /dev/null &', path, plug.repo))
+			table.insert(commands, string.format('git -C %s clone %s --quiet 2> /dev/null &', path, plug.url))
 		end
 	end
 

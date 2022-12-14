@@ -28,8 +28,8 @@ local plugins = {
 	-- load a plugin given a repo (https://github.com/ can be omitted and expects a 'init.lua' file)
 	{ 'erf/vis-cursors' },
 
-	-- first parameter is a shorthand for 'repo'
-	{ repo = 'erf/vis-cursors' },
+	-- first parameter is a shorthand for 'url'
+	{ url = 'erf/vis-cursors' },
 
 	-- specify the lua file to require (or theme to set) and give a ref (commit, branch, tag) to checkout
 	{ 'erf/vis-test', file = 'init', ref = 'some-branch' },
@@ -50,8 +50,8 @@ plug.init(plugins, true)
 
 Each plugin table can have the following options:
 
-- `repo` - the git repo (`https://github.com or https://` can be omitted)
-- `file` - the lua file to require on init (defaults to `init`) or the theme file to set on INIT (optional)
+- `url` - the url to the git repo (`https://github.com or https://` can be omitted)
+- `file` - the relative path to the lua file (defaults to `init`, skip the `.lua` part) (optional)
 - `ref` - checkout a spesific commit, branch or tag (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `theme` - set `theme = true` if theme; will set theme on INIT event (optional)
@@ -69,7 +69,7 @@ require('plugins/vis-plug').init(plugins, true)
 Plugins are by default installed to the default cache folder on your system: 
 `(XDG_CACHE_HOME|HOME/.cache)/vis-plug/{plugins|themes}/{plug-name}`
 
-`plug-name` is the git repo last folder.
+`plug-name` is the git url last folder.
 
 Use `plug.set_path` to set a custom install path:
 
@@ -79,7 +79,7 @@ plug.set_path('/Users/user/my-plugins')
 
 ### Themes
 
-Install themes using the `{ theme = true, file = 'acme' }` option
+Install themes using the `{ theme = true, file = 'somepath/theme-file' }` option (don't include .lua)
 
 The first theme in the config table is set on the `INIT` event.
 
