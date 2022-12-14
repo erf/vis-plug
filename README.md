@@ -10,7 +10,7 @@ Plugins are installed using `git` (in the background) to a cache folder and requ
 
 ## Install
 
-git clone `vis-plug` and require it via your `visrc`. 
+git clone `vis-plug` and require it in your `visrc`. 
 
 ## Configure
 
@@ -58,7 +58,7 @@ Each plugin table can have the following options:
 
 ### Install on init
 
-Pass *true* as second argument to `init` to install and checkout on init.
+Pass *true* as second argument to `init` to install on init.
 
 ```Lua
 require('plugins/vis-plug').init(plugins, true)
@@ -66,15 +66,14 @@ require('plugins/vis-plug').init(plugins, true)
 
 ### Install path
 
-Plugins are by default installed to the default cache folder on your system: 
-`(XDG_CACHE_HOME|HOME/.cache)/vis-plug/{plugins|themes}/{plug-name}`
+Plugins are by default installed (cloned) to the default cache folder on your system: 
 
-`plug-name` is the git url last folder.
+`(XDG_CACHE_HOME|HOME/.cache)/vis-plug/{plugins|themes}/{plugin}`
 
-Use `plug.set_path` to set a custom install path:
+Use `plug.path` to set a custom install path:
 
 ```Lua
-plug.set_path('/Users/user/my-plugins')
+plug.path('/Users/user/my-plugins')
 ```
 
 ### Themes

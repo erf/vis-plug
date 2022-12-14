@@ -13,7 +13,7 @@ local plugins_path = nil
 local commands = {}
 
 -- set custom path and add it first to package.path for require
-M.set_path = function(path)
+M.path = function(path)
 	plugins_path = path
 	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
 end
@@ -28,7 +28,7 @@ local get_cache_path = function()
 end
 
 -- set default install path for plugins
-M.set_path(get_cache_path())
+M.path(get_cache_path())
 
 -- execute a command and return result string
 local execute = function(command)
@@ -252,7 +252,7 @@ local install_plugins = function(silent)
 
 	-- print result
 	if #commands > 0 then
-		vis:info('' .. #commands - 1 .. ' plugins installed')
+		vis:info('' .. #commands - 1 .. ' plugin(s) installed')
 	elseif not silent then
 		vis:info('Nothing to install')
 	end
@@ -281,7 +281,7 @@ local update_plugins = function()
 
 	-- print result
 	if #commands > 0 then
-		vis:info('' .. #commands - 1 .. ' plugins updated')
+		vis:info('' .. #commands - 1 .. ' plugin(s) updated')
 	else
 		vis:info('Nothing to update')
 	end
