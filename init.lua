@@ -12,6 +12,16 @@ local plugins_path = nil
 -- we store commands in an array of tables {name, func, desc}
 local commands = {}
 
+-- add a searcher to find plugins by filename, not module path
+table.insert(package.searchers, function(name)
+	local file, err = package.searchpath(name, package.path, '', '') -- don't replace . with /
+	if file then
+		return loadfile(file), file
+	else
+		return nil, err
+	end
+end)
+
 -- set custom path and add it first to package.path for require
 M.path = function(path)
 	plugins_path = path
@@ -40,7 +50,7 @@ local execute = function(command)
 end
 
 -- check if file exists
-local file_exists = function (path)
+local file_exists = function(path)
 	local file = io.open(path)
 	if not file then return false end
 	file:close()
