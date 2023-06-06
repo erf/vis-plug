@@ -41,11 +41,11 @@ local plugins = {
 	{ 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
 }
 
--- access plugins via alias
-plug.plugins.hi.patterns[' +\n'] = { style = 'back:#444444' }
-
 -- require and optionally install plugins on init
 plug.init(plugins, true)
+
+-- access plugins via alias
+plug.plugins.hi.patterns[' +\n'] = { style = 'back:#444444' }
 ```
 
 Each plugin table can have the following options:
