@@ -246,7 +246,7 @@ local install_plugins = function(silent)
 	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
 			local path = get_base_path(plug.theme)  
-			table.insert(commands, string.format('git -C %s clone %s --quiet 2> /dev/null &', path, plug.url))
+			table.insert(commands, string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null &', path, plug.url))
 		end
 	end
 
@@ -275,7 +275,7 @@ local update_plugins = function()
 	local commands = {}
 	for key, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
-			table.insert(commands, string.format('git -C %s pull --quiet 2> /dev/null &', plug.path))
+			table.insert(commands, string.format('git -C %s pull --recurse-submodules --quiet 2> /dev/null &', plug.path))
 		end
 	end
 
