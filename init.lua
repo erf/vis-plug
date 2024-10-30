@@ -59,8 +59,13 @@ end
 
 -- get plugin name from repo dir
 -- E.g. https://github.com/erf/{vis-highlight}.git -> vis-highlight
+-- or https://git.sr.ht/~emg/{vis-cscope}.git -> vis-cscope
 local get_name_from_url = function(url)
-	return url:match('^.*/([^.]+)')
+  if url:find('git.sr.ht/~') then
+    return url:match('~[^/]+/([^.]+)')
+  else
+	  return url:match('^.*/([^/.]+)')
+  end
 end
 
 -- get the dir from the given file
@@ -88,8 +93,32 @@ local get_file_path = function(plug)
 end
 
 -- '{http[s]://github.com}/erf/vis-cursors.git'
-local is_github_url = function(url)
+-- '{http[s]://gitlab.com}/timoha/vis-go.git'
+-- '{http[s]://git.sr.ht}/~emg/vis-cscope.git'
+local is_supported_git_url = function(url)
 	return url:find('^http[s]?://github.com.+') ~= nil
+    	or url:find('^http[s]?://gitlab.com.+') ~= nil
+    	or url:find('^http[s]?://git.sr.ht.+') ~= nil
+end
+
+-- get the full url for supported platforms
+local get_full_url = function(url)
+    if is_supported_git_url(url) then
+      return url
+    elseif is_no_host_url(url) then
+      if url:find('^~') then
+        -- takes care of sourcehuts ~USER fmt
+        return 'https://git.sr.ht/' .. url
+      else
+        -- default to github
+        return 'https://github.com/' .. url
+      end
+    elseif is_short_ssh_url(url) then
+      return url
+    else
+      vis:message("Warning: Unrecognized URL format, defaulting to GitHub.")
+      return 'https://github.com/' .. url
+    end
 end
 
 -- return true if has the protocol part of the url
@@ -111,15 +140,17 @@ end
 
 -- remove protocol from url to make it shorter for output
 local get_short_url = function(url)
-	if is_github_url(url) then
-		return url:match('^.+://.-/(.*)')
-	elseif is_host_url(url) then
-		return url:match('^.+://(.*)')
-	elseif is_short_ssh_url(url) then
-		return url -- TODO shorten?
-	else
-		return url
-	end
+  if is_supported_git_url(url) then
+      -- anything after `https://` is matched (eg. GitHub, GitLab, or SourceHut)
+      return url:match('^.+://.-/(.*)')
+  elseif is_host_url(url) then
+      -- remove protocol for other URLs with explicit hosts
+      return url:match('^.+://(.*)')
+  elseif is_short_ssh_url(url) then
+      return url  -- Leave as is
+  else
+      return url  -- unmodified
+  end
 end
 
 -- given a github short hand url, return the full url
