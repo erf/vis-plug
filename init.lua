@@ -12,22 +12,6 @@ local plugins_path = nil
 -- we store commands in an array of tables {name, func, desc}
 local commands = {}
 
--- add a searcher to find plugins by filename, not module path
-table.insert(package.searchers, function(name)
-	local file, err = package.searchpath(name, package.path, '', '') -- don't replace . with /
-	if file then
-		return loadfile(file), file
-	else
-		return nil, err
-	end
-end)
-
--- set custom path and add it first to package.path for require
-M.path = function(path)
-	plugins_path = path
-	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
-end
-
 -- e.g. /Users/user/.cache/vis-plug
 local get_cache_path = function()
 	local HOME = os.getenv('HOME')
@@ -37,8 +21,25 @@ local get_cache_path = function()
 	return CACHE_DIR .. '/vis-plug'
 end
 
+-- set custom path and add it first to package.path for require
+M.path = function(path)
+	plugins_path = path or get_cache_path()
+	package.path = plugins_path .. '/?.lua;' .. plugins_path .. '/?/init.lua;' .. package.path
+	package.path = package.path .. ';' .. '/plugins_path' .. '/plugins/?.lua;' .. plugins_path .. '/plugins/?/init.lua'
+end
+
 -- set default install path for plugins
 M.path(get_cache_path())
+
+-- add a searcher to find plugins by filename, not module path
+table.insert(package.searchers, function(name)
+	local file, err = package.searchpath(name, package.path, '', '') -- don't replace . with /
+	if file then
+		return loadfile(file), file
+	else
+		return nil, err
+	end
+end)
 
 -- execute a command and return result string
 local execute = function(command)
@@ -92,33 +93,19 @@ local get_file_path = function(plug)
 	return plug.path .. plug.file .. '.lua'
 end
 
--- '{http[s]://github.com}/erf/vis-cursors.git'
--- '{http[s]://gitlab.com}/timoha/vis-go.git'
--- '{http[s]://git.sr.ht}/~emg/vis-cscope.git'
-local is_supported_git_url = function(url)
-	return url:find('^http[s]?://github.com.+') ~= nil
-    	or url:find('^http[s]?://gitlab.com.+') ~= nil
-    	or url:find('^http[s]?://git.sr.ht.+') ~= nil
+-- check if url is fully qualified
+local is_fully_qualified = function(url)
+  return url:find('^https[s]?://') ~= nil
 end
 
--- get the full url for supported platforms
-local get_full_url = function(url)
-    if is_supported_git_url(url) then
-      return url
-    elseif is_no_host_url(url) then
-      if url:find('^~') then
-        -- takes care of sourcehuts ~USER fmt
-        return 'https://git.sr.ht/' .. url
-      else
-        -- default to github
-        return 'https://github.com/' .. url
-      end
-    elseif is_short_ssh_url(url) then
-      return url
-    else
-      vis:message("Warning: Unrecognized URL format, defaulting to GitHub.")
-      return 'https://github.com/' .. url
-    end
+local get_full_url_from_no_host_url = function(url)
+  if url:find('^~') then
+    -- sourcehut (~user/repo)
+    return 'https://git.sr.ht/' .. url
+  else
+    -- prepend 'https://' for any other shorthand url
+    return 'https://' .. url
+  end
 end
 
 -- return true if has the protocol part of the url
@@ -140,7 +127,7 @@ end
 
 -- remove protocol from url to make it shorter for output
 local get_short_url = function(url)
-  if is_supported_git_url(url) then
+  if is_fully_qualified(url) then
       -- anything after `https://` is matched (eg. GitHub, GitLab, or SourceHut)
       return url:match('^.+://.-/(.*)')
   elseif is_host_url(url) then
@@ -206,15 +193,20 @@ local checkout = function(plug)
 	end
 end
 
+-- load a plugin while accounting for various file layouts
 local plug_require = function(plug, args)
 	if not file_exists(plug.path) then
+    vis:message("Warning: Plugin path not found: " .. plug_path)
 		return
 	end
 	if plug.theme then
 		return
 	end
-	local name = 'plugins/' .. plug.name .. plug.file
+	local name = file_exists(plug.path .. '/' .. plug.name .. '.lua')
+  and 'plugins/' .. plug.name .. '/' .. plug.name -- see vis-go/vis.go.lua
+  or 'plugins/' .. plug.name .. plug.file -- default <plugin>/init.lua
 	local plugin = require(name)
+
 	if plug.alias then
 		M.plugins[plug.alias] = plugin
 	end
