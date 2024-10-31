@@ -12,6 +12,33 @@ Plugins are installed using `git` (in the background) to a cache folder and requ
 
 git clone `vis-plug` and require it in your `visrc`. 
 
+## Supported URL Formats
+
+`vis-plug` supports a variety of URL formats, allowing plugins hosted on GitHub,
+GitLab, SourceHut, and custom hosts.
+
+## URL Formats and Examples
+
+- **Fully Qualified URLs**: Any full URL is supported.
+    - Example: `{ 'https://customhost.com/user/repo' }`
+
+- **GitHub Shorthand**: Defaults to `https://github.com/` when only `user/repo` is specified.
+    - Example: `{ 'timoha/vis-acme' }` translates to `https://github.com/timoha/vis-acme`
+
+- **GitLab Shorthand**: Use the full GitLab URL for GitLab-hosted plugins.
+    - Example: `{ 'gitlab.com/timoha/vis-go' }`
+
+- **SourceHut Shorthand**: Use `~user/repo` format for SourceHut-hosted plugins.
+    - Example: `{ '~emg/vis-cscope' }` translates to `https://git.sr.ht/~emg/vis-cscope`
+
+- **SSH-style URLs**: `{ 'git@host:user/repo' }` for SSH-based URLs.
+
+## Notes
+
+- **Unknown Shorthand Formats**: If a shorthand format is unrecognized,
+  `vis-plug` defaults to GitHub (`https://github.com/`) with a warning message.
+
+
 ## Configure
 
 Configure plugins in your `visrc` as a list of tables given to the `plug.init` method.
@@ -20,13 +47,19 @@ Example:
 
 ```Lua
 
-local plug = require('plugins/vis-plug')
+local plug = require('vis-plug')
 
 -- configure plugins in an array of tables with git urls and options 
 local plugins = {
 
 	-- load a plugin given a repo (https://github.com/ can be omitted and expects a 'init.lua' file)
 	{ 'erf/vis-cursors' },
+    
+    -- load a plugin from GitLab
+    { 'gitlab.com/timoha/vis-go' },
+
+    -- load a plugin from SourceHut with ~user shorthand
+    { '~emg/vis-cscope' },
 
 	-- first parameter is a shorthand for 'url'
 	{ url = 'erf/vis-cursors' },
@@ -39,6 +72,7 @@ local plugins = {
 
 	-- configure themes by setting 'theme = true'. The theme 'file' will be set on INIT
 	{ 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
+
 }
 
 -- require and optionally install plugins on init
@@ -61,7 +95,7 @@ Each plugin table can have the following options:
 Pass *true* as second argument to `init` to install on init.
 
 ```Lua
-require('plugins/vis-plug').init(plugins, true)
+require('vis-plug').init(plugins, true)
 ```
 
 ### Install path
