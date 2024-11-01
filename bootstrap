@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# don't print escape codes  if user has NO_COLOR set
+if [ ! "$NO_COLOR" ]; then
+  green="\033[1;32m"
+  fg_reset="\033[0m"
+else
+  green=""
+  fg_reset=""
+fi
+
+xdg_config_home=${XDG_CONFIG_HOME:-~/.config}
+url="https://github.com/erf/vis-plug"
+
+plug_path="$xdg_config_home/vis/vis-plug"
+
+if [ ! -d "$plug_path" ]; then
+  mkdir -p "$plug_path"
+  git clone --filter=blob:none "$url" "$plug_path"
+  printf "%b\n" "${green}vis-plug installed!${fg_reset}"
+else
+    printf "%s\n" "vis-plug already installed, nothing to do"
+fi
