@@ -43,6 +43,7 @@ M.path(get_cache_path())
 -- execute a command and return result string
 local execute = function(command)
 	local file = io.popen(command)
+	if not file then return nil end
 	local result = file:read("*a")
 	result = result:gsub('(.-)%s*$', '%1') -- strip trailing spaces
 	local success, message, code = file:close()
