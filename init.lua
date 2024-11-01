@@ -9,8 +9,8 @@ local plugins_conf = {}
 -- the dir where we store plugins on disk
 local plugins_path = nil
 
--- we store commands in an array of tables {name, func, desc}
-local commands = {}
+-- we store commands in a list of tables {name, func, desc}
+local command_list = {}
 
 -- add a searcher to find plugins by filename, not module path
 table.insert(package.searchers, function(name)
@@ -424,7 +424,7 @@ end
 local command_list_commands = function(argv, force, win, selection, range)
 	local arr = {}
 	table.insert(arr, 'vis-plug commands')
-	for _, command in ipairs(commands) do
+	for _, command in ipairs(command_list) do
 		table.insert(arr, ':' .. command.name .. ' - ' .. command.desc)
 	end
 	local str = table.concat(arr, '\n')
@@ -432,7 +432,8 @@ local command_list_commands = function(argv, force, win, selection, range)
 	return true
 end
 
-commands = { {
+-- we store commands in a list of tables {name, func, desc}
+command_list = { {
 	name = 'plug-list',
 	desc = 'list plugins and themes',
 	func = command_ls,
@@ -472,7 +473,7 @@ commands = { {
 }
 
 -- initialize commands
-for _, command in ipairs(commands) do
+for _, command in ipairs(command_list) do
 	vis:command_register(command.name, command.func, command.desc)
 end
 
