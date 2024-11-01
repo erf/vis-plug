@@ -231,7 +231,7 @@ local plug_list = function(plug, theme)
 end
 
 -- run a set of bash commands given a table
-function execute_commands_in_background(commands)
+local execute_commands_in_background = function(commands)
 	table.insert(commands, 'wait')
 	os.execute(string.format('sh -c \'(\n%s\n)\'', table.concat(commands, '\n')))
 end
