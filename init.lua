@@ -149,7 +149,7 @@ local get_plug_by_name = function(name)
 end
 
 -- iterate the plugins conf and call an operation per plugin
-local for_each_plugin = function (func, args)
+local for_each_plugin = function(func, args)
 	for _, plug in ipairs(plugins_conf) do
 		func(plug, args)
 	end
@@ -236,7 +236,6 @@ function execute_commands_in_background(commands)
 end
 
 local install_plugins = function(silent)
-
 	-- create folders
 	os.execute('mkdir -p ' .. plugins_path .. '/plugins')
 	os.execute('mkdir -p ' .. plugins_path .. '/themes')
@@ -245,8 +244,9 @@ local install_plugins = function(silent)
 	local commands = {}
 	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
-			local path = get_base_path(plug.theme)  
-			table.insert(commands, string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null &', path, plug.url))
+			local path = get_base_path(plug.theme)
+			table.insert(commands,
+				string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null &', path, plug.url))
 		end
 	end
 
@@ -266,11 +266,9 @@ local install_plugins = function(silent)
 	elseif not silent then
 		vis:info('Nothing to install')
 	end
-
 end
 
 local update_plugins = function()
-
 	-- build shell commands which run in the background and wait
 	local commands = {}
 	for key, plug in ipairs(plugins_conf) do
@@ -401,7 +399,6 @@ local command_upgrade = function(argv, force, win, selection, range)
 end
 
 local command_ls = function(argv, force, win, selection, range)
-
 	local num_themes = count_themes()
 	local num_plugins = #plugins_conf - num_themes
 
@@ -435,42 +432,42 @@ local command_list_commands = function(argv, force, win, selection, range)
 end
 
 commands = { {
-		name = 'plug-list',
-		desc = 'list plugins and themes',
-		func = command_ls,
-	}, {
-		name = 'plug-install',
-		desc = 'install plugins (git clone)',
-		func = command_install,
-	}, {
-		name = 'plug-update',
-		desc = 'update plugins (git pull)',
-		func = command_update,
-	}, {
-		name = 'plug-outdated',
-		desc = 'check if plugins are up-to-date',
-		func = command_outdated,
-	}, {
-		name = 'plug-upgrade',
-		desc = 'upgrade to latest vis-plug version',
-		func = command_upgrade,
-	}, {
-		name = 'plug-remove',
-		desc = 'delete plugin by {name} (:plug-list for names)',
-		func = command_rm,
-	}, {
-		name = 'plug-clean',
-		desc = 'delete all plugins from disk',
-		func = command_clean,
-	}, {
-		name = 'plug-checkout',
-		desc = 'checkout {name} {commit|branch|tag}',
-		func = command_checkout,
-	}, {
-		name = 'plug-commands',
-		desc = 'list commands (these)',
-		func = command_list_commands,
-	},
+	name = 'plug-list',
+	desc = 'list plugins and themes',
+	func = command_ls,
+}, {
+	name = 'plug-install',
+	desc = 'install plugins (git clone)',
+	func = command_install,
+}, {
+	name = 'plug-update',
+	desc = 'update plugins (git pull)',
+	func = command_update,
+}, {
+	name = 'plug-outdated',
+	desc = 'check if plugins are up-to-date',
+	func = command_outdated,
+}, {
+	name = 'plug-upgrade',
+	desc = 'upgrade to latest vis-plug version',
+	func = command_upgrade,
+}, {
+	name = 'plug-remove',
+	desc = 'delete plugin by {name} (:plug-list for names)',
+	func = command_rm,
+}, {
+	name = 'plug-clean',
+	desc = 'delete all plugins from disk',
+	func = command_clean,
+}, {
+	name = 'plug-checkout',
+	desc = 'checkout {name} {commit|branch|tag}',
+	func = command_checkout,
+}, {
+	name = 'plug-commands',
+	desc = 'list commands (these)',
+	func = command_list_commands,
+},
 }
 
 -- initialize commands
