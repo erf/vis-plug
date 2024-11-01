@@ -10,7 +10,7 @@ Plugins are installed using `git` (in the background) to a cache folder and requ
 
 ## Install
 
-git clone `vis-plug` and require it in your `visrc`. 
+git clone `vis-plug` and require it in your `visrc`.
 
 ## Configure
 
@@ -22,7 +22,7 @@ Example:
 
 local plug = require('plugins/vis-plug')
 
--- configure plugins in an array of tables with git urls and options 
+-- configure plugins in an array of tables with git urls and options
 local plugins = {
 
 	-- load a plugin given a repo (https://github.com/ can be omitted and expects a 'init.lua' file)
@@ -66,9 +66,9 @@ require('plugins/vis-plug').init(plugins, true)
 
 ### Install path
 
-Plugins are by default installed (cloned) to the default cache folder on your system: 
+Plugins are installed (cloned) to the following path (in this order):
 
-`(XDG_CACHE_HOME|HOME/.cache)/vis-plug/{plugins|themes}/{plugin}`
+`(VIS_PLUG_HOME|XDG_DATA_HOME|XDG_CACHE_HOME|HOME/.cache)/vis-plug/{plugins|themes}/{plugin}`
 
 Use `plug.path` to set a custom install path:
 
