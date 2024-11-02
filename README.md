@@ -12,6 +12,12 @@ Plugins are installed using `git` (in the background) to a cache folder and requ
 
 git clone `vis-plug` and require it in your `visrc`.
 
+You could also use this one-liner to install `vis-plug`:
+
+```sh
+[ -n "${XDG_CONFIG_HOME:-$HOME}" ] && [ -d "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins" ] && git clone https://github.com/erf/vis-plug.git "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins/vis-plug" || echo "Error: The plugin path could not be determined or does not exist. Ensure XDG_CONFIG_HOME or HOME is set and that the path exists."
+```
+
 ## Configure
 
 Configure plugins in your `visrc` as a list of tables given to the `plug.init` method.
@@ -58,7 +64,7 @@ Each plugin table can have the following options:
 
 ### Install on init
 
-Pass *true* as second argument to `init` to install on init.
+Pass _true_ as second argument to `init` to install on init.
 
 ```Lua
 require('plugins/vis-plug').init(plugins, true)
@@ -111,7 +117,6 @@ We support the following `vis` commands:
 `:plug-checkout` - checkout {name} {commit|branch|tag}
 
 `:plug-commands` - list commands (these)
-
 
 ## vis-plugins
 
