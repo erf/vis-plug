@@ -94,7 +94,7 @@ end
 
 -- get path to file
 local get_file_path = function(plug)
-	return plug.path .. plug.file .. '.lua'
+	return plug.path .. '/' .. plug.file .. '.lua'
 end
 
 -- '{http[s]://github.com}/erf/vis-cursors.git'
@@ -167,7 +167,7 @@ end
 
 -- prepare the plug configuration
 local plug_init = function(plug, args)
-	plug.file = plug.file and '/' .. plug.file or ''
+	plug.file = plug.file or ''
 	plug.url = get_full_url(plug.url or plug[1])
 	plug.name = get_name_from_url(plug.url)
 	plug.path = get_base_path(plug.theme) .. '/' .. plug.name
@@ -192,7 +192,7 @@ local plug_require = function(plug, args)
 	if plug.theme then
 		return
 	end
-	local name = 'plugins/' .. plug.name .. plug.file
+	local name = 'plugins/' .. plug.name .. '/' .. plug.file
 	local plugin = require(name)
 	if plug.alias then
 		M.plugins[plug.alias] = plugin
@@ -500,7 +500,7 @@ end
 vis.events.subscribe(vis.events.INIT, function()
 	for _, plug in ipairs(plugins_conf) do
 		if plug.theme and file_exists(get_file_path(plug)) then
-			vis:command('set theme ' .. plug.name .. plug.file)
+			vis:command('set theme ' .. plug.name .. '/' .. plug.file)
 			return -- set first theme and return
 		end
 	end
