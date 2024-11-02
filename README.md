@@ -74,7 +74,7 @@ require('plugins/vis-plug').init(plugins, true)
 
 Plugins are installed (cloned) to the following path (in this order):
 
-`(VIS_PLUG_HOME|XDG_DATA_HOME|XDG_CACHE_HOME|HOME/.cache)/vis-plug/{plugins|themes}/{plugin}`
+`(VIS_PLUG_HOME|(XDG_DATA_HOME|XDG_CACHE_HOME|HOME/.cache)/vis-plug)/{plugins|themes}`
 
 Use `plug.path` to set a custom install path:
 
