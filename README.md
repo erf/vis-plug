@@ -12,7 +12,7 @@ Plugins are installed using `git` (in the background) to a cache folder and requ
 
 git clone `vis-plug` and require it in your `visrc`.
 
-You can use this one-liner to install `vis-plug` (if environment variables are set) and then require it in your `visrc`.
+You can use this one-liner to install `vis-plug` and then require it in your `visrc`.
 
 ```sh
 [ -n "${XDG_CONFIG_HOME:-$HOME}" ] && [ -d "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins" ] && git clone https://github.com/erf/vis-plug.git "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins/vis-plug" || echo "Error: The plugin path could not be determined or does not exist. Ensure XDG_CONFIG_HOME or HOME is set and that the path exists."
