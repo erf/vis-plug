@@ -28,15 +28,18 @@ M.path = function(path)
 	package.path = path .. '/?.lua;' .. path .. '/?/init.lua;' .. package.path
 end
 
--- e.g. /Users/user/.cache/vis-plug
+-- e.g. /Users/some-user/.cache/vis-plug
 local get_plugins_path = function()
-	local HOME = os.getenv('HOME')
 	local VIS_PLUG_HOME = os.getenv('VIS_PLUG_HOME')
-	local XDG_DATA_HOME = os.getenv('XDG_DATA_HOME')
-	local XDG_CACHE_HOME = os.getenv('XDG_CACHE_HOME')
-	local HOME_CACHE = HOME .. '/.cache'
-	local BASE_DIR = VIS_PLUG_HOME or XDG_DATA_HOME or XDG_CACHE_HOME or HOME_CACHE
-	return BASE_DIR .. '/vis-plug'
+	if VIS_PLUG_HOME then
+		return VIS_PLUG_HOME
+	else
+		local XDG_DATA_HOME = os.getenv('XDG_DATA_HOME')
+		local XDG_CACHE_HOME = os.getenv('XDG_CACHE_HOME')
+		local HOME_CACHE = os.getenv('HOME') .. '/.cache'
+		local BASE_DIR = XDG_DATA_HOME or XDG_CACHE_HOME or HOME_CACHE
+		return BASE_DIR .. '/vis-plug'
+	end
 end
 
 -- set default install path for plugins
@@ -71,7 +74,7 @@ local get_dir_from_file = function(file)
 	return file:match('(.+)%/.+$')
 end
 
--- separate folders in CACHE_DIR/vis-plug/{plugins|themes}
+-- separate folders in $VIS_PLUG_HOME/{plugins|themes}
 local get_folder = function(theme)
 	if theme then
 		return '/themes'
@@ -80,7 +83,7 @@ local get_folder = function(theme)
 	end
 end
 
--- E.g. '~/.cache/vis-plug/plugins/'
+-- E.g. '~/$VIS_PLUG_HOME/plugins/'
 local get_base_path = function(theme)
 	return plugins_path .. get_folder(theme)
 end
