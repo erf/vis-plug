@@ -226,15 +226,26 @@ local count_themes = function()
 	return themes
 end
 
+local is_empty = function(str)
+	return str == nil or str == ''
+end
+
+local get_file_display_name = function(plug)
+	if is_empty(plug.file) then
+		return ''
+	end
+	return ' (' .. plug.file .. ')'
+end
+
 local plug_list = function(plug, theme)
 	if (theme and not plug.theme) or (not theme and plug.theme) then
 		return
 	end
 	local short_url = get_short_url(plug.url)
 	if file_exists(plug.path) then
-		vis:message(short_url .. ' (' .. plug.file .. ')')
+		vis:message(short_url .. get_file_display_name(plug))
 	else
-		vis:message(short_url .. ' (' .. plug.file .. ') NOT INSTALLED')
+		vis:message(short_url .. get_file_display_name(plug) .. ' NOT INSTALLED')
 	end
 	vis:redraw()
 end
