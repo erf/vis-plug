@@ -48,7 +48,9 @@ M.path(get_plugins_path())
 -- execute a command and return result string
 local execute = function(command)
 	local file = io.popen(command)
-	if not file then return nil end
+	if not file then
+		return nil
+	end
 	local result = file:read("*a")
 	result = result:gsub('(.-)%s*$', '%1') -- strip trailing spaces
 	local success, message, code = file:close()
@@ -58,7 +60,9 @@ end
 -- check if file exists
 local file_exists = function(path)
 	local file = io.open(path)
-	if not file then return false end
+	if not file then
+		return false
+	end
 	file:close()
 	return true
 end
@@ -251,8 +255,8 @@ local install_plugins = function(silent)
 	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
 			local path = get_base_path(plug.theme)
-			table.insert(commands,
-				string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null &', path, plug.url))
+			local clone_command = string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null &', path, plug.url)
+			table.insert(commands, clone_command)
 		end
 	end
 
@@ -438,44 +442,43 @@ local command_list_commands = function(argv, force, win, selection, range)
 end
 
 -- we store commands in a list of tables {name, func, desc}
-command_list = { {
+command_list = {{
 	name = 'plug-list',
 	desc = 'list plugins and themes',
-	func = command_ls,
+	func = command_ls
 }, {
 	name = 'plug-install',
 	desc = 'install plugins (git clone)',
-	func = command_install,
+	func = command_install
 }, {
 	name = 'plug-update',
 	desc = 'update plugins (git pull)',
-	func = command_update,
+	func = command_update
 }, {
 	name = 'plug-outdated',
 	desc = 'check if plugins are up-to-date',
-	func = command_outdated,
+	func = command_outdated
 }, {
 	name = 'plug-upgrade',
 	desc = 'upgrade to latest vis-plug version',
-	func = command_upgrade,
+	func = command_upgrade
 }, {
 	name = 'plug-remove',
 	desc = 'delete plugin by {name} (:plug-list for names)',
-	func = command_rm,
+	func = command_rm
 }, {
 	name = 'plug-clean',
 	desc = 'delete all plugins from disk',
-	func = command_clean,
+	func = command_clean
 }, {
 	name = 'plug-checkout',
 	desc = 'checkout {name} {commit|branch|tag}',
-	func = command_checkout,
+	func = command_checkout
 }, {
 	name = 'plug-commands',
 	desc = 'list commands (these)',
-	func = command_list_commands,
-},
-}
+	func = command_list_commands
+}}
 
 -- initialize commands
 for _, command in ipairs(command_list) do
