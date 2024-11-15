@@ -104,7 +104,7 @@ We support the following `vis` commands:
 
 `:plug-install` - install plugins (git clone)
 
-`:plug-update` - update plugins (git pull)
+`:plug-update` - update outdated plugins (git pull)
 
 `:plug-outdated` - check if plugins are up-to-date
 

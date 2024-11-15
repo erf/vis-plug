@@ -172,13 +172,10 @@ end
 -- checkout specific commit, branch or tag
 local checkout = function(plug)
 	if plug.ref then
+		vis:info('Checking out ' .. plug.ref .. ' for ' .. plug.name)
 		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.ref)
-	else
-		-- ELSE do nothing; there is no default "master" branch or "origin"
-		-- for reference:
-		-- git rev-parse --abbrev-ref HEAD
-		-- git symbolic-ref refs/remotes/origin/HEAD --short
 	end
+	-- If no ref is specified, do nothing and keep current state
 end
 
 local plug_require = function(plug, args)
@@ -193,23 +190,6 @@ local plug_require = function(plug, args)
 	if plug.alias then
 		M.plugins[plug.alias] = plugin
 	end
-end
-
-local plug_outdated = function(plug, args)
-	local short_url = get_short_url(plug.url)
-	if not file_exists(plug.path) then
-		vis:message(plug.name .. ' (' .. short_url .. ') NOT INSTALLED')
-		vis:redraw()
-		return
-	end
-	local local_hash = execute('git -C ' .. plug.path .. ' rev-parse HEAD')
-	local remote_hash = execute('git ls-remote ' .. plug.url .. ' HEAD | cut -f1')
-	if local_hash == remote_hash then
-		vis:message(plug.name .. ' (' .. short_url .. ') ✓')
-	else
-		vis:message(plug.name .. ' (' .. short_url .. ') OUTDATED')
-	end
-	vis:redraw()
 end
 
 local count_themes = function()
@@ -262,7 +242,8 @@ local install_plugins = function(silent)
 	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
 			local path = get_base_path(plug.theme)
-			local clone_command = string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null &', path, plug.url)
+			local clone_command = string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null &', path,
+				plug.url)
 			table.insert(commands, clone_command)
 		end
 	end
@@ -285,31 +266,129 @@ local install_plugins = function(silent)
 	end
 end
 
+-- Helper function to check for updates in parallel
+-- Returns a table with plugin status information
+local check_updates_parallel = function()
+	local plugin_status = {}
+
+	-- Build commands to check updates for all plugins in parallel
+	local check_commands = {}
+	for _, plug in ipairs(plugins_conf) do
+		if file_exists(plug.path) then
+			local temp_file = plug.path .. '/.update_check'
+			local cmd = string.format('git -C %s fetch --quiet && ' ..
+				'git -C %s rev-parse HEAD > %s.local 2>/dev/null && ' ..
+				'git -C %s rev-parse @{u} > %s.remote 2>/dev/null &',
+				plug.path, plug.path, temp_file, plug.path, temp_file)
+			table.insert(check_commands, cmd)
+		end
+	end
+
+	-- Run all check commands in parallel
+	if #check_commands > 0 then
+		execute_commands_in_background(check_commands)
+	end
+
+	-- Process results
+	for _, plug in ipairs(plugins_conf) do
+		if file_exists(plug.path) then
+			local short_url = get_short_url(plug.url)
+			local local_file = plug.path .. '/.update_check.local'
+			local remote_file = plug.path .. '/.update_check.remote'
+
+			-- Read local and remote hashes
+			local local_hash, remote_hash
+
+			local file = io.open(local_file)
+			if file then
+				local_hash = file:read("*all"):gsub("^%s*(.-)%s*$", "%1")
+				file:close()
+				os.remove(local_file)
+			end
+
+			file = io.open(remote_file)
+			if file then
+				remote_hash = file:read("*all"):gsub("^%s*(.-)%s*$", "%1")
+				file:close()
+				os.remove(remote_file)
+			end
+
+			local status = {
+				plugin = plug,
+				needs_update = local_hash and remote_hash and local_hash ~= remote_hash,
+				message = plug.name .. ' (' .. short_url .. ') ' ..
+					(local_hash and remote_hash and local_hash ~= remote_hash and 'OUTDATED' or '✓')
+			}
+			table.insert(plugin_status, status)
+		end
+	end
+
+	return plugin_status
+end
+
+local plug_outdated = function(plug, args)
+	vis:message('Checking for outdated plugins..')
+	vis:redraw()
+	local status = check_updates_parallel()
+	local messages = {}
+
+	for _, stat in ipairs(status) do
+		table.insert(messages, stat.message)
+	end
+
+	vis:message(table.concat(messages, '\n'))
+	vis:redraw()
+end
+
 local update_plugins = function()
+	vis:message('Checking for outdated plugins..')
+	vis:redraw()
+	local status = check_updates_parallel()
+	local plugins_to_update = {}
+
+	-- Process results and collect plugins that need updates
+	for _, stat in ipairs(status) do
+		if stat.needs_update then
+			table.insert(plugins_to_update, stat.plugin)
+		end
+	end
+
+	-- If no updates are needed, print a message and return early
+	if #plugins_to_update == 0 then
+		vis:message('All plugins are up-to-date!')
+		return
+	end
+
+	-- If updates are needed, perform them
+	vis:info('Updating plugins..')
+	vis:redraw()
+
 	-- build shell commands which run in the background and wait
 	local commands = {}
-	for key, plug in ipairs(plugins_conf) do
+	for _, plug in ipairs(plugins_to_update) do
 		if file_exists(plug.path) then
-			table.insert(commands, string.format('git -C %s pull --recurse-submodules --quiet 2> /dev/null &', plug.path))
+			table.insert(commands,
+				string.format('git -C %s pull --recurse-submodules --quiet 2> /dev/null &', plug.path))
 		end
 	end
 
 	-- execute commands and wait
 	if #commands > 0 then
-		vis:info('Updating..')
-		vis:redraw()
 		execute_commands_in_background(commands)
 	end
 
-	-- checkout git repo
-	for_each_plugin(checkout)
-
-	-- print result
-	if #commands > 0 then
-		vis:info('' .. #commands - 1 .. ' plugin(s) updated')
-	else
-		vis:info('Nothing to update')
+	-- checkout git repo for updated plugins
+	for _, plug in ipairs(plugins_to_update) do
+		checkout(plug)
 	end
+
+	-- Show which plugins were updated
+	local update_messages = { string.format('Updated %d plugin(s):', #plugins_to_update) }
+	for _, plug in ipairs(plugins_to_update) do
+		local short_url = get_short_url(plug.url)
+		table.insert(update_messages, plug.name .. ' (' .. short_url .. ')')
+	end
+	vis:message(table.concat(update_messages, '\n'))
 end
 
 -- require plugins (and optionally install and checkout)
@@ -431,9 +510,7 @@ local command_ls = function(argv, force, win, selection, range)
 end
 
 local command_outdated = function(argv, force, win, selection, range)
-	vis:message('Are plugins up-to-date?')
-	vis:redraw()
-	for_each_plugin(plug_outdated)
+	plug_outdated()
 	return true
 end
 
@@ -449,7 +526,7 @@ local command_list_commands = function(argv, force, win, selection, range)
 end
 
 -- we store commands in a list of tables {name, func, desc}
-command_list = {{
+command_list = { {
 	name = 'plug-list',
 	desc = 'list plugins and themes',
 	func = command_ls
@@ -485,7 +562,7 @@ command_list = {{
 	name = 'plug-commands',
 	desc = 'list commands (these)',
 	func = command_list_commands
-}}
+} }
 
 -- initialize commands
 for _, command in ipairs(command_list) do
