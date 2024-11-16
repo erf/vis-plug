@@ -18,6 +18,15 @@ You can use this one-liner to install `vis-plug` and then require it in your `vi
 [ -n "${XDG_CONFIG_HOME:-$HOME}" ] && [ -d "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins" ] && git clone https://github.com/erf/vis-plug.git "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins/vis-plug" || echo "Error: The plugin path could not be determined or does not exist. Ensure XDG_CONFIG_HOME or HOME is set and that the path exists."
 ```
 
+Alternatively, you can use the following to the `visrc` to automatically fetch it to your plugins folder and require it:
+```lua
+local plug = (function() if not pcall(require, 'plugins/vis-plug') then
+ 	os.execute('git clone --quiet https://github.com/erf/vis-plug ' .. 
+	 	(os.getenv('XDG_CONFIG_HOME') or os.getenv('HOME') .. '/.config')
+	 	.. '/vis/plugins/vis-plug')
+end return require('plugins/vis-plug') end)()
+```
+
 ## Configure
 
 Configure plugins in your `visrc` as a list of tables given to the `plug.init` method.
