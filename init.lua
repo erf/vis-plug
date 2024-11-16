@@ -327,7 +327,7 @@ local check_updates_parallel = function()
 end
 
 local plug_outdated = function(plug, args)
-	vis:message('Checking for outdated plugins..')
+	vis:info('Checking for outdated plugins..')
 	vis:redraw()
 	local status = check_updates_parallel()
 	local messages = {}
@@ -341,54 +341,55 @@ local plug_outdated = function(plug, args)
 end
 
 local update_plugins = function()
-	vis:message('Checking for outdated plugins..')
-	vis:redraw()
-	local status = check_updates_parallel()
-	local plugins_to_update = {}
-
-	-- Process results and collect plugins that need updates
-	for _, stat in ipairs(status) do
-		if stat.needs_update then
-			table.insert(plugins_to_update, stat.plugin)
-		end
-	end
-
-	-- If no updates are needed, print a message and return early
-	if #plugins_to_update == 0 then
-		vis:message('All plugins are up-to-date!')
-		return
-	end
-
-	-- If updates are needed, perform them
 	vis:info('Updating plugins..')
 	vis:redraw()
 
-	-- build shell commands which run in the background and wait
 	local commands = {}
-	for _, plug in ipairs(plugins_to_update) do
+	local updates = {}
+
+	-- Prepare pull commands to run in parallel
+	for _, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
-			table.insert(commands,
-				string.format('git -C %s pull --recurse-submodules --quiet 2> /dev/null &', plug.path))
+			-- Store plugin name and git pull output together, get last line
+			local cmd = string.format(
+				'echo "%s:$(git -C %s pull --recurse-submodules 2>&1 | tail -n1)" &',
+				plug.name,
+				plug.path
+			)
+			table.insert(commands, cmd)
 		end
 	end
 
-	-- execute commands and wait
+	-- Execute pulls in parallel and capture results
 	if #commands > 0 then
-		execute_commands_in_background(commands)
+		local result = execute(string.format('sh -c \'(\n%s\nwait)\n\'', table.concat(commands, '\n')))
+
+		-- Process results
+		if result and result ~= "" then
+			for line in result:gmatch("[^\n]+") do
+				local name, output = line:match("^(.-):(.*)")
+				if name and output and not output:match("Already up to date") then
+					local plug = get_plug_by_name(name)
+					if plug then
+						table.insert(updates, plug)
+						checkout(plug)
+					end
+				end
+			end
+		end
 	end
 
-	-- checkout git repo for updated plugins
-	for _, plug in ipairs(plugins_to_update) do
-		checkout(plug)
+	-- Show results
+	if #updates > 0 then
+		local update_messages = { string.format('Updated %d plugin(s):', #updates) }
+		for _, plug in ipairs(updates) do
+			local short_url = get_short_url(plug.url)
+			table.insert(update_messages, plug.name .. ' (' .. short_url .. ')')
+		end
+		vis:message(table.concat(update_messages, '\n'))
+	else
+		vis:message('All plugins are up-to-date!')
 	end
-
-	-- Show which plugins were updated
-	local update_messages = { string.format('Updated %d plugin(s):', #plugins_to_update) }
-	for _, plug in ipairs(plugins_to_update) do
-		local short_url = get_short_url(plug.url)
-		table.insert(update_messages, plug.name .. ' (' .. short_url .. ')')
-	end
-	vis:message(table.concat(update_messages, '\n'))
 end
 
 -- require plugins (and optionally install and checkout)
