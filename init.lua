@@ -266,60 +266,45 @@ local install_plugins = function(silent)
 	end
 end
 
--- Helper function to check for updates in parallel
--- Returns a table with plugin status information
 local check_updates_parallel = function()
+	local commands = {}
 	local plugin_status = {}
 
 	-- Build commands to check updates for all plugins in parallel
-	local check_commands = {}
 	for _, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
-			local temp_file = plug.path .. '/.update_check'
-			local cmd = string.format('git -C %s fetch --quiet && ' ..
-				'git -C %s rev-parse HEAD > %s.local 2>/dev/null && ' ..
-				'git -C %s rev-parse @{u} > %s.remote 2>/dev/null &',
-				plug.path, plug.path, temp_file, plug.path, temp_file)
-			table.insert(check_commands, cmd)
+			-- Fetch updates and compare local and remote hashes
+			local cmd = string.format(
+				'git -C %s fetch --quiet && ' ..
+				'echo "%s:$(git -C %s rev-parse HEAD):$(git -C %s rev-parse @{u})" &',
+				plug.path, plug.name, plug.path, plug.path
+			)
+			table.insert(commands, cmd)
 		end
 	end
 
 	-- Run all check commands in parallel
-	if #check_commands > 0 then
-		execute_commands_in_background(check_commands)
-	end
+	if #commands > 0 then
+		local result = execute(string.format('sh -c \'(\n%s\nwait)\n\'', table.concat(commands, '\n')))
 
-	-- Process results
-	for _, plug in ipairs(plugins_conf) do
-		if file_exists(plug.path) then
-			local short_url = get_short_url(plug.url)
-			local local_file = plug.path .. '/.update_check.local'
-			local remote_file = plug.path .. '/.update_check.remote'
-
-			-- Read local and remote hashes
-			local local_hash, remote_hash
-
-			local file = io.open(local_file)
-			if file then
-				local_hash = file:read("*all"):gsub("^%s*(.-)%s*$", "%1")
-				file:close()
-				os.remove(local_file)
+		-- Process results
+		if result and result ~= "" then
+			for line in result:gmatch("[^\n]+") do
+				local name, local_hash, remote_hash = line:match("^(.-):(.+):(.+)$")
+				if name and local_hash and remote_hash then
+					local plug = get_plug_by_name(name)
+					if plug then
+						local short_url = get_short_url(plug.url)
+						local status = {
+							plugin = plug,
+							needs_update = local_hash ~= remote_hash,
+							message = plug.name .. ' (' .. short_url .. ') ' ..
+								(local_hash ~= remote_hash and 'OUTDATED' or '✓')
+						}
+						table.insert(plugin_status, status)
+					end
+				end
 			end
-
-			file = io.open(remote_file)
-			if file then
-				remote_hash = file:read("*all"):gsub("^%s*(.-)%s*$", "%1")
-				file:close()
-				os.remove(remote_file)
-			end
-
-			local status = {
-				plugin = plug,
-				needs_update = local_hash and remote_hash and local_hash ~= remote_hash,
-				message = plug.name .. ' (' .. short_url .. ') ' ..
-					(local_hash and remote_hash and local_hash ~= remote_hash and 'OUTDATED' or '✓')
-			}
-			table.insert(plugin_status, status)
 		end
 	end
 
