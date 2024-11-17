@@ -298,8 +298,7 @@ local check_updates_parallel = function()
 						local status = {
 							plugin = plug,
 							needs_update = local_hash ~= remote_hash,
-							message = plug.name .. ' (' .. short_url .. ') ' ..
-								(local_hash ~= remote_hash and 'OUTDATED' or '✓')
+							message = plug.name .. ' (' .. short_url .. ') '
 						}
 						table.insert(plugin_status, status)
 					end
@@ -315,13 +314,27 @@ local plug_outdated = function(plug, args)
 	vis:info('Checking for outdated plugins..')
 	vis:redraw()
 	local status = check_updates_parallel()
-	local messages = {}
+	local outdated = {}
 
+	-- Collect only outdated plugins
 	for _, stat in ipairs(status) do
-		table.insert(messages, stat.message)
+		if stat.needs_update then
+			table.insert(outdated, stat.message)
+		end
 	end
 
-	vis:message(table.concat(messages, '\n'))
+	-- Show message based on whether there are outdated plugins
+	if #outdated > 0 then
+		local messages = {
+			string.format('Found %d outdated plugin(s):', #outdated)
+		}
+		for _, msg in ipairs(outdated) do
+			table.insert(messages, msg)
+		end
+		vis:message(table.concat(messages, '\n'))
+	else
+		vis:message('All plugins and themes are up to date')
+	end
 	vis:redraw()
 end
 
