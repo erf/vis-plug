@@ -386,7 +386,7 @@ local update_plugins = function()
 		end
 		vis:message(table.concat(update_messages, '\n'))
 	else
-		vis:message('All plugins are up-to-date!')
+		vis:message('All plugins and themes are up to date')
 	end
 end
 
