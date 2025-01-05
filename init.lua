@@ -33,8 +33,7 @@ local get_plugins_path = function()
 	local VIS_PLUG_HOME = os.getenv('VIS_PLUG_HOME')
 	local XDG_CACHE_HOME = os.getenv('XDG_CACHE_HOME')
 	local HOME_CACHE = os.getenv('HOME') .. '/.cache'
-	local BASE_DIR = XDG_CACHE_HOME or HOME_CACHE
-	return VIS_PLUG_HOME or BASE_DIR .. '/vis-plug'
+	return VIS_PLUG_HOME or (XDG_CACHE_HOME or HOME_CACHE) .. '/vis-plug'
 end
 
 -- set default install path for plugins
