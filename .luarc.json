@@ -1,7 +1,8 @@
 {
-    "Lua": {
-        "diagnostics": {
-            "globals": ["vis"]
+	"Lua": {
+		"diagnostics": {
+			"globals": ["vis"],
+			"disable": ["unused-local"]
         }
     }
 }
