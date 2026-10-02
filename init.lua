@@ -183,7 +183,10 @@ local plug_require = function(plug, args)
 	if plug.theme then
 		return
 	end
-	local name = 'plugins/' .. plug.name .. '/' .. plug.file
+	local name = 'plugins/' .. plug.name
+	if plug.file ~= '' then
+		name = name .. '/' .. plug.file
+	end
 	local plugin = require(name)
 	if plug.alias then
 		M.plugins[plug.alias] = plugin
