@@ -124,6 +124,8 @@ We support the following `vis` commands:
 
 `:plug-clean` - delete all plugins from disk
 
+`:plug-purge` - list plugins and themes not in config (`:plug-purge!` to delete them)
+
 `:plug-checkout` - checkout {name} {commit|branch|tag}
 
 `:plug-commands` - list commands (these)

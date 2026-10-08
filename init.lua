@@ -494,6 +494,47 @@ local command_upgrade = function(argv, force, win, selection, range)
 	return true
 end
 
+-- find installed plugins and themes (git repos) which are not in the config
+local get_orphans = function()
+	local keep = {}
+	for _, plug in ipairs(plugins_conf) do
+		keep[plug.path] = true
+	end
+	local vis_plug_path = look_for_vis_plug_path()
+	if vis_plug_path ~= nil then
+		keep[get_dir_from_file(vis_plug_path)] = true
+	end
+	local find_command = string.format('find "%s" "%s" -mindepth 1 -maxdepth 1 -type d 2> /dev/null',
+		get_base_path(false), get_base_path(true))
+	local orphans = {}
+	for dir in (execute(find_command) or ''):gmatch('[^\n]+') do
+		if not keep[dir] and file_exists(dir .. '/.git') then
+			table.insert(orphans, dir)
+		end
+	end
+	table.sort(orphans)
+	return orphans
+end
+
+-- list plugins not in the config, or delete them if forced with !
+local command_purge = function(argv, force, win, selection, range)
+	local orphans = get_orphans()
+	if #orphans == 0 then
+		vis:info('Nothing to purge')
+		return true
+	end
+	if not force then
+		vis:message('Found ' .. #orphans .. ' plugin(s) not in config (:plug-purge! to delete):\n'
+			.. table.concat(orphans, '\n'))
+		return true
+	end
+	for _, dir in ipairs(orphans) do
+		os.execute(string.format('rm -rf "%s"', dir))
+	end
+	vis:message('Deleted ' .. #orphans .. ' plugin(s):\n' .. table.concat(orphans, '\n'))
+	return true
+end
+
 local command_ls = function(argv, force, win, selection, range)
 	local num_themes = count_themes()
 	local num_plugins = #plugins_conf - num_themes
@@ -554,6 +595,10 @@ command_list = { {
 	name = 'plug-clean',
 	desc = 'delete all plugins from disk',
 	func = command_clean
+}, {
+	name = 'plug-purge',
+	desc = 'list plugins not in config (! to delete them)',
+	func = command_purge
 }, {
 	name = 'plug-checkout',
 	desc = 'checkout {name} {commit|branch|tag}',
