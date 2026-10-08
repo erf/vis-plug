@@ -10,22 +10,30 @@ Plugins are installed using `git` (in the background) to a cache folder and requ
 
 ## Install
 
-git clone `vis-plug` and require it in your `visrc`.
+### Manual
 
-You can use this one-liner to install `vis-plug` and then require it in your `visrc`:
+Clone `vis-plug` to your vis plugins folder:
 
 ```sh
-[ -n "${XDG_CONFIG_HOME:-$HOME}" ] && [ -d "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins" ] && git clone https://github.com/erf/vis-plug.git "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins/vis-plug" || echo "Error: The plugin path could not be determined or does not exist. Ensure XDG_CONFIG_HOME or HOME is set and that the path exists."
+git clone https://github.com/erf/vis-plug "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins/vis-plug"
 ```
 
-Alternatively, you can add the following to your `visrc` to automatically fetch `vis-plug` to your plugins folder and require it:
+Then require it in your `visrc`:
 
 ```lua
-local plug = (function() if not pcall(require, 'plugins/vis-plug') then
- 	os.execute('git clone --quiet https://github.com/erf/vis-plug ' ..
-	 	(os.getenv('XDG_CONFIG_HOME') or os.getenv('HOME') .. '/.config')
-	 	.. '/vis/plugins/vis-plug')
-end return require('plugins/vis-plug') end)()
+local plug = require('plugins/vis-plug')
+```
+
+### Bootstrap
+
+Or add the following to your `visrc` to automatically clone `vis-plug` on first run and require it:
+
+```lua
+local plug_path = (os.getenv('XDG_CONFIG_HOME') or os.getenv('HOME') .. '/.config') .. '/vis/plugins/vis-plug'
+if not pcall(require, 'plugins/vis-plug') then
+	os.execute('git clone --quiet https://github.com/erf/vis-plug "' .. plug_path .. '"')
+end
+local plug = require('plugins/vis-plug')
 ```
 
 ## Configure
@@ -34,9 +42,8 @@ Configure plugins in your `visrc` as a list of tables given to the `plug.init` m
 
 Example:
 
-```Lua
-
-local plug = require('plugins/vis-plug')
+```lua
+local plug = require('plugins/vis-plug') -- or use the bootstrap above
 
 -- configure plugins in an array of tables with git urls and options
 local plugins = {
@@ -68,17 +75,13 @@ Each plugin table can have the following options:
 
 - `url` - the url to the git repo (`https://github.com or https://` can be omitted)
 - `file` - the relative path to the lua file (defaults to `init`, skip the `.lua` part) (optional)
-- `ref` - checkout a spesific commit, branch or tag (optional)
+- `ref` - checkout a specific commit, branch or tag (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `theme` - set `theme = true` if theme; will set theme on INIT event (optional)
 
 ### Install on init
 
-Pass _true_ as second argument to `init` to install on init.
-
-```Lua
-require('plugins/vis-plug').init(plugins, true)
-```
+Pass _true_ as second argument to `plug.init` (as in the example above) to install missing plugins on init.
 
 ### Install path
 
@@ -88,7 +91,7 @@ Plugins are installed (cloned) to the following path (in this order):
 
 Use `plug.path` to set a custom install path:
 
-```Lua
+```lua
 plug.path('/Users/user/my-plugins')
 ```
 
@@ -100,7 +103,7 @@ The first theme in the config table is set on the `INIT` event.
 
 Example theme:
 
-```
+```lua
 local plugins = {
 	{ 'timoha/vis-acme', theme = true, file = 'acme' },
 }
@@ -132,6 +135,6 @@ We support the following `vis` commands:
 
 ## vis-plugins
 
-I've created [vis-plugins](https://github.com/erf/vis-plugins) - a web page with is a list of plugins and themes based on the [vis wiki](https://github.com/martanne/vis/wiki).
+I've created [vis-plugins](https://github.com/erf/vis-plugins) - a web page with a list of plugins and themes based on the [vis wiki](https://github.com/martanne/vis/wiki).
 
 It's hosted by github at [https://erf.github.io/vis-plugins](https://erf.github.io/vis-plugins)
