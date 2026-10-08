@@ -48,19 +48,19 @@ local plug = require('plugins/vis-plug') -- or use the bootstrap above
 -- configure plugins in an array of tables with git urls and options
 local plugins = {
 
-	-- load a plugin given a repo (https://github.com/ can be omitted and expects a 'init.lua' file)
+	-- load a plugin from a git repo (https://github.com/ is optional, loads 'init.lua' by default)
 	{ 'erf/vis-cursors' },
 
 	-- first parameter is a shorthand for 'url'
 	{ url = 'erf/vis-cursors' },
 
-	-- specify the lua file to require (or theme to set) and give a ref (commit, branch, tag) to checkout
+	-- specify an alias to later use to access plugin variables (see example below)
+	{ 'erf/vis-cursors', alias = 'cursors' },
+
+	-- specify which lua file to load and a ref (commit, branch or tag) to checkout
 	{ 'erf/vis-test', file = 'test', ref = 'some-branch' },
 
-	-- specify an alias to later use to access plugin variables (see example below)
-	{ 'erf/vis-highlight', alias = 'hi' },
-
-	-- configure themes by setting 'theme = true'. The theme 'file' will be set on INIT
+	-- set 'theme = true' for themes; the first theme is set on INIT
 	{ 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
 }
 
@@ -68,16 +68,16 @@ local plugins = {
 plug.init(plugins, true)
 
 -- access plugins via alias
-plug.plugins.hi.patterns[' +\n'] = { style = 'back:#444444' }
+plug.plugins.cursors.maxsize = 2000
 ```
 
 Each plugin table can have the following options:
 
-- `url` - the url to the git repo (`https://github.com or https://` can be omitted)
-- `file` - the relative path to the lua file (defaults to `init`, skip the `.lua` part) (optional)
+- `url` - the git repo url (`https://github.com/` or `https://` can be omitted)
+- `file` - relative path to the lua file, without `.lua` (optional, defaults to `init`)
 - `ref` - checkout a specific commit, branch or tag (optional)
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
-- `theme` - set `theme = true` if theme; will set theme on INIT event (optional)
+- `theme` - set to `true` for themes; the theme is set on the `INIT` event (optional)
 
 ### Install on init
 
@@ -123,13 +123,13 @@ We support the following `vis` commands:
 
 `:plug-upgrade` - upgrade to latest vis-plug using git pull
 
-`:plug-remove` - delete plugin by {name} (`:plug-list` for names)
+`:plug-remove {name}` - delete a plugin (`:plug-list` for names)
 
 `:plug-clean` - delete all plugins from disk
 
 `:plug-purge` - list plugins and themes not in config (`:plug-purge!` to delete them)
 
-`:plug-checkout` - checkout {name} {commit|branch|tag}
+`:plug-checkout {name} {commit|branch|tag}` - checkout a specific version of a plugin
 
 `:plug-commands` - list commands (these)
 
