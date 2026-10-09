@@ -8,6 +8,8 @@ A minimal plugin-manager for [vis](https://github.com/martanne/vis)
 
 Plugins are installed using `git` (in the background) to a cache folder and required on `init`.
 
+Browse available plugins and themes at [vis-plugins](https://erf.github.io/vis-plugins).
+
 ## Install
 
 ### Manual
@@ -132,9 +134,3 @@ We support the following `vis` commands:
 `:plug-checkout {name} {commit|branch|tag}` - checkout a specific version of a plugin
 
 `:plug-commands` - list commands (these)
-
-## vis-plugins
-
-I've created [vis-plugins](https://github.com/erf/vis-plugins) - a web page with a list of plugins and themes based on the [vis wiki](https://github.com/martanne/vis/wiki).
-
-It's hosted by github at [https://erf.github.io/vis-plugins](https://erf.github.io/vis-plugins)
