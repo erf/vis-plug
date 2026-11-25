@@ -280,6 +280,25 @@ test('init: plugins with the same name, only the first is used', function()
 	end
 end)
 
+test('themes: theme = file shorthand and missing theme files', function()
+	local conf = {
+		{ remote('theme', 'vis-missing'), theme = 'nope' },
+		{ remote('theme', 'vis-nofile'), theme = true },
+		{ remote('theme', 'vis-theme'), theme = 'mytheme' },
+		{ remote('theme', 'vis-old'), theme = true, file = 'mytheme' },
+	}
+	local v = load(conf, true)
+	eq(conf[3].path, home .. '/themes/vis-theme')
+	eq(conf[3].file, 'mytheme')
+	v.on_init()
+	-- the first theme that exists is set
+	eq(v.commands[1], 'set theme vis-theme/mytheme')
+	local message = v.message()
+	contains(message, 'vis-plug problems (2)')
+	contains(message, 'theme file not found: vis-missing/nope.lua')
+	contains(message, "theme vis-nofile has no file, set theme = '{file}'")
+end)
+
 test('ref: a changed ref is applied on start', function()
 	local url = remote('plugin', 'vis-a')
 	local path = home .. '/plugins/vis-a'

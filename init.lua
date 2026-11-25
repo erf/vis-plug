@@ -242,6 +242,11 @@ end
 
 -- prepare the plug configuration
 local plug_init = function(plug, args)
+	-- theme = 'gruvbox' is short for theme = true, file = 'gruvbox'
+	if type(plug.theme) == 'string' then
+		plug.file = plug.theme
+		plug.theme = true
+	end
 	plug.file = plug.file or ''
 	plug.url = get_full_url(plug.url or plug[1])
 	plug.name = get_name_from_url(plug.url)
@@ -322,7 +327,13 @@ local plug_require = function(plug, args)
 	if plug.conflict or not file_exists(plug.path) then
 		return
 	end
+	-- themes are set on INIT, check that the theme file exists
 	if plug.theme then
+		if plug.file == '' then
+			table.insert(init_errors, 'theme ' .. plug.name .. " has no file, set theme = '{file}'")
+		elseif not file_exists(get_file_path(plug)) then
+			table.insert(init_errors, 'theme file not found: ' .. plug.name .. '/' .. plug.file .. '.lua')
+		end
 		return
 	end
 	local name = 'plugins/' .. plug.name
@@ -669,7 +680,7 @@ vis.events.subscribe(vis.events.INIT, function()
 		show(format_sections({ { 'vis-plug problems', rows } }))
 	end
 	for _, plug in ipairs(plugins_conf) do
-		if plug.theme and file_exists(get_file_path(plug)) then
+		if plug.theme and not plug.conflict and file_exists(get_file_path(plug)) then
 			vis:command('set theme ' .. plug.name .. '/' .. plug.file)
 			return -- set first theme and return
 		end

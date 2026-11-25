@@ -63,8 +63,8 @@ local plugins = {
 	-- specify which lua file to load and a ref (commit, branch or tag) to check out
 	{ 'erf/vis-cursors', file = 'init', ref = 'main' },
 
-	-- set 'theme = true' for themes; the first theme is set on INIT
-	{ 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
+	-- set 'theme' to the theme file for themes; the first theme is set on INIT
+	{ 'samlwood/vis-gruvbox', theme = 'gruvbox' },
 }
 
 -- require and optionally install plugins on init
@@ -80,7 +80,7 @@ Each plugin table can have the following options:
 - `file` - relative path to the lua file, without `.lua` (optional, defaults to `init`)
 - `ref` - check out a specific commit, branch or tag (optional). Branches and tags are cloned shallow, a commit needs a full clone. A changed `ref` is applied on start (with [install on init](#install-on-init)), by `:plug-install` and by `:plug-update`. Plugins pinned to a commit or tag are not pulled by `:plug-update`
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
-- `theme` - set to `true` for themes; the theme is set on the `INIT` event (optional)
+- `theme` - the theme file for themes, without `.lua`; the theme is set on the `INIT` event (optional, see [Themes](#themes))
 
 ### Plugin names
 
@@ -108,17 +108,18 @@ plug.path('/Users/user/my-plugins')
 
 ### Themes
 
-Install themes using the `{ theme = true, file = 'somepath/theme-file' }` option (don't include .lua)
-
-The first theme in the config table is set on the `INIT` event.
-
-Example theme:
+Install themes by setting `theme` to the theme file, relative to the repo and without `.lua`:
 
 ```lua
 local plugins = {
-	{ 'timoha/vis-acme', theme = true, file = 'acme' },
+	{ 'timoha/vis-acme', theme = 'acme' },
+	{ 'jceb/dotfiles', theme = 'editors/.config/vis/themes/papercolor' },
 }
 ```
+
+The first theme in the config table is set on the `INIT` event. vis-plug warns on start if a theme file is not found.
+
+`theme = true, file = 'acme'` works too.
 
 ## Commands
 
