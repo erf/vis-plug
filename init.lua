@@ -84,10 +84,10 @@ local file_exists = function(path)
 	return true
 end
 
--- get plugin name from repo dir
+-- get plugin name from repo url
 -- E.g. https://github.com/erf/{vis-highlight}.git -> vis-highlight
 local get_name_from_url = function(url)
-	return url:match('^.*/([^.]+)')
+	return url:gsub('/+$', ''):gsub('%.git$', ''):match('([^/:]+)$')
 end
 
 -- get the dir from the given file
@@ -266,9 +266,8 @@ local install_plugins = function(silent)
 	local commands = {}
 	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
-			local path = get_base_path(plug.theme)
-			local clone_command = string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null',
-				sh_quote(path), sh_quote(plug.url))
+			local clone_command = string.format('git clone --quiet --recurse-submodules %s %s 2> /dev/null',
+				sh_quote(plug.url), sh_quote(plug.path))
 			table.insert(commands, clone_command)
 		end
 	end
