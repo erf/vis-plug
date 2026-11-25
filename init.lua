@@ -108,9 +108,43 @@ local format_lines = function(rows)
 	return lines
 end
 
--- format rows as aligned columns, returns a string
-local format_rows = function(rows)
-	return table.concat(format_lines(rows), '\n')
+-- format sections {title, rows} as 'Title (count)' followed by the rows; columns
+-- line up across sections, sections are separated by a blank line and empty
+-- sections are skipped
+local format_sections = function(sections)
+	local all = {}
+	for _, section in ipairs(sections) do
+		for _, row in ipairs(section[2]) do
+			table.insert(all, row)
+		end
+	end
+	local lines = format_lines(all)
+	local out, i = {}, 0
+	for _, section in ipairs(sections) do
+		local title, rows = section[1], section[2]
+		if #rows > 0 then
+			if #out > 0 then
+				table.insert(out, '')
+			end
+			table.insert(out, title .. ' (' .. #rows .. ')')
+			for _ = 1, #rows do
+				i = i + 1
+				table.insert(out, lines[i])
+			end
+		end
+	end
+	return table.concat(out, '\n')
+end
+
+-- show text in the message window, followed by a blank line to separate it
+-- from later output (single line results use vis:info instead)
+local show = function(text)
+	vis:message(text .. '\n')
+end
+
+-- e.g. '1 plugin', '2 plugins'
+local plural = function(count, word)
+	return count .. ' ' .. word .. (count == 1 and '' or 's')
 end
 
 -- get plugin name from repo url
@@ -342,7 +376,7 @@ local install_plugins = function(silent)
 		return
 	end
 
-	vis:info('Installing ' .. #clones .. ' plugin(s)..')
+	vis:info('Installing ' .. plural(#clones, 'plugin') .. '..')
 	vis:redraw()
 	-- create the plugins and themes folders, only when we have something to clone
 	os.execute('mkdir -p ' .. sh_quote(get_base_path(false)) .. ' ' .. sh_quote(get_base_path(true)))
@@ -356,9 +390,9 @@ local install_plugins = function(silent)
 	end
 	local failed = #queued - installed
 	if failed > 0 then
-		vis:info(string.format('%d plugin(s) installed, %d failed', installed, failed))
+		vis:info(string.format('Installed %s, %d failed (see :plug-list)', plural(installed, 'plugin'), failed))
 	else
-		vis:info(string.format('%d plugin(s) installed', installed))
+		vis:info('Installed ' .. plural(installed, 'plugin'))
 	end
 end
 
@@ -378,18 +412,18 @@ local plug_outdated = function()
 	for _, plug in ipairs(plugins_conf) do
 		local behind = tonumber(results[plug] or '')
 		if behind and behind > 0 then
-			table.insert(rows, { plug.name, behind .. ' commit(s) behind' })
+			table.insert(rows, { plug.name, plural(behind, 'commit') .. ' behind' })
 		end
 	end
 	if #rows == 0 then
 		vis:info('All plugins and themes are up to date')
 		return
 	end
-	vis:message(string.format('%d outdated plugin(s), :plug-update to update:\n%s', #rows, format_rows(rows)))
+	show(format_sections({ { 'Outdated', rows } }) .. '\n\nRun :plug-update to update')
 end
 
 -- shell command to checkout the ref (if any) and pull if on a branch
--- prints {hash before}:{hash after}:{branch|pinned|failed}
+-- prints {hash before}:{hash after}:{branch|pinned|failed}:{tag or short hash}
 local update_command = function(plug)
 	local git = git_cmd(plug)
 	local lines = { string.format('before=$(%s rev-parse HEAD 2>/dev/null)', git) }
@@ -400,7 +434,8 @@ local update_command = function(plug)
 		'if %s symbolic-ref -q HEAD >/dev/null; then state=branch; ' ..
 		'%s pull --quiet --recurse-submodules >/dev/null 2>&1 || state=failed; ' ..
 		'else state=pinned; fi', git, git))
-	table.insert(lines, string.format('echo "$before:$(%s rev-parse HEAD 2>/dev/null):$state"', git))
+	table.insert(lines, string.format('echo "$before:$(%s rev-parse HEAD 2>/dev/null):$state:' ..
+		'$(%s describe --tags --exact-match 2>/dev/null || %s rev-parse --short HEAD 2>/dev/null)"', git, git, git))
 	return table.concat(lines, '\n')
 end
 
@@ -411,32 +446,22 @@ local update_plugins = function()
 	local results = run_for_installed(update_command)
 	local updated, failed, pinned = {}, {}, {}
 	for _, plug in ipairs(plugins_conf) do
-		local before, after, state = (results[plug] or ''):match('^(%x*):(%x*):(%a+)$')
+		local before, after, state, version = (results[plug] or ''):match('^(%x*):(%x*):(%a+):(.*)$')
 		if state == 'failed' then
 			table.insert(failed, { plug.name, get_short_url(plug.url) })
 		elseif state and before ~= after then
 			table.insert(updated, { plug.name, before:sub(1, 7) .. ' → ' .. after:sub(1, 7) })
 		elseif state == 'pinned' then
-			table.insert(pinned, plug.name)
+			table.insert(pinned, { plug.name, version })
 		end
 	end
 
-	local pinned_text = 'Pinned (not updated): ' .. table.concat(pinned, ', ')
 	if #updated == 0 and #failed == 0 then
-		vis:info('All plugins and themes are up to date' .. (#pinned > 0 and '. ' .. pinned_text or ''))
+		local note = #pinned > 0 and ' (' .. #pinned .. ' pinned)' or ''
+		vis:info('All plugins and themes are up to date' .. note)
 		return
 	end
-	local messages = {}
-	if #updated > 0 then
-		table.insert(messages, string.format('Updated %d plugin(s):\n%s', #updated, format_rows(updated)))
-	end
-	if #failed > 0 then
-		table.insert(messages, string.format('Failed to update %d plugin(s):\n%s', #failed, format_rows(failed)))
-	end
-	if #pinned > 0 then
-		table.insert(messages, pinned_text)
-	end
-	vis:message(table.concat(messages, '\n'))
+	show(format_sections({ { 'Updated', updated }, { 'Failed', failed }, { 'Pinned, not updated', pinned } }))
 end
 
 -- require plugins (and optionally install and checkout)
@@ -460,21 +485,21 @@ local command_checkout = function(argv, force, win, selection, range)
 	local name = argv[1]
 	local ref = argv[2]
 	if name == nil or ref == nil then
-		vis:info('Missing {name} or {commit|branch|tag}')
+		vis:info('Usage: :plug-checkout {name} {commit|branch|tag}')
 		return true
 	end
 	local plug = get_plug_by_name(name)
 	if not plug then
-		vis:info('\'' .. name .. '\' not found')
+		vis:info('No plugin named ' .. name .. ' (see :plug-list)')
 		return true
 	end
-	vis:info('Checking out \'' .. ref .. '\' for ' .. plug.name .. '..')
+	vis:info('Checking out ' .. ref .. ' in ' .. plug.name .. '..')
 	vis:redraw()
 	plug.ref = ref
 	if checkout(plug) then
-		vis:info('Checked out \'' .. ref .. '\'')
+		vis:info('Checked out ' .. ref .. ' in ' .. plug.name)
 	else
-		vis:info('Could not checkout \'' .. ref .. '\' for ' .. plug.name)
+		vis:info('Could not check out ' .. ref .. ' in ' .. plug.name)
 	end
 	return true
 end
@@ -503,13 +528,13 @@ local command_upgrade = function(argv, force, win, selection, range)
 		git, dir, git, git, git))
 	local before, after = (result or ''):match('^(%x+):(%x+)$')
 	if result == 'not-a-clone' then
-		vis:info('vis-plug in ' .. vis_plug_dir .. ' is not a git clone, upgrade it manually')
+		vis:info('vis-plug is not a git clone, upgrade it manually')
 	elseif not before then
-		vis:info('Upgrade failed (git pull in ' .. vis_plug_dir .. ')')
+		vis:info('Could not upgrade vis-plug (git pull failed)')
 	elseif before == after then
 		vis:info('vis-plug is already up to date')
 	else
-		vis:info('vis-plug upgraded ' .. before .. ' → ' .. after .. ', restart vis to use it')
+		vis:info('Upgraded vis-plug ' .. before .. ' → ' .. after .. ', restart vis to use it')
 	end
 	return true
 end
@@ -548,14 +573,14 @@ local command_purge = function(argv, force, win, selection, range)
 		table.insert(rows, { dir:sub(#plugins_path + 2) })
 	end
 	if not force then
-		vis:message(string.format('%d plugin(s) in %s not in config, :plug-purge! to delete:\n%s',
-			#orphans, plugins_path, format_rows(rows)))
+		show(format_sections({ { 'Not in config', rows } }) ..
+			'\n\nRun :plug-purge! to delete them from ' .. plugins_path)
 		return true
 	end
 	for _, dir in ipairs(orphans) do
 		os.execute('rm -rf ' .. sh_quote(dir))
 	end
-	vis:message(string.format('Deleted %d plugin(s) in %s:\n%s', #orphans, plugins_path, format_rows(rows)))
+	show(format_sections({ { 'Deleted', rows } }))
 	return true
 end
 
@@ -565,32 +590,14 @@ local command_ls = function(argv, force, win, selection, range)
 		vis:info('No plugins or themes in config')
 		return true
 	end
-	local groups = { { title = 'Plugins', plugs = {} }, { title = 'Themes', plugs = {} } }
-	for _, plug in ipairs(plugins_conf) do
-		table.insert(groups[plug.theme and 2 or 1].plugs, plug)
-	end
-	-- format plugins and themes together so their columns line up
 	local versions = run_for_installed(version_command)
-	local rows = {}
-	for _, group in ipairs(groups) do
-		for _, plug in ipairs(group.plugs) do
-			local status = versions[plug] or 'not installed'
-			local file = plug.file ~= '' and '(' .. plug.file .. ')' or ''
-			table.insert(rows, { plug.name, get_short_url(plug.url), status, file })
-		end
+	local plugins, themes = {}, {}
+	for _, plug in ipairs(plugins_conf) do
+		local status = versions[plug] or 'not installed'
+		local file = plug.file ~= '' and 'file: ' .. plug.file or ''
+		table.insert(plug.theme and themes or plugins, { plug.name, get_short_url(plug.url), status, file })
 	end
-	local lines = format_lines(rows)
-	local out, i = {}, 0
-	for _, group in ipairs(groups) do
-		if #group.plugs > 0 then
-			table.insert(out, (#out > 0 and '\n' or '') .. group.title .. ' (' .. #group.plugs .. ')')
-			for _ = 1, #group.plugs do
-				i = i + 1
-				table.insert(out, lines[i])
-			end
-		end
-	end
-	vis:message(table.concat(out, '\n'))
+	show(format_sections({ { 'Plugins', plugins }, { 'Themes', themes } }))
 	return true
 end
 
@@ -604,7 +611,7 @@ local command_help = function(argv, force, win, selection, range)
 	for _, command in ipairs(command_list) do
 		table.insert(rows, { ':' .. command.name, command.desc })
 	end
-	vis:message('vis-plug commands\n' .. format_rows(rows))
+	show(format_sections({ { 'vis-plug commands', rows } }))
 	return true
 end
 
@@ -615,7 +622,7 @@ command_list = { {
 	func = command_ls
 }, {
 	name = 'plug-install',
-	desc = 'install plugins (git clone)',
+	desc = 'install missing plugins (git clone)',
 	func = command_install
 }, {
 	name = 'plug-update',
@@ -623,11 +630,11 @@ command_list = { {
 	func = command_update
 }, {
 	name = 'plug-outdated',
-	desc = 'check if plugins are up-to-date',
+	desc = 'list plugins with updates (git fetch)',
 	func = command_outdated
 }, {
 	name = 'plug-upgrade',
-	desc = 'upgrade to latest vis-plug version',
+	desc = 'upgrade vis-plug (git pull)',
 	func = command_upgrade
 }, {
 	name = 'plug-purge',
@@ -635,11 +642,11 @@ command_list = { {
 	func = command_purge
 }, {
 	name = 'plug-checkout',
-	desc = 'checkout {name} {commit|branch|tag}',
+	desc = 'check out {name} {commit|branch|tag}',
 	func = command_checkout
 }, {
 	name = 'plug-help',
-	desc = 'list vis-plug commands (these)',
+	desc = 'list vis-plug commands',
 	func = command_help
 } }
 
@@ -651,7 +658,11 @@ end
 -- set theme and report problems found on init on INIT event
 vis.events.subscribe(vis.events.INIT, function()
 	if #init_errors > 0 then
-		vis:message('vis-plug:\n' .. table.concat(init_errors, '\n'))
+		local rows = {}
+		for _, err in ipairs(init_errors) do
+			table.insert(rows, { (err:gsub('\n%s*', ' ')) }) -- one line per problem
+		end
+		show(format_sections({ { 'vis-plug problems', rows } }))
 	end
 	for _, plug in ipairs(plugins_conf) do
 		if plug.theme and file_exists(get_file_path(plug)) then
