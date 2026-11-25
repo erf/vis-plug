@@ -456,26 +456,6 @@ local command_install = function(argv, force, win, selection, range)
 	return true
 end
 
-local command_rm = function(argv, force, win, selection, range)
-	local name = argv[1]
-	if name == nil then
-		vis:info('Missing {name} (:plug-list for names)')
-		return true
-	end
-	local plug = get_plug_by_name(name)
-	if not plug then
-		vis:info('\'' .. name .. '\' not found')
-		return true
-	end
-	if file_exists(plug.path) then
-		os.execute('rm -rf ' .. sh_quote(plug.path))
-		vis:info(plug.name .. ' (' .. plug.path .. ') deleted')
-	else
-		vis:info(plug.name .. ' is not installed')
-	end
-	return true
-end
-
 local command_checkout = function(argv, force, win, selection, range)
 	local name = argv[1]
 	local ref = argv[2]
@@ -495,22 +475,6 @@ local command_checkout = function(argv, force, win, selection, range)
 		vis:info('Checked out \'' .. ref .. '\'')
 	else
 		vis:info('Could not checkout \'' .. ref .. '\' for ' .. plug.name)
-	end
-	return true
-end
-
-local command_clean = function(argv, force, win, selection, range)
-	local deleted = 0
-	for _, plug in ipairs(plugins_conf) do
-		if file_exists(plug.path) then
-			os.execute('rm -rf ' .. sh_quote(plug.path))
-			deleted = deleted + 1
-		end
-	end
-	if deleted == 0 then
-		vis:info('Nothing to delete')
-	else
-		vis:info('' .. deleted .. ' plugin(s) deleted')
 	end
 	return true
 end
@@ -665,14 +629,6 @@ command_list = { {
 	name = 'plug-upgrade',
 	desc = 'upgrade to latest vis-plug version',
 	func = command_upgrade
-}, {
-	name = 'plug-remove',
-	desc = 'delete plugin by {name} (:plug-list for names)',
-	func = command_rm
-}, {
-	name = 'plug-clean',
-	desc = 'delete all plugins from disk',
-	func = command_clean
 }, {
 	name = 'plug-purge',
 	desc = 'list plugins not in config (! to delete them)',

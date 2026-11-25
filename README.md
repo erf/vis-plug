@@ -83,7 +83,7 @@ Each plugin table can have the following options:
 
 ### Plugin names
 
-A plugin's **name** is the last part of its url, e.g. `vis-cursors` for `erf/vis-cursors`. It is the folder the plugin is cloned to (`{plugins|themes}/vis-cursors`) and what commands like `:plug-remove` and `:plug-checkout` take (the url works too). `:plug-list` shows each name next to its url.
+A plugin's **name** is the last part of its url, e.g. `vis-cursors` for `erf/vis-cursors`. It is the folder the plugin is cloned to (`{plugins|themes}/vis-cursors`) and what `:plug-checkout` takes (the url works too). `:plug-list` shows each name next to its url.
 
 Two plugins with the same name would share a folder, so vis-plug warns about it on start.
 
@@ -133,11 +133,7 @@ We support the following `vis` commands:
 
 `:plug-upgrade` - upgrade vis-plug using git pull (if vis-plug was installed with git clone)
 
-`:plug-remove {name}` - delete a plugin by name or url (`:plug-list` for names)
-
-`:plug-clean` - delete all plugins from disk
-
-`:plug-purge` - list plugins and themes not in config (`:plug-purge!` to delete them)
+`:plug-purge` - list plugins and themes not in config (`:plug-purge!` to delete them). To remove a plugin, delete it from the config and run `:plug-purge!`
 
 `:plug-checkout {name} {commit|branch|tag}` - checkout a specific version of a plugin (fetches full history if needed)
 
