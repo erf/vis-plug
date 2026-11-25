@@ -6,7 +6,7 @@ A minimal plugin-manager for [vis](https://github.com/martanne/vis)
 
 [Configure](#Configure) plugins in your `visrc` and use [Commands](#Commands) to install and more.
 
-Plugins are installed using `git` (in the background) to a cache folder and required on `init`.
+Plugins are installed using `git` (shallow clones, in the background) to a cache folder and required on `init`.
 
 Browse available plugins and themes at [vis-plugins](https://erf.github.io/vis-plugins).
 
@@ -77,7 +77,7 @@ Each plugin table can have the following options:
 
 - `url` - the git repo url (`https://github.com/` or `https://` can be omitted)
 - `file` - relative path to the lua file, without `.lua` (optional, defaults to `init`)
-- `ref` - checkout a specific commit, branch or tag (optional)
+- `ref` - checkout a specific commit, branch or tag (optional). Branches and tags are cloned shallow, a commit needs a full clone
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `theme` - set to `true` for themes; the theme is set on the `INIT` event (optional)
 
@@ -131,6 +131,6 @@ We support the following `vis` commands:
 
 `:plug-purge` - list plugins and themes not in config (`:plug-purge!` to delete them)
 
-`:plug-checkout {name} {commit|branch|tag}` - checkout a specific version of a plugin
+`:plug-checkout {name} {commit|branch|tag}` - checkout a specific version of a plugin (fetches full history if needed)
 
 `:plug-commands` - list commands (these)

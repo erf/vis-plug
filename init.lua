@@ -194,13 +194,39 @@ local git_cmd = function(plug)
 	return 'git -C ' .. sh_quote(plug.path)
 end
 
--- checkout specific commit, branch or tag
-local checkout = function(plug)
-	if plug.ref then
-		vis:info('Checking out ' .. plug.ref .. ' for ' .. plug.name)
-		os.execute(git_cmd(plug) .. ' checkout --quiet ' .. sh_quote(plug.ref))
+-- shell command to shallow clone a plugin, checking out its ref if given
+-- branches and tags are cloned shallow, commits fall back to a full clone
+local clone_command = function(plug)
+	local url, path = sh_quote(plug.url), sh_quote(plug.path)
+	local full = 'git clone --quiet --recurse-submodules'
+	local shallow = full .. ' --depth 1 --shallow-submodules'
+	if not plug.ref then
+		return string.format('%s %s %s 2>/dev/null', shallow, url, path)
 	end
-	-- If no ref is specified, do nothing and keep current state
+	local ref = sh_quote(plug.ref)
+	return string.format('%s --branch %s %s %s 2>/dev/null || ' ..
+		'{ %s %s %s 2>/dev/null && %s checkout --quiet %s 2>/dev/null; }',
+		shallow, ref, url, path, full, url, path, git_cmd(plug), ref)
+end
+
+-- shell command to checkout a specific commit, branch or tag
+-- if the ref is not found locally (e.g. shallow clone), fetch everything and retry
+local checkout_command = function(plug)
+	local git, ref = git_cmd(plug), sh_quote(plug.ref)
+	return string.format('%s checkout --quiet %s 2>/dev/null || { ' ..
+		'%s remote set-branches origin "*" 2>/dev/null; ' ..
+		'%s fetch --quiet --tags --unshallow 2>/dev/null || %s fetch --quiet --tags 2>/dev/null; ' ..
+		'%s checkout --quiet %s 2>/dev/null; }',
+		git, ref, git, git, git, git, ref)
+end
+
+-- checkout specific commit, branch or tag, return true on success
+local checkout = function(plug)
+	if not plug.ref then
+		return true
+	end
+	local _, success = execute(checkout_command(plug))
+	return success
 end
 
 local plug_require = function(plug, args)
@@ -259,34 +285,45 @@ local plug_list = function(plug, theme)
 end
 
 local install_plugins = function(silent)
-	-- create folders
-	os.execute('mkdir -p ' .. sh_quote(get_base_path(false)) .. ' ' .. sh_quote(get_base_path(true)))
-
-	-- build shell commands which run in the background and wait
-	local commands = {}
-	for i, plug in ipairs(plugins_conf) do
+	-- clone missing plugins, checkout ref of installed plugins
+	local clones, queued, checkouts = {}, {}, {}
+	for _, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
-			local clone_command = string.format('git clone --quiet --recurse-submodules %s %s 2> /dev/null',
-				sh_quote(plug.url), sh_quote(plug.path))
-			table.insert(commands, clone_command)
+			table.insert(clones, clone_command(plug))
+			table.insert(queued, plug)
+		elseif plug.ref then
+			table.insert(checkouts, checkout_command(plug))
 		end
 	end
 
-	-- execute commands and wait
-	if #commands > 0 then
-		vis:info('Installing..')
-		vis:redraw()
-		run_parallel(commands)
+	if #checkouts > 0 then
+		run_parallel(checkouts)
 	end
 
-	-- checkout git repo
-	for_each_plugin(checkout)
+	if #clones == 0 then
+		if not silent then
+			vis:info('Nothing to install')
+		end
+		return
+	end
 
-	-- print result
-	if #commands > 0 then
-		vis:info('' .. #commands .. ' plugin(s) installed')
-	elseif not silent then
-		vis:info('Nothing to install')
+	vis:info('Installing..')
+	vis:redraw()
+	-- create the plugins and themes folders, only when we have something to clone
+	os.execute('mkdir -p ' .. sh_quote(get_base_path(false)) .. ' ' .. sh_quote(get_base_path(true)))
+	run_parallel(clones)
+
+	local installed = 0
+	for _, plug in ipairs(queued) do
+		if file_exists(plug.path) then
+			installed = installed + 1
+		end
+	end
+	local failed = #queued - installed
+	if failed > 0 then
+		vis:info(string.format('%d plugin(s) installed, %d failed', installed, failed))
+	else
+		vis:info(string.format('%d plugin(s) installed', installed))
 	end
 end
 
@@ -463,9 +500,14 @@ local command_checkout = function(argv, force, win, selection, range)
 		vis:info('\'' .. name .. '\' not found')
 		return true
 	end
+	vis:info('Checking out \'' .. ref .. '\' for ' .. plug.name .. '..')
+	vis:redraw()
 	plug.ref = ref
-	checkout(plug)
-	vis:info('Checked out \'' .. ref .. '\'')
+	if checkout(plug) then
+		vis:info('Checked out \'' .. ref .. '\'')
+	else
+		vis:info('Could not checkout \'' .. ref .. '\' for ' .. plug.name)
+	end
 	return true
 end
 
