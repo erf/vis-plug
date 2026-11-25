@@ -337,8 +337,8 @@ local check_updates_parallel = function()
 			-- Fetch updates and compare local and remote hashes
 			local git = git_cmd(plug)
 			local cmd = string.format(
-				'%s fetch --quiet && ' ..
-				'echo %s":$(%s rev-parse HEAD):$(%s rev-parse "@{u}")"',
+				'%s fetch --quiet 2>/dev/null && ' ..
+				'echo %s":$(%s rev-parse HEAD 2>/dev/null):$(%s rev-parse "@{u}" 2>/dev/null)"',
 				git, sh_quote(plug.name), git, git
 			)
 			table.insert(commands, cmd)
@@ -349,10 +349,10 @@ local check_updates_parallel = function()
 	if #commands > 0 then
 		local result = run_parallel(commands)
 
-		-- Process results
+		-- Process results, plugins without upstream (detached HEAD) are skipped
 		if result and result ~= "" then
 			for line in result:gmatch("[^\n]+") do
-				local name, local_hash, remote_hash = line:match("^(.-):(.+):(.+)$")
+				local name, local_hash, remote_hash = line:match("^(.-):(%x+):(%x+)$")
 				if name and local_hash and remote_hash then
 					local plug = get_plug_by_name(name)
 					if plug then
@@ -400,56 +400,75 @@ local plug_outdated = function(plug, args)
 	vis:redraw()
 end
 
+-- shell command to checkout the ref (if any) and pull if on a branch
+-- prints {name}:{hash before}:{hash after}:{branch|pinned|failed}
+local update_command = function(plug)
+	local git = git_cmd(plug)
+	local lines = { string.format('before=$(%s rev-parse HEAD 2>/dev/null)', git) }
+	if plug.ref then
+		table.insert(lines, checkout_command(plug))
+	end
+	table.insert(lines, string.format(
+		'if %s symbolic-ref -q HEAD >/dev/null; then state=branch; ' ..
+		'%s pull --quiet --recurse-submodules >/dev/null 2>&1 || state=failed; ' ..
+		'else state=pinned; fi', git, git))
+	table.insert(lines, string.format('echo %s":$before:$(%s rev-parse HEAD 2>/dev/null):$state"',
+		sh_quote(plug.name), git))
+	return table.concat(lines, '\n')
+end
+
 local update_plugins = function()
 	vis:info('Updating plugins..')
 	vis:redraw()
 
 	local commands = {}
-	local updates = {}
+	local updated, pinned, failed = {}, {}, {}
 
-	-- Prepare pull commands to run in parallel
 	for _, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
-			-- Store plugin name and git pull output together, get last line
-			local cmd = string.format(
-				'echo %s":$(%s pull --recurse-submodules 2>&1 | tail -n1)"',
-				sh_quote(plug.name),
-				git_cmd(plug)
-			)
-			table.insert(commands, cmd)
+			table.insert(commands, update_command(plug))
 		end
 	end
 
-	-- Execute pulls in parallel and capture results
+	-- Execute updates in parallel and compare hashes before and after
 	if #commands > 0 then
 		local result = run_parallel(commands)
-
-		-- Process results
-		if result and result ~= "" then
-			for line in result:gmatch("[^\n]+") do
-				local name, output = line:match("^(.-):(.*)")
-				if name and output and not output:match("Already up to date") then
-					local plug = get_plug_by_name(name)
-					if plug then
-						table.insert(updates, plug)
-						checkout(plug)
-					end
+		for line in (result or ''):gmatch("[^\n]+") do
+			local name, before, after, state = line:match("^(.-):(%x*):(%x*):(%a+)$")
+			local plug = get_plug_by_name(name)
+			if plug then
+				local short_url = get_short_url(plug.url)
+				local entry = plug.name .. ' (' .. short_url .. ')'
+				if state == 'failed' then
+					table.insert(failed, entry)
+				elseif before ~= after then
+					table.insert(updated, entry)
+				elseif state == 'pinned' then
+					table.insert(pinned, plug.name)
 				end
 			end
 		end
 	end
 
-	-- Show results
-	if #updates > 0 then
-		local update_messages = { string.format('Updated %d plugin(s):', #updates) }
-		for _, plug in ipairs(updates) do
-			local short_url = get_short_url(plug.url)
-			table.insert(update_messages, plug.name .. ' (' .. short_url .. ')')
-		end
-		vis:message(table.concat(update_messages, '\n'))
+	-- Show results, sorted as parallel jobs finish in any order
+	table.sort(updated)
+	table.sort(failed)
+	table.sort(pinned)
+	local messages = {}
+	if #updated > 0 then
+		table.insert(messages, string.format('Updated %d plugin(s):', #updated))
+		table.insert(messages, table.concat(updated, '\n'))
 	else
-		vis:message('All plugins and themes are up to date')
+		table.insert(messages, 'All plugins and themes are up to date')
 	end
+	if #failed > 0 then
+		table.insert(messages, string.format('Failed to update %d plugin(s):', #failed))
+		table.insert(messages, table.concat(failed, '\n'))
+	end
+	if #pinned > 0 then
+		table.insert(messages, 'Pinned (not updated): ' .. table.concat(pinned, ', '))
+	end
+	vis:message(table.concat(messages, '\n'))
 end
 
 -- require plugins (and optionally install and checkout)

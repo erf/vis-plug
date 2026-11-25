@@ -77,7 +77,7 @@ Each plugin table can have the following options:
 
 - `url` - the git repo url (`https://github.com/` or `https://` can be omitted)
 - `file` - relative path to the lua file, without `.lua` (optional, defaults to `init`)
-- `ref` - checkout a specific commit, branch or tag (optional). Branches and tags are cloned shallow, a commit needs a full clone
+- `ref` - checkout a specific commit, branch or tag (optional). Branches and tags are cloned shallow, a commit needs a full clone. `:plug-update` does not pull plugins pinned to a commit or tag
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `theme` - set to `true` for themes; the theme is set on the `INIT` event (optional)
 
