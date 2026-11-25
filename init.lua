@@ -39,6 +39,11 @@ end
 -- set default install path for plugins
 M.path(get_plugins_path())
 
+-- quote a string for safe use as a single shell argument
+local sh_quote = function(str)
+	return "'" .. str:gsub("'", "'\\''") .. "'"
+end
+
 -- execute a command and return result string
 local execute = function(command)
 	local file = io.popen(command)
@@ -49,6 +54,16 @@ local execute = function(command)
 	result = result:gsub('(.-)%s*$', '%1') -- strip trailing spaces
 	local success, message, code = file:close()
 	return result, success, message, code
+end
+
+-- run shell commands in parallel, wait for all to finish and return the output
+local run_parallel = function(commands)
+	local jobs = {}
+	for _, command in ipairs(commands) do
+		table.insert(jobs, '(\n' .. command .. '\n) &')
+	end
+	table.insert(jobs, 'wait')
+	return execute(table.concat(jobs, '\n'))
 end
 
 -- check if file exists
@@ -167,11 +182,15 @@ local plug_init = function(plug, args)
 	plug.path = get_base_path(plug.theme) .. '/' .. plug.name
 end
 
+local git_cmd = function(plug)
+	return 'git -C ' .. sh_quote(plug.path)
+end
+
 -- checkout specific commit, branch or tag
 local checkout = function(plug)
 	if plug.ref then
 		vis:info('Checking out ' .. plug.ref .. ' for ' .. plug.name)
-		os.execute('git -C ' .. plug.path .. ' checkout --quiet ' .. plug.ref)
+		os.execute(git_cmd(plug) .. ' checkout --quiet ' .. sh_quote(plug.ref))
 	end
 	-- If no ref is specified, do nothing and keep current state
 end
@@ -227,24 +246,17 @@ local plug_list = function(plug, theme)
 	vis:redraw()
 end
 
--- run a set of bash commands given a table
-local execute_commands_in_background = function(commands)
-	table.insert(commands, 'wait')
-	os.execute(string.format('sh -c \'(\n%s\n)\'', table.concat(commands, '\n')))
-end
-
 local install_plugins = function(silent)
 	-- create folders
-	os.execute('mkdir -p ' .. plugins_path .. '/plugins')
-	os.execute('mkdir -p ' .. plugins_path .. '/themes')
+	os.execute('mkdir -p ' .. sh_quote(get_base_path(false)) .. ' ' .. sh_quote(get_base_path(true)))
 
 	-- build shell commands which run in the background and wait
 	local commands = {}
 	for i, plug in ipairs(plugins_conf) do
 		if not file_exists(plug.path) then
 			local path = get_base_path(plug.theme)
-			local clone_command = string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null &', path,
-				plug.url)
+			local clone_command = string.format('git -C %s clone %s --recurse-submodules --quiet 2> /dev/null',
+				sh_quote(path), sh_quote(plug.url))
 			table.insert(commands, clone_command)
 		end
 	end
@@ -253,7 +265,7 @@ local install_plugins = function(silent)
 	if #commands > 0 then
 		vis:info('Installing..')
 		vis:redraw()
-		execute_commands_in_background(commands)
+		run_parallel(commands)
 	end
 
 	-- checkout git repo
@@ -261,7 +273,7 @@ local install_plugins = function(silent)
 
 	-- print result
 	if #commands > 0 then
-		vis:info('' .. #commands - 1 .. ' plugin(s) installed')
+		vis:info('' .. #commands .. ' plugin(s) installed')
 	elseif not silent then
 		vis:info('Nothing to install')
 	end
@@ -275,10 +287,11 @@ local check_updates_parallel = function()
 	for _, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
 			-- Fetch updates and compare local and remote hashes
+			local git = git_cmd(plug)
 			local cmd = string.format(
-				'git -C %s fetch --quiet && ' ..
-				'echo "%s:$(git -C %s rev-parse HEAD):$(git -C %s rev-parse @{u})" &',
-				plug.path, plug.name, plug.path, plug.path
+				'%s fetch --quiet && ' ..
+				'echo %s":$(%s rev-parse HEAD):$(%s rev-parse "@{u}")"',
+				git, sh_quote(plug.name), git, git
 			)
 			table.insert(commands, cmd)
 		end
@@ -286,7 +299,7 @@ local check_updates_parallel = function()
 
 	-- Run all check commands in parallel
 	if #commands > 0 then
-		local result = execute(string.format('sh -c \'(\n%s\nwait)\n\'', table.concat(commands, '\n')))
+		local result = run_parallel(commands)
 
 		-- Process results
 		if result and result ~= "" then
@@ -351,9 +364,9 @@ local update_plugins = function()
 		if file_exists(plug.path) then
 			-- Store plugin name and git pull output together, get last line
 			local cmd = string.format(
-				'echo "%s:$(git -C %s pull --recurse-submodules 2>&1 | tail -n1)" &',
-				plug.name,
-				plug.path
+				'echo %s":$(%s pull --recurse-submodules 2>&1 | tail -n1)"',
+				sh_quote(plug.name),
+				git_cmd(plug)
 			)
 			table.insert(commands, cmd)
 		end
@@ -361,7 +374,7 @@ local update_plugins = function()
 
 	-- Execute pulls in parallel and capture results
 	if #commands > 0 then
-		local result = execute(string.format('sh -c \'(\n%s\nwait)\n\'', table.concat(commands, '\n')))
+		local result = run_parallel(commands)
 
 		-- Process results
 		if result and result ~= "" then
@@ -415,7 +428,7 @@ local command_rm = function(argv, force, win, selection, range)
 		return true
 	end
 	if file_exists(plug.path) then
-		os.execute('rm -rf ' .. plug.path)
+		os.execute('rm -rf ' .. sh_quote(plug.path))
 		vis:info(plug.name .. ' (' .. plug.path .. ') deleted')
 	else
 		vis:info(plug.name .. ' is not installed')
@@ -445,7 +458,7 @@ local command_clean = function(argv, force, win, selection, range)
 	local deleted = 0
 	for _, plug in ipairs(plugins_conf) do
 		if file_exists(plug.path) then
-			os.execute('rm -rf ' .. plug.path)
+			os.execute('rm -rf ' .. sh_quote(plug.path))
 			deleted = deleted + 1
 		end
 	end
@@ -484,7 +497,7 @@ local command_upgrade = function(argv, force, win, selection, range)
 	end
 
 	local plug_dir = get_dir_from_file(plug_path)
-	local upgrade_command = string.format('git -C %s pull --quiet 2> /dev/null', plug_dir)
+	local upgrade_command = string.format('git -C %s pull --quiet 2> /dev/null', sh_quote(plug_dir))
 	local result, success, message, code = execute(upgrade_command)
 	if success then
 		vis:info('vis-plug is up-to-date - restart for latest')
@@ -504,8 +517,8 @@ local get_orphans = function()
 	if vis_plug_path ~= nil then
 		keep[get_dir_from_file(vis_plug_path)] = true
 	end
-	local find_command = string.format('find "%s" "%s" -mindepth 1 -maxdepth 1 -type d 2> /dev/null',
-		get_base_path(false), get_base_path(true))
+	local find_command = string.format('find %s %s -mindepth 1 -maxdepth 1 -type d 2> /dev/null',
+		sh_quote(get_base_path(false)), sh_quote(get_base_path(true)))
 	local orphans = {}
 	for dir in (execute(find_command) or ''):gmatch('[^\n]+') do
 		if not keep[dir] and file_exists(dir .. '/.git') then
@@ -529,7 +542,7 @@ local command_purge = function(argv, force, win, selection, range)
 		return true
 	end
 	for _, dir in ipairs(orphans) do
-		os.execute(string.format('rm -rf "%s"', dir))
+		os.execute('rm -rf ' .. sh_quote(dir))
 	end
 	vis:message('Deleted ' .. #orphans .. ' plugin(s):\n' .. table.concat(orphans, '\n'))
 	return true
