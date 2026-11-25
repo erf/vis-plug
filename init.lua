@@ -599,7 +599,7 @@ local command_outdated = function(argv, force, win, selection, range)
 	return true
 end
 
-local command_list_commands = function(argv, force, win, selection, range)
+local command_help = function(argv, force, win, selection, range)
 	local rows = {}
 	for _, command in ipairs(command_list) do
 		table.insert(rows, { ':' .. command.name, command.desc })
@@ -638,9 +638,9 @@ command_list = { {
 	desc = 'checkout {name} {commit|branch|tag}',
 	func = command_checkout
 }, {
-	name = 'plug-commands',
-	desc = 'list commands (these)',
-	func = command_list_commands
+	name = 'plug-help',
+	desc = 'list vis-plug commands (these)',
+	func = command_help
 } }
 
 -- initialize commands

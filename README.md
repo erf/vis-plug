@@ -137,4 +137,4 @@ We support the following `vis` commands:
 
 `:plug-checkout {name} {commit|branch|tag}` - checkout a specific version of a plugin (fetches full history if needed)
 
-`:plug-commands` - list commands (these)
+`:plug-help` - list vis-plug commands (these)
