@@ -131,7 +131,7 @@ We support the following `vis` commands:
 
 `:plug-outdated` - check if plugins are up-to-date
 
-`:plug-upgrade` - upgrade to latest vis-plug using git pull
+`:plug-upgrade` - upgrade vis-plug using git pull (if vis-plug was installed with git clone)
 
 `:plug-remove {name}` - delete a plugin by name or url (`:plug-list` for names)
 

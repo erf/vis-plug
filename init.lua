@@ -15,6 +15,9 @@ local command_list = {}
 -- problems found on init (load errors, name conflicts), reported on INIT
 local init_errors = {}
 
+-- the dir this file was loaded from, used by plug-upgrade and plug-purge
+local vis_plug_dir = debug.getinfo(1, 'S').source:match('^@(.*)/[^/]*$')
+
 -- add a searcher to find plugins by filename, not module path
 table.insert(package.searchers, function(name)
 	local file, err = package.searchpath(name, package.path, '', '') -- don't replace . with /
@@ -114,11 +117,6 @@ end
 -- E.g. https://github.com/erf/{vis-highlight}.git -> vis-highlight
 local get_name_from_url = function(url)
 	return url:gsub('/+$', ''):gsub('%.git$', ''):match('([^/:]+)$')
-end
-
--- get the dir from the given file
-local get_dir_from_file = function(file)
-	return file:match('(.+)%/.+$')
 end
 
 -- separate folders in $VIS_PLUG_HOME/{plugins|themes}
@@ -558,34 +556,32 @@ local command_update = function(argv, force, win, selection, range)
 	return true
 end
 
--- look for vis-plug path in package.path because it is NOT necessarily in the
--- `plugins_path` but could rather have been required from some other path E.g.
--- the `visrc` config path
-local look_for_vis_plug_path = function()
-	local plug_path = package.searchpath('plugins/vis-plug', package.path)
-	if plug_path ~= nil then
-		return plug_path
-	end
-	return package.searchpath('vis-plug', package.path)
-end
-
--- upgrade vis-plug by doing a git pull
+-- upgrade vis-plug with git pull, only if its dir is the root of its own git clone
+-- (not e.g. copied into a dotfiles repo, where git would pull the dotfiles repo)
 local command_upgrade = function(argv, force, win, selection, range)
-	vis:info('Upgrading vis-plug..')
-	vis:redraw()
-	local plug_path = look_for_vis_plug_path()
-	if plug_path == nil then
-		vis:info('Could not find vis-plug path')
+	if not vis_plug_dir then
+		vis:info('Could not find the vis-plug folder')
 		return true
 	end
-
-	local plug_dir = get_dir_from_file(plug_path)
-	local upgrade_command = string.format('git -C %s pull --quiet 2> /dev/null', sh_quote(plug_dir))
-	local result, success, message, code = execute(upgrade_command)
-	if success then
-		vis:info('vis-plug is up-to-date - restart for latest')
+	vis:info('Upgrading vis-plug..')
+	vis:redraw()
+	local dir = sh_quote(vis_plug_dir)
+	local git = 'git -C ' .. dir
+	local result = execute(string.format(
+		'[ "$(%s rev-parse --show-toplevel 2>/dev/null)" = "$(cd %s && pwd -P)" ] || { echo not-a-clone; exit; }\n' ..
+		'before=$(%s rev-parse --short HEAD)\n' ..
+		'%s pull --quiet --ff-only >/dev/null 2>&1 || { echo failed; exit; }\n' ..
+		'echo "$before:$(%s rev-parse --short HEAD)"',
+		git, dir, git, git, git))
+	local before, after = (result or ''):match('^(%x+):(%x+)$')
+	if result == 'not-a-clone' then
+		vis:info('vis-plug in ' .. vis_plug_dir .. ' is not a git clone, upgrade it manually')
+	elseif not before then
+		vis:info('Upgrade failed (git pull in ' .. vis_plug_dir .. ')')
+	elseif before == after then
+		vis:info('vis-plug is already up to date')
 	else
-		vis:info('Upgrade failed with code: ' .. tostring(code))
+		vis:info('vis-plug upgraded ' .. before .. ' → ' .. after .. ', restart vis to use it')
 	end
 	return true
 end
@@ -596,9 +592,8 @@ local get_orphans = function()
 	for _, plug in ipairs(plugins_conf) do
 		keep[plug.path] = true
 	end
-	local vis_plug_path = look_for_vis_plug_path()
-	if vis_plug_path ~= nil then
-		keep[get_dir_from_file(vis_plug_path)] = true
+	if vis_plug_dir then
+		keep[vis_plug_dir] = true
 	end
 	local find_command = string.format('find %s %s -mindepth 1 -maxdepth 1 -type d 2> /dev/null',
 		sh_quote(get_base_path(false)), sh_quote(get_base_path(true)))
