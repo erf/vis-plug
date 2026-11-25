@@ -12,14 +12,20 @@ local plugins_path = nil
 -- we store commands in a list of tables {name, func, desc}
 local command_list = {}
 
+-- errors from requiring plugins, reported on INIT
+local load_errors = {}
+
 -- add a searcher to find plugins by filename, not module path
 table.insert(package.searchers, function(name)
 	local file, err = package.searchpath(name, package.path, '', '') -- don't replace . with /
-	if file then
-		return loadfile(file), file
-	else
-		return nil, err
+	if not file then
+		return err
 	end
+	local loader, load_err = loadfile(file)
+	if not loader then
+		return load_err
+	end
+	return loader, file
 end)
 
 -- set custom path and add it first to package.path for require
@@ -31,9 +37,11 @@ end
 -- e.g. /Users/some-user/.cache/vis-plug
 local get_plugins_path = function()
 	local VIS_PLUG_HOME = os.getenv('VIS_PLUG_HOME')
-	local XDG_CACHE_HOME = os.getenv('XDG_CACHE_HOME')
-	local HOME_CACHE = os.getenv('HOME') .. '/.cache'
-	return VIS_PLUG_HOME or (XDG_CACHE_HOME or HOME_CACHE) .. '/vis-plug'
+	if VIS_PLUG_HOME then
+		return VIS_PLUG_HOME
+	end
+	local cache = os.getenv('XDG_CACHE_HOME') or (os.getenv('HOME') .. '/.cache')
+	return cache .. '/vis-plug'
 end
 
 -- set default install path for plugins
@@ -117,7 +125,7 @@ local is_host_url = function(url)
 	return url:find('^.+://') ~= nil
 end
 
--- return true if has the protocol part of the url
+-- return true if has a host but no protocol
 -- '{github.com/}erf/vis-cursors.git'
 local is_no_host_url = function(url)
 	return url:find('^%w+%.%w+[^/]') ~= nil
@@ -206,7 +214,11 @@ local plug_require = function(plug, args)
 	if plug.file ~= '' then
 		name = name .. '/' .. plug.file
 	end
-	local plugin = require(name)
+	local ok, plugin = pcall(require, name)
+	if not ok then
+		table.insert(load_errors, plug.name .. ': ' .. tostring(plugin))
+		return
+	end
 	if plug.alias then
 		M.plugins[plug.alias] = plugin
 	end
@@ -422,6 +434,10 @@ end
 
 local command_rm = function(argv, force, win, selection, range)
 	local name = argv[1]
+	if name == nil then
+		vis:info('Missing {name} (:plug-list for names)')
+		return true
+	end
 	local plug = get_plug_by_name(name)
 	if not plug then
 		vis:info('\'' .. name .. '\' not found')
@@ -465,7 +481,7 @@ local command_clean = function(argv, force, win, selection, range)
 	if deleted == 0 then
 		vis:info('Nothing to delete')
 	else
-		vis:info('' .. deleted .. ' packages deleted')
+		vis:info('' .. deleted .. ' plugin(s) deleted')
 	end
 	return true
 end
@@ -493,7 +509,7 @@ local command_upgrade = function(argv, force, win, selection, range)
 	local plug_path = look_for_vis_plug_path()
 	if plug_path == nil then
 		vis:info('Could not find vis-plug path')
-		return
+		return true
 	end
 
 	local plug_dir = get_dir_from_file(plug_path)
@@ -627,8 +643,11 @@ for _, command in ipairs(command_list) do
 	vis:command_register(command.name, command.func, command.desc)
 end
 
--- set theme on INIT event
+-- set theme and report plugin load errors on INIT event
 vis.events.subscribe(vis.events.INIT, function()
+	if #load_errors > 0 then
+		vis:message('vis-plug: failed to load plugin(s):\n' .. table.concat(load_errors, '\n'))
+	end
 	for _, plug in ipairs(plugins_conf) do
 		if plug.theme and file_exists(get_file_path(plug)) then
 			vis:command('set theme ' .. plug.name .. '/' .. plug.file)
