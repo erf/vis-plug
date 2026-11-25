@@ -253,6 +253,37 @@ local checkout = function(plug)
 	return success
 end
 
+-- run a shell command (made by make_command) for each installed plugin in
+-- parallel, return a table of {plug = output}; commands should print one line
+local run_for_installed = function(make_command)
+	local commands = {}
+	for i, plug in ipairs(plugins_conf) do
+		if file_exists(plug.path) then
+			table.insert(commands, string.format('out=$(\n%s\n)\necho %d":$out"', make_command(plug), i))
+		end
+	end
+	local results = {}
+	if #commands == 0 then
+		return results
+	end
+	for line in (run_parallel(commands) or ''):gmatch('[^\n]+') do
+		local i, out = line:match('^(%d+):(.*)$')
+		local plug = plugins_conf[tonumber(i or '')]
+		if plug then
+			results[plug] = out
+		end
+	end
+	return results
+end
+
+-- describe the checked out version: the branch, or the tag or commit when pinned
+local version_command = function(plug)
+	local git = git_cmd(plug)
+	return string.format('if %s symbolic-ref -q HEAD >/dev/null; then %s symbolic-ref --short HEAD; ' ..
+		'else echo "$(%s describe --tags --exact-match 2>/dev/null || %s rev-parse --short HEAD) (pinned)"; fi',
+		git, git, git, git)
+end
+
 local plug_require = function(plug, args)
 	if not file_exists(plug.path) then
 		return
@@ -311,7 +342,7 @@ local install_plugins = function(silent)
 		return
 	end
 
-	vis:info('Installing..')
+	vis:info('Installing ' .. #clones .. ' plugin(s)..')
 	vis:redraw()
 	-- create the plugins and themes folders, only when we have something to clone
 	os.execute('mkdir -p ' .. sh_quote(get_base_path(false)) .. ' ' .. sh_quote(get_base_path(true)))
@@ -331,81 +362,34 @@ local install_plugins = function(silent)
 	end
 end
 
-local check_updates_parallel = function()
-	local commands = {}
-	local plugin_status = {}
-
-	-- Build commands to check updates for all plugins in parallel
-	for _, plug in ipairs(plugins_conf) do
-		if file_exists(plug.path) then
-			-- Fetch updates and compare local and remote hashes
-			local git = git_cmd(plug)
-			local cmd = string.format(
-				'%s fetch --quiet 2>/dev/null && ' ..
-				'echo %s":$(%s rev-parse HEAD 2>/dev/null):$(%s rev-parse "@{u}" 2>/dev/null)"',
-				git, sh_quote(plug.name), git, git
-			)
-			table.insert(commands, cmd)
-		end
-	end
-
-	-- Run all check commands in parallel
-	if #commands > 0 then
-		local result = run_parallel(commands)
-
-		-- Process results, plugins without upstream (detached HEAD) are skipped
-		if result and result ~= "" then
-			for line in result:gmatch("[^\n]+") do
-				local name, local_hash, remote_hash = line:match("^(.-):(%x+):(%x+)$")
-				if name and local_hash and remote_hash then
-					local plug = get_plug_by_name(name)
-					if plug then
-						local short_url = get_short_url(plug.url)
-						local status = {
-							plugin = plug,
-							needs_update = local_hash ~= remote_hash,
-							message = plug.name .. ' (' .. short_url .. ') '
-						}
-						table.insert(plugin_status, status)
-					end
-				end
-			end
-		end
-	end
-
-	return plugin_status
+-- fetch and print how many commits the branch is behind its upstream
+-- (prints nothing for pinned plugins, which have no upstream)
+local outdated_command = function(plug)
+	local git = git_cmd(plug)
+	return string.format('%s fetch --quiet 2>/dev/null && %s rev-list --count "HEAD..@{u}" 2>/dev/null',
+		git, git)
 end
 
-local plug_outdated = function(plug, args)
+local plug_outdated = function()
 	vis:info('Checking for outdated plugins..')
 	vis:redraw()
-	local status = check_updates_parallel()
-	local outdated = {}
-
-	-- Collect only outdated plugins
-	for _, stat in ipairs(status) do
-		if stat.needs_update then
-			table.insert(outdated, stat.message)
+	local results = run_for_installed(outdated_command)
+	local rows = {}
+	for _, plug in ipairs(plugins_conf) do
+		local behind = tonumber(results[plug] or '')
+		if behind and behind > 0 then
+			table.insert(rows, { plug.name, behind .. ' commit(s) behind' })
 		end
 	end
-
-	-- Show message based on whether there are outdated plugins
-	if #outdated > 0 then
-		local messages = {
-			string.format('Found %d outdated plugin(s):', #outdated)
-		}
-		for _, msg in ipairs(outdated) do
-			table.insert(messages, msg)
-		end
-		vis:message(table.concat(messages, '\n'))
-	else
-		vis:message('All plugins and themes are up to date')
+	if #rows == 0 then
+		vis:info('All plugins and themes are up to date')
+		return
 	end
-	vis:redraw()
+	vis:message(string.format('%d outdated plugin(s), :plug-update to update:\n%s', #rows, format_rows(rows)))
 end
 
 -- shell command to checkout the ref (if any) and pull if on a branch
--- prints {name}:{hash before}:{hash after}:{branch|pinned|failed}
+-- prints {hash before}:{hash after}:{branch|pinned|failed}
 local update_command = function(plug)
 	local git = git_cmd(plug)
 	local lines = { string.format('before=$(%s rev-parse HEAD 2>/dev/null)', git) }
@@ -416,8 +400,7 @@ local update_command = function(plug)
 		'if %s symbolic-ref -q HEAD >/dev/null; then state=branch; ' ..
 		'%s pull --quiet --recurse-submodules >/dev/null 2>&1 || state=failed; ' ..
 		'else state=pinned; fi', git, git))
-	table.insert(lines, string.format('echo %s":$before:$(%s rev-parse HEAD 2>/dev/null):$state"',
-		sh_quote(plug.name), git))
+	table.insert(lines, string.format('echo "$before:$(%s rev-parse HEAD 2>/dev/null):$state"', git))
 	return table.concat(lines, '\n')
 end
 
@@ -425,52 +408,33 @@ local update_plugins = function()
 	vis:info('Updating plugins..')
 	vis:redraw()
 
-	local commands = {}
-	local updated, pinned, failed = {}, {}, {}
-
+	local results = run_for_installed(update_command)
+	local updated, failed, pinned = {}, {}, {}
 	for _, plug in ipairs(plugins_conf) do
-		if file_exists(plug.path) then
-			table.insert(commands, update_command(plug))
+		local before, after, state = (results[plug] or ''):match('^(%x*):(%x*):(%a+)$')
+		if state == 'failed' then
+			table.insert(failed, { plug.name, get_short_url(plug.url) })
+		elseif state and before ~= after then
+			table.insert(updated, { plug.name, before:sub(1, 7) .. ' → ' .. after:sub(1, 7) })
+		elseif state == 'pinned' then
+			table.insert(pinned, plug.name)
 		end
 	end
 
-	-- Execute updates in parallel and compare hashes before and after
-	if #commands > 0 then
-		local result = run_parallel(commands)
-		for line in (result or ''):gmatch("[^\n]+") do
-			local name, before, after, state = line:match("^(.-):(%x*):(%x*):(%a+)$")
-			local plug = get_plug_by_name(name)
-			if plug then
-				local short_url = get_short_url(plug.url)
-				local entry = plug.name .. ' (' .. short_url .. ')'
-				if state == 'failed' then
-					table.insert(failed, entry)
-				elseif before ~= after then
-					table.insert(updated, entry)
-				elseif state == 'pinned' then
-					table.insert(pinned, plug.name)
-				end
-			end
-		end
+	local pinned_text = 'Pinned (not updated): ' .. table.concat(pinned, ', ')
+	if #updated == 0 and #failed == 0 then
+		vis:info('All plugins and themes are up to date' .. (#pinned > 0 and '. ' .. pinned_text or ''))
+		return
 	end
-
-	-- Show results, sorted as parallel jobs finish in any order
-	table.sort(updated)
-	table.sort(failed)
-	table.sort(pinned)
 	local messages = {}
 	if #updated > 0 then
-		table.insert(messages, string.format('Updated %d plugin(s):', #updated))
-		table.insert(messages, table.concat(updated, '\n'))
-	else
-		table.insert(messages, 'All plugins and themes are up to date')
+		table.insert(messages, string.format('Updated %d plugin(s):\n%s', #updated, format_rows(updated)))
 	end
 	if #failed > 0 then
-		table.insert(messages, string.format('Failed to update %d plugin(s):', #failed))
-		table.insert(messages, table.concat(failed, '\n'))
+		table.insert(messages, string.format('Failed to update %d plugin(s):\n%s', #failed, format_rows(failed)))
 	end
 	if #pinned > 0 then
-		table.insert(messages, 'Pinned (not updated): ' .. table.concat(pinned, ', '))
+		table.insert(messages, pinned_text)
 	end
 	vis:message(table.concat(messages, '\n'))
 end
@@ -614,19 +578,24 @@ local command_purge = function(argv, force, win, selection, range)
 		vis:info('Nothing to purge')
 		return true
 	end
+	-- show folders relative to the install path, e.g. plugins/vis-foo
+	local rows = {}
+	for _, dir in ipairs(orphans) do
+		table.insert(rows, { dir:sub(#plugins_path + 2) })
+	end
 	if not force then
-		vis:message('Found ' .. #orphans .. ' plugin(s) not in config (:plug-purge! to delete):\n'
-			.. table.concat(orphans, '\n'))
+		vis:message(string.format('%d plugin(s) in %s not in config, :plug-purge! to delete:\n%s',
+			#orphans, plugins_path, format_rows(rows)))
 		return true
 	end
 	for _, dir in ipairs(orphans) do
 		os.execute('rm -rf ' .. sh_quote(dir))
 	end
-	vis:message('Deleted ' .. #orphans .. ' plugin(s):\n' .. table.concat(orphans, '\n'))
+	vis:message(string.format('Deleted %d plugin(s) in %s:\n%s', #orphans, plugins_path, format_rows(rows)))
 	return true
 end
 
--- list plugins and themes as: name, source, status, (file)
+-- list plugins and themes as: name, source, version or status, (file)
 local command_ls = function(argv, force, win, selection, range)
 	if #plugins_conf == 0 then
 		vis:info('No plugins or themes in config')
@@ -637,10 +606,11 @@ local command_ls = function(argv, force, win, selection, range)
 		table.insert(groups[plug.theme and 2 or 1].plugs, plug)
 	end
 	-- format plugins and themes together so their columns line up
+	local versions = run_for_installed(version_command)
 	local rows = {}
 	for _, group in ipairs(groups) do
 		for _, plug in ipairs(group.plugs) do
-			local status = file_exists(plug.path) and '' or 'not installed'
+			local status = versions[plug] or 'not installed'
 			local file = plug.file ~= '' and '(' .. plug.file .. ')' or ''
 			table.insert(rows, { plug.name, get_short_url(plug.url), status, file })
 		end
@@ -666,13 +636,11 @@ local command_outdated = function(argv, force, win, selection, range)
 end
 
 local command_list_commands = function(argv, force, win, selection, range)
-	local arr = {}
-	table.insert(arr, 'vis-plug commands')
+	local rows = {}
 	for _, command in ipairs(command_list) do
-		table.insert(arr, ':' .. command.name .. ' - ' .. command.desc)
+		table.insert(rows, { ':' .. command.name, command.desc })
 	end
-	local str = table.concat(arr, '\n')
-	vis:message(str)
+	vis:message('vis-plug commands\n' .. format_rows(rows))
 	return true
 end
 
