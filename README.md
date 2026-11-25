@@ -81,6 +81,14 @@ Each plugin table can have the following options:
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `theme` - set to `true` for themes; the theme is set on the `INIT` event (optional)
 
+### Plugin names
+
+A plugin's **name** is the last part of its url, e.g. `vis-cursors` for `erf/vis-cursors`. It is the folder the plugin is cloned to (`{plugins|themes}/vis-cursors`) and what commands like `:plug-remove` and `:plug-checkout` take (the url works too). `:plug-list` shows each name next to its url.
+
+Two plugins with the same name would share a folder, so vis-plug warns about it on start.
+
+An `alias` is only used to access the plugin from Lua, see above.
+
 ### Install on init
 
 Pass _true_ as second argument to `plug.init` (as in the example above) to install missing plugins on init.
@@ -125,7 +133,7 @@ We support the following `vis` commands:
 
 `:plug-upgrade` - upgrade to latest vis-plug using git pull
 
-`:plug-remove {name}` - delete a plugin (`:plug-list` for names)
+`:plug-remove {name}` - delete a plugin by name or url (`:plug-list` for names)
 
 `:plug-clean` - delete all plugins from disk
 

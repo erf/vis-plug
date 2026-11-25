@@ -12,8 +12,8 @@ local plugins_path = nil
 -- we store commands in a list of tables {name, func, desc}
 local command_list = {}
 
--- errors from requiring plugins, reported on INIT
-local load_errors = {}
+-- problems found on init (load errors, name conflicts), reported on INIT
+local init_errors = {}
 
 -- add a searcher to find plugins by filename, not module path
 table.insert(package.searchers, function(name)
@@ -82,6 +82,32 @@ local file_exists = function(path)
 	end
 	file:close()
 	return true
+end
+
+-- format rows (lists of strings) as aligned columns, indented by two spaces
+-- returns a list of lines
+local format_lines = function(rows)
+	local widths = {}
+	for _, row in ipairs(rows) do
+		for i, cell in ipairs(row) do
+			widths[i] = math.max(widths[i] or 0, #cell)
+		end
+	end
+	local lines = {}
+	for _, row in ipairs(rows) do
+		local cells = {}
+		for i, cell in ipairs(row) do
+			cells[i] = cell .. string.rep(' ', widths[i] - #cell)
+		end
+		local line = '  ' .. table.concat(cells, '  ')
+		table.insert(lines, (line:gsub('%s+$', '')))
+	end
+	return lines
+end
+
+-- format rows as aligned columns, returns a string
+local format_rows = function(rows)
+	return table.concat(format_lines(rows), '\n')
 end
 
 -- get plugin name from repo url
@@ -163,13 +189,13 @@ local get_full_url = function(url)
 	end
 end
 
--- find the plug in conf by name, used by plug-rm
+-- find the plug in conf by name (e.g. vis-cursors) or url (e.g. erf/vis-cursors)
 local get_plug_by_name = function(name)
 	if name == nil then
 		return nil
 	end
 	for _, plug in ipairs(plugins_conf) do
-		if plug.name == name then
+		if plug.name == name or get_short_url(plug.url) == name or plug.url == name then
 			return plug
 		end
 	end
@@ -242,7 +268,7 @@ local plug_require = function(plug, args)
 	end
 	local ok, plugin = pcall(require, name)
 	if not ok then
-		table.insert(load_errors, plug.name .. ': ' .. tostring(plugin))
+		table.insert(init_errors, 'failed to load ' .. plug.name .. ': ' .. tostring(plugin))
 		return
 	end
 	if plug.alias then
@@ -250,38 +276,18 @@ local plug_require = function(plug, args)
 	end
 end
 
-local count_themes = function()
-	local themes = 0
+-- warn about plugins with the same name, as they would share a folder
+local check_name_conflicts = function()
+	local seen = {}
 	for _, plug in ipairs(plugins_conf) do
-		if plug.theme then
-			themes = themes + 1
+		local other = seen[plug.path]
+		if other then
+			table.insert(init_errors, string.format('%s and %s have the same name (%s), remove one',
+				get_short_url(other.url), get_short_url(plug.url), plug.name))
+		else
+			seen[plug.path] = plug
 		end
 	end
-	return themes
-end
-
-local is_empty = function(str)
-	return str == nil or str == ''
-end
-
-local get_file_display_name = function(plug)
-	if is_empty(plug.file) then
-		return ''
-	end
-	return ' (' .. plug.file .. ')'
-end
-
-local plug_list = function(plug, theme)
-	if (theme and not plug.theme) or (not theme and plug.theme) then
-		return
-	end
-	local short_url = get_short_url(plug.url)
-	if file_exists(plug.path) then
-		vis:message(short_url .. get_file_display_name(plug))
-	else
-		vis:message(short_url .. get_file_display_name(plug) .. ' NOT INSTALLED')
-	end
-	vis:redraw()
 end
 
 local install_plugins = function(silent)
@@ -475,6 +481,7 @@ end
 M.init = function(plugins, install_on_init)
 	plugins_conf = plugins or {}
 	for_each_plugin(plug_init)
+	check_name_conflicts()
 	if install_on_init then
 		install_plugins(true)
 	end
@@ -624,18 +631,37 @@ local command_purge = function(argv, force, win, selection, range)
 	return true
 end
 
+-- list plugins and themes as: name, source, status, (file)
 local command_ls = function(argv, force, win, selection, range)
-	local num_themes = count_themes()
-	local num_plugins = #plugins_conf - num_themes
-
-	vis:message('Plugins (' .. num_plugins .. ')')
-	vis:redraw()
-	for_each_plugin(plug_list, false)
-
-	vis:message('\nThemes (' .. num_themes .. ')')
-	vis:redraw()
-	for_each_plugin(plug_list, true)
-
+	if #plugins_conf == 0 then
+		vis:info('No plugins or themes in config')
+		return true
+	end
+	local groups = { { title = 'Plugins', plugs = {} }, { title = 'Themes', plugs = {} } }
+	for _, plug in ipairs(plugins_conf) do
+		table.insert(groups[plug.theme and 2 or 1].plugs, plug)
+	end
+	-- format plugins and themes together so their columns line up
+	local rows = {}
+	for _, group in ipairs(groups) do
+		for _, plug in ipairs(group.plugs) do
+			local status = file_exists(plug.path) and '' or 'not installed'
+			local file = plug.file ~= '' and '(' .. plug.file .. ')' or ''
+			table.insert(rows, { plug.name, get_short_url(plug.url), status, file })
+		end
+	end
+	local lines = format_lines(rows)
+	local out, i = {}, 0
+	for _, group in ipairs(groups) do
+		if #group.plugs > 0 then
+			table.insert(out, (#out > 0 and '\n' or '') .. group.title .. ' (' .. #group.plugs .. ')')
+			for _ = 1, #group.plugs do
+				i = i + 1
+				table.insert(out, lines[i])
+			end
+		end
+	end
+	vis:message(table.concat(out, '\n'))
 	return true
 end
 
@@ -703,10 +729,10 @@ for _, command in ipairs(command_list) do
 	vis:command_register(command.name, command.func, command.desc)
 end
 
--- set theme and report plugin load errors on INIT event
+-- set theme and report problems found on init on INIT event
 vis.events.subscribe(vis.events.INIT, function()
-	if #load_errors > 0 then
-		vis:message('vis-plug: failed to load plugin(s):\n' .. table.concat(load_errors, '\n'))
+	if #init_errors > 0 then
+		vis:message('vis-plug:\n' .. table.concat(init_errors, '\n'))
 	end
 	for _, plug in ipairs(plugins_conf) do
 		if plug.theme and file_exists(get_file_path(plug)) then
