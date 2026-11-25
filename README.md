@@ -139,3 +139,7 @@ We support the following `vis` commands:
 `:plug-checkout {name} {commit|branch|tag}` - check out a specific version of a plugin (fetches full history if needed). If the plugin has a `ref` in the config, it is checked out again on the next start or `:plug-update`; set the `ref` to keep a version
 
 `:plug-help` - list vis-plug commands (these)
+
+## Tests
+
+Run `lua test/run.lua` (requires `git`). The tests install plugins from local git repos in a temp folder, so they don't need network access.
