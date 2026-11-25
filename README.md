@@ -48,6 +48,7 @@ Example:
 local plug = require('plugins/vis-plug') -- or use the bootstrap above
 
 -- configure plugins in an array of tables with git urls and options
+-- (the entries below show different options, use one entry per plugin)
 local plugins = {
 
 	-- load a plugin from a git repo (https://github.com/ is optional, loads 'init.lua' by default)
@@ -59,8 +60,8 @@ local plugins = {
 	-- specify an alias to later use to access plugin variables (see example below)
 	{ 'erf/vis-cursors', alias = 'cursors' },
 
-	-- specify which lua file to load and a ref (commit, branch or tag) to checkout
-	{ 'erf/vis-test', file = 'test', ref = 'some-branch' },
+	-- specify which lua file to load and a ref (commit, branch or tag) to check out
+	{ 'erf/vis-cursors', file = 'init', ref = 'main' },
 
 	-- set 'theme = true' for themes; the first theme is set on INIT
 	{ 'samlwood/vis-gruvbox', theme = true, file = 'gruvbox' },
@@ -77,7 +78,7 @@ Each plugin table can have the following options:
 
 - `url` - the git repo url (`https://github.com/` or `https://` can be omitted)
 - `file` - relative path to the lua file, without `.lua` (optional, defaults to `init`)
-- `ref` - checkout a specific commit, branch or tag (optional). Branches and tags are cloned shallow, a commit needs a full clone. `:plug-update` does not pull plugins pinned to a commit or tag
+- `ref` - check out a specific commit, branch or tag (optional). Branches and tags are cloned shallow, a commit needs a full clone. A changed `ref` is applied on start (with [install on init](#install-on-init)), by `:plug-install` and by `:plug-update`. Plugins pinned to a commit or tag are not pulled by `:plug-update`
 - `alias` - access plugins via `plug.plugins.{alias}` (optional)
 - `theme` - set to `true` for themes; the theme is set on the `INIT` event (optional)
 
@@ -91,7 +92,7 @@ An `alias` is only used to access the plugin from Lua, see above.
 
 ### Install on init
 
-Pass _true_ as second argument to `plug.init` (as in the example above) to install missing plugins on init.
+Pass _true_ as second argument to `plug.init` (as in the example above) to install missing plugins on init, and check out the configured `ref` of installed plugins.
 
 ### Install path
 
@@ -125,16 +126,16 @@ We support the following `vis` commands:
 
 `:plug-list` - list plugins and themes
 
-`:plug-install` - install plugins (git clone)
+`:plug-install` - install missing plugins (git clone)
 
-`:plug-update` - update outdated plugins (git pull)
+`:plug-update` - update plugins (git pull) and check out their configured `ref`; plugins pinned to a commit or tag are not pulled
 
-`:plug-outdated` - check if plugins are up-to-date
+`:plug-outdated` - list plugins with updates and how many commits they are behind (git fetch)
 
 `:plug-upgrade` - upgrade vis-plug using git pull (if vis-plug was installed with git clone)
 
 `:plug-purge` - list plugins and themes not in config (`:plug-purge!` to delete them). To remove a plugin, delete it from the config and run `:plug-purge!`
 
-`:plug-checkout {name} {commit|branch|tag}` - checkout a specific version of a plugin (fetches full history if needed)
+`:plug-checkout {name} {commit|branch|tag}` - check out a specific version of a plugin (fetches full history if needed). If the plugin has a `ref` in the config, it is checked out again on the next start or `:plug-update`; set the `ref` to keep a version
 
 `:plug-help` - list vis-plug commands (these)
