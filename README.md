@@ -86,7 +86,7 @@ Each plugin table can have the following options:
 
 A plugin's **name** is the last part of its url, e.g. `vis-cursors` for `erf/vis-cursors`. It is the folder the plugin is cloned to (`{plugins|themes}/vis-cursors`) and what `:plug-checkout` takes (the url works too). `:plug-list` shows each name next to its url.
 
-Two plugins with the same name would share a folder, so vis-plug warns about it on start.
+Two plugins with the same name would share a folder, so only the first is used and vis-plug warns about it on start.
 
 An `alias` is only used to access the plugin from Lua, see above.
 

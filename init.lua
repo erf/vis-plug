@@ -292,7 +292,7 @@ end
 local run_for_installed = function(make_command)
 	local commands = {}
 	for i, plug in ipairs(plugins_conf) do
-		if file_exists(plug.path) then
+		if not plug.conflict and file_exists(plug.path) then
 			table.insert(commands, string.format('out=$(\n%s\n)\necho %d":$out"', make_command(plug), i))
 		end
 	end
@@ -319,7 +319,7 @@ local version_command = function(plug)
 end
 
 local plug_require = function(plug, args)
-	if not file_exists(plug.path) then
+	if plug.conflict or not file_exists(plug.path) then
 		return
 	end
 	if plug.theme then
@@ -339,13 +339,15 @@ local plug_require = function(plug, args)
 	end
 end
 
--- warn about plugins with the same name, as they would share a folder
+-- plugins with the same name would share a folder, so only the first is used
+-- and later ones are marked as conflicts and skipped
 local check_name_conflicts = function()
 	local seen = {}
 	for _, plug in ipairs(plugins_conf) do
 		local other = seen[plug.path]
 		if other then
-			table.insert(init_errors, string.format('%s and %s have the same name (%s), remove one',
+			plug.conflict = true
+			table.insert(init_errors, string.format('%s and %s have the same name (%s), using the first',
 				get_short_url(other.url), get_short_url(plug.url), plug.name))
 		else
 			seen[plug.path] = plug
@@ -357,10 +359,11 @@ local install_plugins = function(silent)
 	-- clone missing plugins, checkout ref of installed plugins
 	local clones, queued, checkouts = {}, {}, {}
 	for _, plug in ipairs(plugins_conf) do
-		if not file_exists(plug.path) then
+		local installed = file_exists(plug.path)
+		if not plug.conflict and not installed then
 			table.insert(clones, clone_command(plug))
 			table.insert(queued, plug)
-		elseif plug.ref then
+		elseif not plug.conflict and plug.ref then
 			table.insert(checkouts, checkout_command(plug))
 		end
 	end
@@ -593,7 +596,8 @@ local command_ls = function(argv, force, win, selection, range)
 	local versions = run_for_installed(version_command)
 	local plugins, themes = {}, {}
 	for _, plug in ipairs(plugins_conf) do
-		local status = versions[plug] or 'not installed'
+		local status = plug.conflict and 'skipped, same name as another plugin'
+			or versions[plug] or 'not installed'
 		local file = plug.file ~= '' and 'file: ' .. plug.file or ''
 		table.insert(plug.theme and themes or plugins, { plug.name, get_short_url(plug.url), status, file })
 	end
