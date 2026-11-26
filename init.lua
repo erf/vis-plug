@@ -1,7 +1,7 @@
 -- vis.events and the rest of the Lua API come from the 'vis' module, which a
--- visrc usually requires first; load it if that was left out
+-- visrc should require first
 if not vis.events then
-	require('vis')
+	error("vis-plug: add require('vis') at the top of your visrc")
 end
 
 local M = {}
