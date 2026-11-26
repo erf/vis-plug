@@ -252,6 +252,22 @@ test('install: failed clones are reported', function()
 	eq(v.info(), 'Installed 1 plugin, 1 failed (see :plug-list)')
 end)
 
+test('init: loads the vis module if visrc did not require it', function()
+	-- vis.events only exists after require('vis'), fake that module
+	local required = false
+	package.preload['vis'] = function()
+		required = true
+		vis.events = { INIT = 'INIT', subscribe = function() end }
+	end
+	vis = { command_register = function() end }
+	local ok, err = pcall(dofile, root .. '/init.lua')
+	package.preload['vis'], package.loaded['vis'] = nil, nil
+	if not ok then
+		error(err)
+	end
+	eq(required, true)
+end)
+
 test('init: broken plugins are reported, others still load', function()
 	local v = load({ { remote('broken', 'vis-broken') }, { remote('plugin', 'vis-a'), alias = 'a' } }, true)
 	eq(v.plug.plugins.a.v, 3)

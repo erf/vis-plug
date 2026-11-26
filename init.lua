@@ -1,3 +1,9 @@
+-- vis.events and the rest of the Lua API come from the 'vis' module, which a
+-- visrc usually requires first; load it if that was left out
+if not vis.events then
+	require('vis')
+end
+
 local M = {}
 
 -- the required plugins are stored here

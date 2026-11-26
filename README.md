@@ -20,9 +20,10 @@ Clone `vis-plug` to your vis plugins folder:
 git clone https://github.com/erf/vis-plug "${XDG_CONFIG_HOME:-$HOME/.config}/vis/plugins/vis-plug"
 ```
 
-Then require it in your `visrc`:
+Then require it in your `visrc` (after `require('vis')`, which a `visrc` usually starts with):
 
 ```lua
+require('vis')
 local plug = require('plugins/vis-plug')
 ```
 
@@ -31,6 +32,7 @@ local plug = require('plugins/vis-plug')
 Or add the following to your `visrc` to automatically clone `vis-plug` on first run and require it:
 
 ```lua
+require('vis')
 local plug_path = (os.getenv('XDG_CONFIG_HOME') or os.getenv('HOME') .. '/.config') .. '/vis/plugins/vis-plug'
 if not pcall(require, 'plugins/vis-plug') then
 	os.execute('git clone --quiet https://github.com/erf/vis-plug "' .. plug_path .. '"')
